@@ -1,0 +1,1298 @@
+<title>Vitta — Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --bg: #050506;
+    --bg-elevated: #0C0C0E;
+    --bg-card: #131316;
+    --bg-glass: rgba(255,255,255,0.03);
+    --bg-glass-strong: rgba(255,255,255,0.06);
+    --bg-inset: rgba(255,255,255,0.02);
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --border-emphasis: rgba(255,255,255,0.24);
+    --ink: #FFFFFF;
+    --ink-secondary: rgba(255,255,255,0.75);
+    --ink-muted: rgba(255,255,255,0.55);
+    --ink-faint: rgba(255,255,255,0.32);
+    --brand: #22C55E;
+    --brand-bright: #4ADE80;
+    --brand-dim: #16A34A;
+    --brand-glow: rgba(74,222,128,0.28);
+    --brand-wash: rgba(34,197,94,0.08);
+    --brand-wash-strong: rgba(34,197,94,0.16);
+    --gold: #FCD34D;
+    --gold-bright: #FDE68A;
+    --gold-wash: rgba(252,211,77,0.10);
+    --danger: #EF4444;
+    --danger-wash: rgba(239,68,68,0.10);
+    --warning: #F59E0B;
+    --violet: #A78BFA;
+    --sky: #60A5FA;
+    --pink: #F472B6;
+    --f-display: 'Fraunces', 'Times New Roman', serif;
+    --f-body: 'Inter', -apple-system, system-ui, sans-serif;
+    --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--f-body);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Logo */
+  .logo { display: inline-block; line-height: 0; }
+  .logo svg { display: block; overflow: visible; }
+
+  /* App layout */
+  .app {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--bg-elevated);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 12px 20px;
+    font-family: var(--f-display);
+    font-weight: 600;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .sidebar-brand .beta {
+    font-family: var(--f-mono);
+    font-size: 9px;
+    padding: 2px 7px;
+    background: var(--brand-wash);
+    color: var(--brand-bright);
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--brand-wash-strong);
+    font-weight: 500;
+    margin-left: auto;
+  }
+
+  .sidebar-section-label {
+    padding: 12px 12px 4px;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    color: var(--ink-muted);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: all 0.15s;
+    position: relative;
+    cursor: pointer;
+  }
+  .nav-item:hover { color: var(--ink); background: var(--bg-glass); }
+  .nav-item.active {
+    background: var(--brand-wash);
+    color: var(--brand-bright);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: -12px; top: 20%; bottom: 20%;
+    width: 3px;
+    background: var(--brand);
+    border-radius: 3px;
+  }
+  .nav-item .count {
+    margin-left: auto;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    background: var(--bg-glass);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .nav-item.active .count {
+    background: var(--brand-wash-strong);
+    color: var(--brand-bright);
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .sidebar-upgrade {
+    padding: 14px;
+    background: linear-gradient(180deg, var(--brand-wash), var(--gold-wash));
+    border: 1px solid var(--brand-wash-strong);
+    border-radius: 10px;
+  }
+  .sidebar-upgrade h5 {
+    font-family: var(--f-display);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .sidebar-upgrade p {
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .sidebar-upgrade a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--brand-bright);
+    text-decoration: none;
+  }
+
+  /* Main */
+  .main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(5,5,6,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .search {
+    flex: 1;
+    max-width: 480px;
+    position: relative;
+  }
+  .search input {
+    width: 100%;
+    padding: 9px 14px 9px 38px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 13px;
+    outline: none;
+    transition: all 0.15s;
+  }
+  .search input::placeholder { color: var(--ink-faint); }
+  .search input:focus {
+    border-color: var(--border-strong);
+    background: var(--bg-card);
+  }
+  .search svg {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-faint);
+    pointer-events: none;
+  }
+  .search .kbd {
+    position: absolute;
+    right: 8px; top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    background: var(--bg-glass);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .icon-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--ink-muted);
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .icon-btn:hover {
+    color: var(--ink);
+    background: var(--bg-glass);
+    border-color: var(--border);
+  }
+  .icon-btn .badge {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 7px; height: 7px;
+    background: var(--brand);
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
+
+  .upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    background: var(--brand);
+    color: #041706;
+    border: none;
+    border-radius: 9px;
+    font-family: var(--f-body);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1;
+    box-shadow: 0 4px 16px -6px rgba(34,197,94,0.5);
+  }
+  .upload-btn:hover {
+    background: var(--brand-bright);
+    transform: translateY(-1px);
+    box-shadow: 0 0 20px 0 var(--brand-glow), 0 8px 24px -6px rgba(34,197,94,0.6);
+  }
+
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-dim), var(--gold));
+    color: #041706;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .avatar:hover { border-color: var(--brand); }
+
+  /* Content */
+  .content {
+    padding: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  @media (max-width: 700px) { .content { padding: 20px 16px; } }
+
+  .greeting {
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .greeting h1 {
+    font-family: var(--f-display);
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .greeting h1 em {
+    font-style: italic;
+    color: var(--brand-bright);
+    font-weight: 500;
+  }
+  .greeting p {
+    color: var(--ink-muted);
+    font-size: 15px;
+  }
+  .greeting .synced {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 10px;
+    padding: 3px 10px;
+    background: var(--brand-wash);
+    border: 1px solid var(--brand-wash-strong);
+    border-radius: 999px;
+    color: var(--brand-bright);
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
+  }
+  .greeting .synced .dot {
+    width: 5px; height: 5px;
+    background: var(--brand);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--brand-glow);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Stat tiles */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .stats { grid-template-columns: 1fr; } }
+
+  .stat-tile {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .stat-tile:nth-child(1) { animation-delay: 0.05s; }
+  .stat-tile:nth-child(2) { animation-delay: 0.15s; }
+  .stat-tile:nth-child(3) { animation-delay: 0.25s; }
+  .stat-tile:nth-child(4) { animation-delay: 0.35s; }
+  .stat-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent, var(--brand));
+    opacity: 0.7;
+  }
+  .stat-tile:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+
+  .stat-tile .lbl {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .stat-tile .val {
+    font-family: var(--f-display);
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 6px;
+  }
+  .stat-tile .meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+  .stat-tile .meta .delta {
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .stat-tile .meta .delta.up { color: var(--brand-bright); }
+  .stat-tile .meta .delta.down { color: var(--danger); }
+
+  /* Card */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border-strong); }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .card-head h3 {
+    font-family: var(--f-display);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .card-head .sub {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 3px;
+  }
+  .segmented {
+    display: inline-flex;
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 2px;
+  }
+  .segmented button {
+    background: transparent;
+    color: var(--ink-muted);
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: all 0.15s;
+  }
+  .segmented button.active {
+    background: var(--brand-wash);
+    color: var(--brand-bright);
+  }
+  .segmented button:not(.active):hover {
+    color: var(--ink-secondary);
+  }
+
+  /* Chart area */
+  .chart-area {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .chart-svg {
+    width: 100%;
+    height: 260px;
+    display: block;
+  }
+  @media (max-width: 700px) { .chart-svg { height: 200px; } }
+
+  .chart-legend {
+    display: flex;
+    gap: 24px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .chart-legend .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-secondary);
+  }
+  .chart-legend .swatch {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+  }
+
+  /* Two-column layout */
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 900px) { .row-2 { grid-template-columns: 1fr; } }
+
+  .row-2 > * {
+    animation: fadeUp 0.6s 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .row-2 > *:nth-child(2) { animation-delay: 0.65s; }
+
+  /* Category bars */
+  .cat-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .cat-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 90px;
+    gap: 14px;
+    align-items: center;
+    font-size: 13px;
+  }
+  @media (max-width: 500px) { .cat-row { grid-template-columns: 100px 1fr 80px; } }
+  .cat-row .name {
+    color: var(--ink-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+  .cat-row .name .dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+  }
+  .cat-row .track {
+    height: 10px;
+    background: var(--bg-inset);
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+  }
+  .cat-row .fill {
+    height: 100%;
+    border-radius: 5px;
+    transform-origin: left;
+    animation: growBar 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes growBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .cat-row .val {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  /* Merchant list */
+  .merchant-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .merchant-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .merchant-row:hover { background: var(--bg-glass); }
+  .merchant-avatar {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--f-display);
+    font-weight: 600;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .merchant-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .merchant-info .name {
+    font-weight: 500;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--ink);
+  }
+  .merchant-info .cat {
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-family: var(--f-mono);
+  }
+  .merchant-amt {
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .merchant-amt .count {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ink-faint);
+    text-align: right;
+    margin-top: 1px;
+  }
+
+  /* Insight callout */
+  .insight-callout {
+    background: linear-gradient(135deg, var(--brand-wash) 0%, var(--gold-wash) 100%);
+    border: 1px solid var(--brand-wash-strong);
+    border-radius: 14px;
+    padding: 22px 26px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.6s 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .insight-callout::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--brand), var(--gold));
+  }
+  .insight-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--brand-wash-strong);
+    color: var(--brand-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .insight-body { flex: 1; }
+  .insight-body h4 {
+    font-family: var(--f-display);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .insight-body p {
+    color: var(--ink-secondary);
+    font-size: 13.5px;
+  }
+  .insight-body p strong { color: var(--ink); font-weight: 600; font-family: var(--f-mono); font-size: 13px; }
+  .insight-body a {
+    color: var(--brand-bright);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    margin-left: 8px;
+  }
+  .insight-body a:hover { text-decoration: underline; }
+
+  /* Transactions table preview */
+  .txn-preview {
+    animation: fadeUp 0.6s 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .txn-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .txn-row {
+    display: grid;
+    grid-template-columns: 76px 1fr auto auto;
+    gap: 16px;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 8px;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  @media (max-width: 640px) {
+    .txn-row { grid-template-columns: 62px 1fr auto; }
+    .txn-row .txn-account { display: none; }
+  }
+  .txn-row:hover { background: var(--bg-glass); }
+  .txn-row + .txn-row { border-top: 1px solid var(--border); }
+
+  .txn-date {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    line-height: 1.3;
+  }
+  .txn-date strong {
+    display: block;
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 13px;
+  }
+  .txn-merchant {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .txn-merchant .name {
+    font-weight: 500;
+    font-size: 13.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--ink);
+  }
+  .txn-merchant .vpa {
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-family: var(--f-mono);
+    margin-top: 1px;
+  }
+  .cat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-family: var(--f-body);
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .cat-pill .dot { width: 5px; height: 5px; border-radius: 50%; }
+  .txn-account {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-align: right;
+  }
+  .txn-amt {
+    font-family: var(--f-mono);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .txn-amt.credit { color: var(--brand-bright); }
+
+  .view-all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--brand-bright);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .view-all-link:hover { background: var(--brand-wash); }
+
+  /* Section header outside cards */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+    margin-top: 8px;
+  }
+  .section-header h2 {
+    font-family: var(--f-display);
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+  .section-header h2 em {
+    color: var(--brand-bright);
+    font-style: italic;
+    font-weight: 500;
+  }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lg-bar" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="#FEF3C7"/>
+      <stop offset="18%" stop-color="#FCD34D"/>
+      <stop offset="52%" stop-color="#A3E635"/>
+      <stop offset="100%" stop-color="#22C55E"/>
+    </linearGradient>
+    <linearGradient id="lg-shine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.55)"/>
+      <stop offset="60%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+    <linearGradient id="lg-arc" x1="0" y1="1" x2="1" y2="0.4">
+      <stop offset="0%" stop-color="#166534" stop-opacity="0.6"/>
+      <stop offset="35%" stop-color="#22C55E"/>
+      <stop offset="75%" stop-color="#4ADE80"/>
+      <stop offset="100%" stop-color="#22C55E" stop-opacity="0.4"/>
+    </linearGradient>
+    <linearGradient id="lg-swoosh" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#15803D"/>
+      <stop offset="45%" stop-color="#22C55E"/>
+      <stop offset="100%" stop-color="#4ADE80"/>
+    </linearGradient>
+    <marker id="lg-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 L 2 5 Z" fill="#4ADE80"/>
+    </marker>
+    <symbol id="vitta-logo" viewBox="0 0 108 108">
+      <path class="arc" d="M 18 82 A 40 40 0 1 1 92 56" fill="none" stroke="url(#lg-arc)" stroke-width="3.5" stroke-linecap="round"/>
+      <g class="bars">
+        <rect x="26" y="58" width="10" height="34" rx="1.5" fill="url(#lg-bar)"/>
+        <rect x="40" y="42" width="10" height="50" rx="1.5" fill="url(#lg-bar)"/>
+        <rect x="54" y="26" width="10" height="66" rx="1.5" fill="url(#lg-bar)"/>
+        <rect x="68" y="10" width="10" height="82" rx="1.5" fill="url(#lg-bar)"/>
+        <rect x="26" y="58" width="2.5" height="34" rx="1" fill="url(#lg-shine)"/>
+        <rect x="40" y="42" width="2.5" height="50" rx="1" fill="url(#lg-shine)"/>
+        <rect x="54" y="26" width="2.5" height="66" rx="1" fill="url(#lg-shine)"/>
+        <rect x="68" y="10" width="2.5" height="82" rx="1" fill="url(#lg-shine)"/>
+      </g>
+      <path class="swoosh" d="M 8 82 Q 22 66, 38 70 Q 48 73, 54 62 Q 60 50, 70 44 Q 82 38, 94 20" stroke="url(#lg-swoosh)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#lg-arrow)"/>
+    </symbol>
+
+    <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4ADE80" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#4ADE80" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <a href="landing.html" class="sidebar-brand">
+      <span class="logo"><svg width="26" height="26" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      Vitta
+      <span class="beta">Beta</span>
+    </a>
+
+    <div class="sidebar-section-label">Overview</div>
+    <a href="#" class="nav-item active">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+      Overview
+    </a>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Transactions
+      <span class="count">147</span>
+    </a>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Categories
+    </a>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Merchants
+    </a>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Accounts
+      <span class="count">3</span>
+    </a>
+
+    <div class="sidebar-section-label">AI</div>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>
+      Insights
+    </a>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Ask Vitta
+    </a>
+
+    <div class="sidebar-section-label">Account</div>
+    <a href="#" class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-upgrade">
+        <h5>Upgrade to Pro</h5>
+        <p>Unlimited accounts, AI insights, unlimited history.</p>
+        <a href="#pricing">Upgrade for ₹299/mo →</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search transactions, merchants, categories…">
+        <span class="kbd">⌘K</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" aria-label="Notifications">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge"></span>
+        </button>
+        <button class="icon-btn" aria-label="Theme">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="upload-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload statement
+        </button>
+        <div class="avatar" title="Varun A S">V</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Greeting -->
+      <div class="greeting">
+        <h1>Good morning, <em>Varun.</em></h1>
+        <p>
+          Here's what's happened across your accounts.
+          <span class="synced"><span class="dot"></span>Last synced 3 min ago</span>
+        </p>
+      </div>
+
+      <!-- Stat tiles -->
+      <div class="stats">
+        <div class="stat-tile" style="--accent: var(--brand)">
+          <div class="lbl">Spent · July</div>
+          <div class="val" data-target="61933">₹0</div>
+          <div class="meta"><span class="delta down">▼ 8.0%</span>vs June</div>
+        </div>
+        <div class="stat-tile" style="--accent: var(--brand-bright)">
+          <div class="lbl">Received</div>
+          <div class="val" data-target="78140">₹0</div>
+          <div class="meta"><span class="delta up">▲ 12.4%</span>vs June</div>
+        </div>
+        <div class="stat-tile" style="--accent: var(--gold)">
+          <div class="lbl">Auto-categorized</div>
+          <div class="val" data-target="78" data-suffix="%">0%</div>
+          <div class="meta"><span class="delta up">▲ 43%</span>vs baseline</div>
+        </div>
+        <div class="stat-tile" style="--accent: var(--violet)">
+          <div class="lbl">Recurring monthly</div>
+          <div class="val" data-target="4247">₹0</div>
+          <div class="meta">6 subscriptions</div>
+        </div>
+      </div>
+
+      <!-- Spending trend chart -->
+      <div class="chart-area">
+        <div class="card-head">
+          <div>
+            <h3>Spending trend</h3>
+            <div class="sub">Last 6 months · all accounts</div>
+          </div>
+          <div class="segmented">
+            <button>3M</button>
+            <button class="active">6M</button>
+            <button>1Y</button>
+            <button>All</button>
+          </div>
+        </div>
+        <svg class="chart-svg" viewBox="0 0 800 260" preserveAspectRatio="none">
+          <g class="grid">
+            <line x1="0" y1="30"  x2="800" y2="30"  stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="0" y1="90"  x2="800" y2="90"  stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <line x1="0" y1="210" x2="800" y2="210" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          </g>
+          <!-- Y-axis labels (approximate) -->
+          <g style="font-family: var(--f-mono); font-size: 10px; fill: var(--ink-faint);">
+            <text x="8" y="35">₹80K</text>
+            <text x="8" y="95">₹60K</text>
+            <text x="8" y="155">₹40K</text>
+            <text x="8" y="215">₹20K</text>
+          </g>
+          <!-- Area fill under line -->
+          <path id="area-path" d="M 60 165 L 200 155 L 340 130 L 480 105 L 620 70 L 760 62 L 760 230 L 60 230 Z" fill="url(#area-grad)" opacity="0"/>
+          <!-- Line -->
+          <path id="line-path" d="M 60 165 L 200 155 L 340 130 L 480 105 L 620 70 L 760 62"
+                stroke="#4ADE80" stroke-width="2.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"
+                stroke-dasharray="1600" stroke-dashoffset="1600"/>
+          <!-- Data points -->
+          <g id="chart-dots">
+            <circle cx="60"  cy="165" r="5" fill="#4ADE80" stroke="#050506" stroke-width="2" opacity="0"/>
+            <circle cx="200" cy="155" r="5" fill="#4ADE80" stroke="#050506" stroke-width="2" opacity="0"/>
+            <circle cx="340" cy="130" r="5" fill="#4ADE80" stroke="#050506" stroke-width="2" opacity="0"/>
+            <circle cx="480" cy="105" r="5" fill="#4ADE80" stroke="#050506" stroke-width="2" opacity="0"/>
+            <circle cx="620" cy="70" r="5" fill="#4ADE80" stroke="#050506" stroke-width="2" opacity="0"/>
+            <circle cx="760" cy="62" r="6" fill="#FCD34D" stroke="#050506" stroke-width="2" opacity="0"/>
+          </g>
+          <!-- X-axis labels -->
+          <g style="font-family: var(--f-mono); font-size: 10.5px; fill: var(--ink-faint);">
+            <text x="60"  y="252" text-anchor="middle">Feb</text>
+            <text x="200" y="252" text-anchor="middle">Mar</text>
+            <text x="340" y="252" text-anchor="middle">Apr</text>
+            <text x="480" y="252" text-anchor="middle">May</text>
+            <text x="620" y="252" text-anchor="middle">Jun</text>
+            <text x="760" y="252" text-anchor="middle" fill="#4ADE80" font-weight="600">Jul</text>
+          </g>
+        </svg>
+        <div class="chart-legend">
+          <div class="item"><span class="swatch" style="background:#4ADE80"></span>Spending</div>
+          <div class="item"><span class="swatch" style="background:#FCD34D"></span>Current month</div>
+        </div>
+      </div>
+
+      <!-- Category + Merchants row -->
+      <div class="row-2">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3>Category breakdown</h3>
+              <div class="sub">July 2026 · ₹61,933 total</div>
+            </div>
+            <a href="#" class="view-all-link">All →</a>
+          </div>
+          <div class="cat-bars">
+            <div class="cat-row">
+              <span class="name"><span class="dot" style="background:#22C55E"></span>Groceries</span>
+              <div class="track"><div class="fill" style="width:100%;background:linear-gradient(90deg,#22C55E,#4ADE80);animation-delay:0.1s"></div></div>
+              <span class="val">₹9,438</span>
+            </div>
+            <div class="cat-row">
+              <span class="name"><span class="dot" style="background:#FCD34D"></span>Shopping</span>
+              <div class="track"><div class="fill" style="width:74%;background:linear-gradient(90deg,#F59E0B,#FCD34D);animation-delay:0.18s"></div></div>
+              <span class="val">₹7,024</span>
+            </div>
+            <div class="cat-row">
+              <span class="name"><span class="dot" style="background:#60A5FA"></span>Friends</span>
+              <div class="track"><div class="fill" style="width:59%;background:linear-gradient(90deg,#3B82F6,#60A5FA);animation-delay:0.26s"></div></div>
+              <span class="val">₹5,548</span>
+            </div>
+            <div class="cat-row">
+              <span class="name"><span class="dot" style="background:#F472B6"></span>Food &amp; dining</span>
+              <div class="track"><div class="fill" style="width:34%;background:linear-gradient(90deg,#EC4899,#F472B6);animation-delay:0.34s"></div></div>
+              <span class="val">₹3,178</span>
+            </div>
+            <div class="cat-row">
+              <span class="name"><span class="dot" style="background:#A78BFA"></span>Government</span>
+              <div class="track"><div class="fill" style="width:19%;background:linear-gradient(90deg,#8B5CF6,#A78BFA);animation-delay:0.42s"></div></div>
+              <span class="val">₹1,750</span>
+            </div>
+            <div class="cat-row">
+              <span class="name"><span class="dot" style="background:#FB7185"></span>Health</span>
+              <div class="track"><div class="fill" style="width:16%;background:linear-gradient(90deg,#F43F5E,#FB7185);animation-delay:0.5s"></div></div>
+              <span class="val">₹1,500</span>
+            </div>
+            <div class="cat-row">
+              <span class="name"><span class="dot" style="background:#94A3B8"></span>Transport</span>
+              <div class="track"><div class="fill" style="width:4%;background:linear-gradient(90deg,#64748B,#94A3B8);animation-delay:0.58s"></div></div>
+              <span class="val">₹344</span>
+            </div>
+            <div class="cat-row">
+              <span class="name"><span class="dot" style="background:#6EE7B7"></span>Services</span>
+              <div class="track"><div class="fill" style="width:3%;background:linear-gradient(90deg,#10B981,#6EE7B7);animation-delay:0.66s"></div></div>
+              <span class="val">₹256</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3>Top merchants</h3>
+              <div class="sub">By total spent · July</div>
+            </div>
+            <a href="#" class="view-all-link">All →</a>
+          </div>
+          <div class="merchant-list">
+            <div class="merchant-row">
+              <div class="merchant-avatar" style="background:#22C55E;color:#041706;">S</div>
+              <div class="merchant-info">
+                <div class="name">Swiggy Instamart</div>
+                <div class="cat">Groceries · 5 txns</div>
+              </div>
+              <div class="merchant-amt">₹1,207<span class="count">5×</span></div>
+            </div>
+            <div class="merchant-row">
+              <div class="merchant-avatar" style="background:#FCD34D;color:#041706;">F</div>
+              <div class="merchant-info">
+                <div class="name">Flipkart Payments</div>
+                <div class="cat">Shopping · 1 txn</div>
+              </div>
+              <div class="merchant-amt">₹1,818<span class="count">1×</span></div>
+            </div>
+            <div class="merchant-row">
+              <div class="merchant-avatar" style="background:#4ADE80;color:#041706;">B</div>
+              <div class="merchant-info">
+                <div class="name">Blinkit</div>
+                <div class="cat">Groceries · 3 txns</div>
+              </div>
+              <div class="merchant-amt">₹2,070<span class="count">3×</span></div>
+            </div>
+            <div class="merchant-row">
+              <div class="merchant-avatar" style="background:#F472B6;color:#3F0F27;">O</div>
+              <div class="merchant-info">
+                <div class="name">Oliva Clinic</div>
+                <div class="cat">Health · 1 txn</div>
+              </div>
+              <div class="merchant-amt">₹1,500<span class="count">1×</span></div>
+            </div>
+            <div class="merchant-row">
+              <div class="merchant-avatar" style="background:#60A5FA;color:#0B1929;">Z</div>
+              <div class="merchant-info">
+                <div class="name">Zepto Marketplace</div>
+                <div class="cat">Groceries · 4 txns</div>
+              </div>
+              <div class="merchant-amt">₹866<span class="count">4×</span></div>
+            </div>
+            <div class="merchant-row">
+              <div class="merchant-avatar" style="background:#A78BFA;color:#1E1B4B;">A</div>
+              <div class="merchant-info">
+                <div class="name">Autope Payments</div>
+                <div class="cat">Transport · 2 txns</div>
+              </div>
+              <div class="merchant-amt">₹344<span class="count">2×</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insight callout -->
+      <div class="insight-callout">
+        <div class="insight-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>
+        </div>
+        <div class="insight-body">
+          <h4>Vitta detected 6 recurring subscriptions</h4>
+          <p>You're paying <strong>₹4,247/month</strong> across 6 subscriptions. 2 haven't been used in 45+ days — likely worth cancelling.<a href="#insights">Review →</a></p>
+        </div>
+      </div>
+
+      <!-- Recent transactions -->
+      <div class="section-header">
+        <h2>Recent <em>transactions</em></h2>
+        <a href="#" class="view-all-link">View all 147 →</a>
+      </div>
+      <div class="card txn-preview">
+        <div class="txn-list">
+          <div class="txn-row">
+            <div class="txn-date"><strong>31 Jul</strong>08:21 AM</div>
+            <div class="txn-merchant"><div class="merchant-avatar" style="width:28px;height:28px;font-size:11px;background:#4ADE80;color:#041706;">B</div><div><div class="name">Blinkit</div><div class="vpa">blinkit.rzp@rxaxis</div></div></div>
+            <div class="txn-account">Union Bank · 3347</div>
+            <div><span class="cat-pill" style="background:rgba(34,197,94,0.12);color:#4ADE80;"><span class="dot" style="background:#22C55E"></span>Groceries</span></div>
+            <div class="txn-amt">−₹508.00</div>
+          </div>
+          <div class="txn-row">
+            <div class="txn-date"><strong>30 Jul</strong>06:11 PM</div>
+            <div class="txn-merchant"><div class="merchant-avatar" style="width:28px;height:28px;font-size:11px;background:#60A5FA;color:#0B1929;">Z</div><div><div class="name">Zepto Marketplace</div><div class="vpa">zeptoonline@ybl</div></div></div>
+            <div class="txn-account">Union Bank · 3347</div>
+            <div><span class="cat-pill" style="background:rgba(34,197,94,0.12);color:#4ADE80;"><span class="dot" style="background:#22C55E"></span>Groceries</span></div>
+            <div class="txn-amt">−₹316.00</div>
+          </div>
+          <div class="txn-row">
+            <div class="txn-date"><strong>30 Jul</strong>10:13 AM</div>
+            <div class="txn-merchant"><div class="merchant-avatar" style="width:28px;height:28px;font-size:11px;background:#F472B6;color:#3F0F27;">C</div><div><div class="name">Chick Hen Point</div><div class="vpa">chickhen.pos@ptys</div></div></div>
+            <div class="txn-account">Union Bank · 3347</div>
+            <div><span class="cat-pill" style="background:rgba(244,114,182,0.15);color:#F472B6;"><span class="dot" style="background:#F472B6"></span>Food</span></div>
+            <div class="txn-amt">−₹70.00</div>
+          </div>
+          <div class="txn-row">
+            <div class="txn-date"><strong>24 Jul</strong>04:01 PM</div>
+            <div class="txn-merchant"><div class="merchant-avatar" style="width:28px;height:28px;font-size:11px;background:#94A3B8;color:#1E293B;">P</div><div><div class="name">Received from Pooja Y A</div><div class="vpa">pooja2004ya@axl</div></div></div>
+            <div class="txn-account">Union Bank · 3347</div>
+            <div><span class="cat-pill" style="background:rgba(74,222,128,0.12);color:#4ADE80;"><span class="dot" style="background:#4ADE80"></span>Income</span></div>
+            <div class="txn-amt credit">+₹2,035.00</div>
+          </div>
+          <div class="txn-row">
+            <div class="txn-date"><strong>23 Jul</strong>05:14 PM</div>
+            <div class="txn-merchant"><div class="merchant-avatar" style="width:28px;height:28px;font-size:11px;background:#F472B6;color:#3F0F27;">O</div><div><div class="name">Oliva Clinic</div><div class="vpa">oliva.clinic@ybl</div></div></div>
+            <div class="txn-account">Union Bank · 3347</div>
+            <div><span class="cat-pill" style="background:rgba(244,114,182,0.15);color:#F472B6;"><span class="dot" style="background:#F472B6"></span>Health</span></div>
+            <div class="txn-amt">−₹1,500.00</div>
+          </div>
+          <div class="txn-row">
+            <div class="txn-date"><strong>21 Jul</strong>05:19 PM</div>
+            <div class="txn-merchant"><div class="merchant-avatar" style="width:28px;height:28px;font-size:11px;background:#FCD34D;color:#3F1F00;">R</div><div><div class="name">Rebel Marketplace</div><div class="vpa">rebel.pos@ybl</div></div></div>
+            <div class="txn-account">Union Bank · 3347</div>
+            <div><span class="cat-pill" style="background:rgba(252,211,77,0.15);color:#FCD34D;"><span class="dot" style="background:#FCD34D"></span>Shopping</span></div>
+            <div class="txn-amt">−₹408.00</div>
+          </div>
+          <div class="txn-row">
+            <div class="txn-date"><strong>20 Jul</strong>09:36 PM</div>
+            <div class="txn-merchant"><div class="merchant-avatar" style="width:28px;height:28px;font-size:11px;background:#F472B6;color:#3F0F27;">G</div><div><div class="name">GoPizza India</div><div class="vpa">gopizza.pos@ptys</div></div></div>
+            <div class="txn-account">Union Bank · 3347</div>
+            <div><span class="cat-pill" style="background:rgba(244,114,182,0.15);color:#F472B6;"><span class="dot" style="background:#F472B6"></span>Food</span></div>
+            <div class="txn-amt">−₹177.00</div>
+          </div>
+          <div class="txn-row">
+            <div class="txn-date"><strong>08 Jul</strong>10:24 AM</div>
+            <div class="txn-merchant"><div class="merchant-avatar" style="width:28px;height:28px;font-size:11px;background:#FCD34D;color:#3F1F00;">F</div><div><div class="name">Flipkart Payments</div><div class="vpa">flipkart.pay@axisb</div></div></div>
+            <div class="txn-account">Indian Bank · 7318</div>
+            <div><span class="cat-pill" style="background:rgba(252,211,77,0.15);color:#FCD34D;"><span class="dot" style="background:#FCD34D"></span>Shopping</span></div>
+            <div class="txn-amt">−₹1,818.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Number count-up
+  const format = (n, suffix) => {
+    if (suffix) return `${n}${suffix}`;
+    if (n >= 1000) return '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+    return '₹' + n;
+  };
+  document.querySelectorAll('.val[data-target]').forEach((el, i) => {
+    const target = parseFloat(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    const duration = 1400;
+    const delay = 200 + i * 120;
+    setTimeout(() => {
+      const start = performance.now();
+      const animate = (now) => {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const val = Math.floor(eased * target);
+        el.textContent = format(val, suffix);
+        if (t < 1) requestAnimationFrame(animate);
+      };
+      requestAnimationFrame(animate);
+    }, delay);
+  });
+
+  // Draw the chart line
+  setTimeout(() => {
+    const line = document.getElementById('line-path');
+    line.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(0.65, 0, 0.35, 1)';
+    line.style.strokeDashoffset = '0';
+    setTimeout(() => {
+      document.getElementById('area-path').style.transition = 'opacity 0.8s ease';
+      document.getElementById('area-path').style.opacity = '1';
+      document.querySelectorAll('#chart-dots circle').forEach((c, i) => {
+        setTimeout(() => {
+          c.style.transition = 'opacity 0.3s ease';
+          c.style.opacity = '1';
+        }, i * 120);
+      });
+    }, 900);
+  }, 500);
+</script>

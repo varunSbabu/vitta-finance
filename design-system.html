@@ -1,0 +1,1425 @@
+<title>Vitta Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    /* Brand */
+    --brand: #611F69;
+    --brand-600: #7A2A83;
+    --brand-700: #4A154B;
+    --brand-wash: rgba(97,31,105,0.06);
+    --brand-wash-strong: rgba(97,31,105,0.12);
+
+    /* UI accent hues (illustration + marketing accents only, not chart data) */
+    --acc-blue: #2A78D6;
+    --acc-yellow: #EDA100;
+    --acc-green: #1BAF7A;
+    --acc-red: #E01E5A;
+
+    /* Semantic */
+    --success: #007A5A;
+    --success-bg: rgba(0,122,90,0.08);
+    --warning: #B45300;
+    --warning-bg: rgba(180,83,0,0.08);
+    --danger: #C1121C;
+    --danger-bg: rgba(193,18,28,0.08);
+    --info: #1264A3;
+    --info-bg: rgba(18,100,163,0.08);
+
+    /* Neutrals — light */
+    --bg: #F8F8F8;
+    --bg-elevated: #FFFFFF;
+    --bg-subtle: #F1F1F1;
+    --border: #E8E8E8;
+    --border-strong: #D6D6D6;
+    --ink: #1D1C1D;
+    --ink-secondary: #454347;
+    --ink-muted: #616061;
+    --ink-faint: #868686;
+
+    /* Data viz — CVD-validated */
+    --dv-1: #2a78d6;
+    --dv-2: #eb6834;
+    --dv-3: #1baf7a;
+    --dv-4: #eda100;
+    --dv-5: #e87ba4;
+    --dv-6: #008300;
+    --dv-7: #4a3aa7;
+    --dv-8: #e34948;
+
+    /* Sequential blue ramp */
+    --seq-1: #cde2fb;
+    --seq-2: #86b6ef;
+    --seq-3: #3987e5;
+    --seq-4: #256abf;
+    --seq-5: #184f95;
+    --seq-6: #0d366b;
+
+    /* Radius */
+    --r-1: 4px;
+    --r-2: 6px;
+    --r-3: 8px;
+    --r-4: 12px;
+    --r-5: 16px;
+    --r-pill: 999px;
+
+    /* Type — Lato, Slack's historical public typeface (Slack Sans is proprietary) */
+    --f-display: 'Lato', 'Slack-Lato', -apple-system, system-ui, sans-serif;
+    --f-body: 'Lato', 'Slack-Lato', -apple-system, system-ui, sans-serif;
+    --f-mono: 'JetBrains Mono', ui-monospace, Monaco, monospace;
+
+    /* Elevation */
+    --shadow-sm: 0 1px 2px rgba(29,28,29,0.04), 0 1px 3px rgba(29,28,29,0.03);
+    --shadow-md: 0 4px 10px rgba(29,28,29,0.06), 0 2px 4px rgba(29,28,29,0.04);
+    --shadow-lg: 0 12px 32px rgba(29,28,29,0.08), 0 4px 8px rgba(29,28,29,0.04);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --brand: #D4A8DC;
+      --brand-600: #C79FCF;
+      --brand-700: #E8CFEC;
+      --brand-wash: rgba(212,168,220,0.12);
+      --brand-wash-strong: rgba(212,168,220,0.20);
+      --bg: #1A1D21;
+      --bg-elevated: #222529;
+      --bg-subtle: #16181B;
+      --border: #35373B;
+      --border-strong: #4B4D51;
+      --ink: #E8E8E8;
+      --ink-secondary: #C4C3C4;
+      --ink-muted: #9A9A9A;
+      --ink-faint: #6E6E6E;
+      --success: #2BAC76;
+      --warning: #E5A22E;
+      --danger: #F14C4C;
+      --info: #4EABE5;
+      --success-bg: rgba(43,172,118,0.14);
+      --warning-bg: rgba(229,162,46,0.14);
+      --danger-bg: rgba(241,76,76,0.14);
+      --info-bg: rgba(78,171,229,0.14);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 16px 40px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --brand: #D4A8DC;
+    --brand-600: #C79FCF;
+    --brand-700: #E8CFEC;
+    --brand-wash: rgba(212,168,220,0.12);
+    --brand-wash-strong: rgba(212,168,220,0.20);
+    --bg: #1A1D21;
+    --bg-elevated: #222529;
+    --bg-subtle: #16181B;
+    --border: #35373B;
+    --border-strong: #4B4D51;
+    --ink: #E8E8E8;
+    --ink-secondary: #C4C3C4;
+    --ink-muted: #9A9A9A;
+    --ink-faint: #6E6E6E;
+    --success: #2BAC76;
+    --warning: #E5A22E;
+    --danger: #F14C4C;
+    --info: #4EABE5;
+    --success-bg: rgba(43,172,118,0.14);
+    --warning-bg: rgba(229,162,46,0.14);
+    --danger-bg: rgba(241,76,76,0.14);
+    --info-bg: rgba(78,171,229,0.14);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-lg: 0 16px 40px rgba(0,0,0,0.5);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--f-body);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Top strip */
+  .topstrip {
+    background: var(--brand);
+    color: #fff;
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-family: var(--f-body);
+  }
+  .topstrip .brand-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--f-display);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .topstrip .mark {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 18px;
+  }
+  .topstrip .mark span {
+    width: 3px;
+    border-radius: 1.5px 1.5px 0 0;
+    background: #fff;
+  }
+  .topstrip .mark span:nth-child(1) { height: 40%; opacity: 0.55; }
+  .topstrip .mark span:nth-child(2) { height: 65%; opacity: 0.75; }
+  .topstrip .mark span:nth-child(3) { height: 82%; opacity: 0.90; }
+  .topstrip .mark span:nth-child(4) { height: 100%; opacity: 1; }
+  .topstrip .version {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    opacity: 0.75;
+  }
+
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 40px 0 56px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 48px;
+    align-items: end;
+  }
+  @media (max-width: 800px) { .hero { grid-template-columns: 1fr; } }
+
+  .hero-eyebrow {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: var(--f-display);
+    font-size: 88px;
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    color: var(--ink);
+    margin-bottom: 20px;
+    text-wrap: balance;
+  }
+  @media (max-width: 800px) { .hero h1 { font-size: 60px; } }
+  .hero .tagline {
+    font-family: var(--f-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink-secondary);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    max-width: 520px;
+    margin-bottom: 24px;
+  }
+  .hero .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .hero .meta strong {
+    color: var(--ink);
+    font-weight: 700;
+    font-family: var(--f-mono);
+    font-size: 12px;
+  }
+
+  .hero-mark {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-5);
+    padding: 40px;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    aspect-ratio: 1 / 1;
+    max-width: 340px;
+  }
+  .hero-mark .glyph {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 96px;
+  }
+  .hero-mark .glyph span {
+    width: 18px;
+    border-radius: 4px 4px 2px 2px;
+    display: block;
+  }
+  .hero-mark .glyph .a { height: 42%; background: color-mix(in oklab, var(--brand) 30%, transparent); }
+  .hero-mark .glyph .b { height: 62%; background: color-mix(in oklab, var(--brand) 55%, transparent); }
+  .hero-mark .glyph .c { height: 82%; background: color-mix(in oklab, var(--brand) 78%, transparent); }
+  .hero-mark .glyph .d { height: 100%; background: var(--brand); }
+  .hero-mark .wordmark {
+    font-family: var(--f-display);
+    font-weight: 900;
+    font-size: 32px;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  .hero-mark .kicker {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Sections */
+  section {
+    padding: 40px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  section:last-of-type { border-bottom: none; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    gap: 20px;
+  }
+  .section-num {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-muted);
+    letter-spacing: 0.08em;
+  }
+  .section-head h2 {
+    font-family: var(--f-display);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .section-head .desc {
+    font-size: 14px;
+    color: var(--ink-muted);
+    max-width: 420px;
+    text-align: right;
+  }
+  @media (max-width: 700px) {
+    .section-head { flex-direction: column; align-items: flex-start; }
+    .section-head .desc { text-align: left; }
+  }
+
+  /* Colors */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .swatch {
+    border: 1px solid var(--border);
+    border-radius: var(--r-3);
+    overflow: hidden;
+    background: var(--bg-elevated);
+  }
+  .swatch .sample {
+    height: 88px;
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+  }
+  .swatch .sample.dark-text { color: rgba(0,0,0,0.7); }
+  .swatch .info {
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+  }
+  .swatch .info .name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .swatch .info .role {
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-family: var(--f-mono);
+    margin-top: 2px;
+  }
+
+  .color-block {
+    margin-bottom: 32px;
+  }
+  .color-block h3 {
+    font-family: var(--f-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .color-block .caption {
+    font-size: 13px;
+    color: var(--ink-muted);
+    margin-bottom: 16px;
+    max-width: 640px;
+    line-height: 1.55;
+  }
+
+  /* Typography */
+  .type-scale { display: flex; flex-direction: column; gap: 20px; }
+  .type-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 24px;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-row .meta {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+  .type-row .sample { color: var(--ink); }
+
+  .display-xl { font-family: var(--f-display); font-size: 64px; font-weight: 900; letter-spacing: -0.035em; line-height: 1; }
+  .display-lg { font-family: var(--f-display); font-size: 48px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
+  .display-md { font-family: var(--f-display); font-size: 32px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; }
+  .heading-lg { font-family: var(--f-display); font-size: 22px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.25; }
+  .heading-md { font-family: var(--f-display); font-size: 16px; font-weight: 700; letter-spacing: -0.005em; line-height: 1.3; }
+  .body-lg { font-family: var(--f-body); font-size: 17px; font-weight: 400; line-height: 1.55; color: var(--ink-secondary); }
+  .body-md { font-family: var(--f-body); font-size: 15px; font-weight: 400; line-height: 1.6; color: var(--ink-secondary); }
+  .body-sm { font-family: var(--f-body); font-size: 13px; font-weight: 400; line-height: 1.55; color: var(--ink-secondary); }
+  .caption { font-family: var(--f-mono); font-size: 11px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .numeric-lg { font-family: var(--f-display); font-size: 40px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .numeric-md { font-family: var(--f-mono); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* Radius scale */
+  .radius-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .radius-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .radius-item .box {
+    width: 72px;
+    height: 72px;
+    background: var(--brand-wash);
+    border: 1.5px solid var(--brand);
+  }
+  .radius-item .label {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-align: center;
+    line-height: 1.4;
+  }
+  .radius-item .label strong { color: var(--ink); display: block; font-weight: 700; }
+
+  /* Spacing scale */
+  .space-row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  .space-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .space-item .bar { background: var(--brand); border-radius: 2px; width: 32px; }
+  .space-item .label {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+  .space-item .label strong { color: var(--ink); display: block; font-weight: 700; }
+
+  /* Buttons */
+  .btn {
+    font-family: var(--f-body);
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--brand);
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: var(--r-2);
+    font-size: 14px;
+  }
+  .btn-primary:hover { background: var(--brand-600); }
+  .btn-secondary {
+    background: var(--bg-elevated);
+    color: var(--ink);
+    border: 1px solid var(--border-strong);
+    padding: 11px 17px;
+    border-radius: var(--r-2);
+    font-size: 14px;
+  }
+  .btn-secondary:hover { background: var(--bg-subtle); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--brand);
+    padding: 12px 18px;
+    border-radius: var(--r-2);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .btn-ghost:hover { background: var(--brand-wash); }
+  .btn-danger {
+    background: var(--danger);
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: var(--r-2);
+    font-size: 14px;
+  }
+  .btn-lg { padding: 15px 22px; font-size: 15px; }
+  .btn-sm { padding: 8px 12px; font-size: 13px; }
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .btn-group {
+    padding: 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-4);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .btn-group .label {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Inputs */
+  .input {
+    font-family: var(--f-body);
+    font-size: 14px;
+    background: var(--bg-elevated);
+    color: var(--ink);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-2);
+    padding: 10px 14px;
+    width: 100%;
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-wash-strong);
+  }
+  .input.error {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px var(--danger-bg);
+  }
+  .input-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .input-hint {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 6px;
+  }
+  .input-hint.error { color: var(--danger); }
+  .field { display: flex; flex-direction: column; }
+
+  /* Tags & badges */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--f-body);
+  }
+  .tag-success { background: var(--success-bg); color: var(--success); }
+  .tag-warning { background: var(--warning-bg); color: var(--warning); }
+  .tag-danger { background: var(--danger-bg); color: var(--danger); }
+  .tag-info { background: var(--info-bg); color: var(--info); }
+  .tag-brand { background: var(--brand-wash); color: var(--brand); }
+  .tag-neutral { background: var(--bg-subtle); color: var(--ink-secondary); border: 1px solid var(--border); }
+  .tag .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-4);
+    padding: 20px;
+  }
+  .card.elevated { box-shadow: var(--shadow-sm); }
+  .stat-card .label {
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-family: var(--f-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .stat-card .value {
+    font-family: var(--f-display);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .stat-card .delta {
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .stat-card .delta.up { color: var(--success); }
+  .stat-card .delta.down { color: var(--danger); }
+
+  .feature-card { padding: 24px; }
+  .feature-card .icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--r-3);
+    background: var(--brand-wash);
+    color: var(--brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    font-family: var(--f-display);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .feature-card h4 {
+    font-family: var(--f-display);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .feature-card p {
+    font-size: 14px;
+    color: var(--ink-muted);
+    line-height: 1.55;
+  }
+
+  /* Data viz palette */
+  .dv-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 700px) { .dv-grid { grid-template-columns: repeat(4, 1fr); } }
+  .dv-cell {
+    height: 60px;
+    border-radius: var(--r-2);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 6px 8px;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: rgba(255,255,255,0.9);
+  }
+  .dv-cell.light-text { color: rgba(0,0,0,0.7); }
+  .dv-labels {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--ink-muted);
+    margin-top: 4px;
+  }
+  @media (max-width: 700px) { .dv-labels { grid-template-columns: repeat(4, 1fr); } }
+  .dv-labels .lbl {
+    text-align: center;
+    line-height: 1.35;
+  }
+  .dv-labels .lbl strong { color: var(--ink); display: block; font-weight: 700; font-size: 11px; text-transform: capitalize; }
+
+  .seq-ramp {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 2px;
+    height: 44px;
+    border-radius: var(--r-2);
+    overflow: hidden;
+  }
+  .seq-ramp div {
+    display: flex;
+    align-items: flex-end;
+    padding: 4px 6px;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: rgba(0,0,0,0.6);
+  }
+  .seq-ramp div:nth-child(n+4) { color: rgba(255,255,255,0.9); }
+  .diverging {
+    display: flex;
+    height: 44px;
+    border-radius: var(--r-2);
+    overflow: hidden;
+    gap: 2px;
+  }
+  .diverging div { flex: 1; }
+
+  /* Preview chart */
+  .preview-chart {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-4);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+  }
+  .preview-chart .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .preview-chart h3 {
+    font-family: var(--f-display);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .preview-chart .head .caption {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .bars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 70px;
+    gap: 14px;
+    align-items: center;
+  }
+  .bar-row .name {
+    font-size: 13px;
+    color: var(--ink-secondary);
+  }
+  .bar-row .track {
+    background: var(--bg-subtle);
+    height: 14px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-row .fill {
+    height: 100%;
+    border-radius: 4px;
+  }
+  .bar-row .val {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 700;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .legend .item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--ink-secondary);
+  }
+  .legend .sw {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  /* Screen previews */
+  .preview-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .preview-thumb {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-4);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .preview-thumb .thumb-body {
+    padding: 20px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .preview-thumb .thumb-meta {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-subtle);
+  }
+  .preview-thumb .thumb-meta .name {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .preview-thumb .thumb-meta .desc {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
+
+  .mini-nav {
+    display: flex;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--brand);
+    border-radius: var(--r-2);
+    align-items: center;
+    color: rgba(255,255,255,0.95);
+    font-size: 11px;
+    font-family: var(--f-display);
+    font-weight: 700;
+  }
+  .mini-nav .bars {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 1.5px;
+    height: 12px;
+  }
+  .mini-nav .bars span {
+    width: 2px;
+    border-radius: 1px 1px 0 0;
+    background: #fff;
+    display: block;
+  }
+  .mini-nav .bars span:nth-child(1) { height: 42%; opacity: 0.55; }
+  .mini-nav .bars span:nth-child(2) { height: 65%; opacity: 0.75; }
+  .mini-nav .bars span:nth-child(3) { height: 82%; opacity: 0.9; }
+  .mini-nav .bars span:nth-child(4) { height: 100%; }
+  .skel {
+    height: 12px;
+    background: var(--bg-subtle);
+    border-radius: 3px;
+  }
+  .skel.w-40 { width: 40%; }
+  .skel.w-60 { width: 60%; }
+  .skel.w-80 { width: 80%; }
+
+  /* Footer note */
+  .foot-note {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-family: var(--f-mono);
+  }
+  @media (max-width: 600px) {
+    .foot-note { flex-direction: column; gap: 10px; align-items: flex-start; }
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 5px 12px;
+    border-radius: var(--r-2);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--f-body);
+    font-weight: 700;
+  }
+  .theme-toggle:hover { background: rgba(255,255,255,0.2); }
+</style>
+
+<div class="topstrip">
+  <div class="brand-mini">
+    <span class="mark"><span></span><span></span><span></span><span></span></span>
+    <span>Vitta</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span class="version">design system · v0.1</span>
+    <button class="theme-toggle" onclick="toggleTheme()">Toggle theme</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow">Working name · Sanskrit वित्त — finance, wealth</div>
+      <h1>Vitta.</h1>
+      <p class="tagline">Every rupee, understood. AI-native expense analysis for personal accounts and growing teams.</p>
+      <div class="meta">
+        <span><strong>#611F69</strong> · deep aubergine</span>
+        <span><strong>LATO</strong> · display + body</span>
+        <span><strong>JETBRAINS MONO</strong> · numbers</span>
+        <span><strong>STACKED BARS</strong> · logo mark</span>
+      </div>
+    </div>
+    <div class="hero-mark">
+      <div class="glyph">
+        <span class="a"></span>
+        <span class="b"></span>
+        <span class="c"></span>
+        <span class="d"></span>
+      </div>
+      <div class="wordmark">Vitta</div>
+      <div class="kicker">Categorize · Understand · Grow</div>
+    </div>
+  </div>
+
+  <!-- 01 Colors -->
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="section-num">01 · FOUNDATION</div>
+        <h2>Color</h2>
+      </div>
+      <div class="desc">Aubergine as the load-bearing brand hue. A tuned accent quartet for illustration. A CVD-validated eight-color palette carries data.</div>
+    </div>
+
+    <div class="color-block">
+      <h3>Brand</h3>
+      <div class="caption">Aubergine anchors the identity — used on primary CTAs, top nav, and the marketing hero. In dark mode it inverts to a soft lilac so it stays legible on near-black.</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="sample" style="background:#611F69">#611F69</div><div class="info"><div class="name">Brand</div><div class="role">--brand · primary CTA</div></div></div>
+        <div class="swatch"><div class="sample" style="background:#7A2A83">#7A2A83</div><div class="info"><div class="name">Brand 600</div><div class="role">--brand-600 · hover</div></div></div>
+        <div class="swatch"><div class="sample" style="background:#4A154B">#4A154B</div><div class="info"><div class="name">Brand 700</div><div class="role">--brand-700 · active</div></div></div>
+        <div class="swatch"><div class="sample dark-text" style="background:rgba(97,31,105,0.08)">rgba wash</div><div class="info"><div class="name">Brand wash</div><div class="role">--brand-wash · subtle bg</div></div></div>
+      </div>
+    </div>
+
+    <div class="color-block">
+      <h3>UI accents</h3>
+      <div class="caption">Reserved for illustration, brand moments, and marketing surfaces. Not for chart data — data uses the validated palette in section 02.</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="sample dark-text" style="background:#EDA100">#EDA100</div><div class="info"><div class="name">Amber</div><div class="role">--acc-yellow</div></div></div>
+        <div class="swatch"><div class="sample" style="background:#1BAF7A">#1BAF7A</div><div class="info"><div class="name">Emerald</div><div class="role">--acc-green</div></div></div>
+        <div class="swatch"><div class="sample" style="background:#E01E5A">#E01E5A</div><div class="info"><div class="name">Coral</div><div class="role">--acc-red</div></div></div>
+        <div class="swatch"><div class="sample" style="background:#2A78D6">#2A78D6</div><div class="info"><div class="name">Azure</div><div class="role">--acc-blue</div></div></div>
+      </div>
+    </div>
+
+    <div class="color-block">
+      <h3>Semantic</h3>
+      <div class="caption">Status meaning is carried by icon and label, never color alone. These ship in both themes with contrast tuned per surface.</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="sample" style="background:#007A5A">#007A5A</div><div class="info"><div class="name">Success</div><div class="role">--success · positive delta</div></div></div>
+        <div class="swatch"><div class="sample" style="background:#B45300">#B45300</div><div class="info"><div class="name">Warning</div><div class="role">--warning · caution</div></div></div>
+        <div class="swatch"><div class="sample" style="background:#C1121C">#C1121C</div><div class="info"><div class="name">Danger</div><div class="role">--danger · destructive</div></div></div>
+        <div class="swatch"><div class="sample" style="background:#1264A3">#1264A3</div><div class="info"><div class="name">Info</div><div class="role">--info · neutral state</div></div></div>
+      </div>
+    </div>
+
+    <div class="color-block">
+      <h3>Neutrals</h3>
+      <div class="caption">Off-white ground, pure white cards, ink at 90% black to reduce eye fatigue. The border scale carries structural weight without visual noise.</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="sample dark-text" style="background:#F8F8F8">#F8F8F8</div><div class="info"><div class="name">Bg</div><div class="role">--bg · page ground</div></div></div>
+        <div class="swatch"><div class="sample dark-text" style="background:#FFFFFF;border-bottom:1px solid #E8E8E8">#FFFFFF</div><div class="info"><div class="name">Bg elevated</div><div class="role">--bg-elevated · cards</div></div></div>
+        <div class="swatch"><div class="sample dark-text" style="background:#E8E8E8">#E8E8E8</div><div class="info"><div class="name">Border</div><div class="role">--border</div></div></div>
+        <div class="swatch"><div class="sample" style="background:#1D1C1D">#1D1C1D</div><div class="info"><div class="name">Ink</div><div class="role">--ink · primary text</div></div></div>
+        <div class="swatch"><div class="sample" style="background:#616061">#616061</div><div class="info"><div class="name">Ink muted</div><div class="role">--ink-muted · secondary</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 Data viz -->
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="section-num">02 · FOUNDATION</div>
+        <h2>Data viz palette</h2>
+      </div>
+      <div class="desc">CVD-validated eight-color set. Categorical hues assigned in fixed order, never cycled. Sequential ramp for magnitude. Diverging pair for polarity.</div>
+    </div>
+
+    <div class="color-block">
+      <h3>Categorical · 8 slots</h3>
+      <div class="caption">Assigned in this order for every chart. Passes adjacent-pair CVD ΔE ≥ 8 and contrast checks on both light and dark surfaces.</div>
+      <div class="dv-grid">
+        <div class="dv-cell" style="background:#2a78d6">1</div>
+        <div class="dv-cell" style="background:#eb6834">2</div>
+        <div class="dv-cell" style="background:#1baf7a">3</div>
+        <div class="dv-cell light-text" style="background:#eda100">4</div>
+        <div class="dv-cell" style="background:#e87ba4">5</div>
+        <div class="dv-cell" style="background:#008300">6</div>
+        <div class="dv-cell" style="background:#4a3aa7">7</div>
+        <div class="dv-cell" style="background:#e34948">8</div>
+      </div>
+      <div class="dv-labels">
+        <div class="lbl"><strong>Blue</strong>#2a78d6</div>
+        <div class="lbl"><strong>Orange</strong>#eb6834</div>
+        <div class="lbl"><strong>Aqua</strong>#1baf7a</div>
+        <div class="lbl"><strong>Yellow</strong>#eda100</div>
+        <div class="lbl"><strong>Magenta</strong>#e87ba4</div>
+        <div class="lbl"><strong>Green</strong>#008300</div>
+        <div class="lbl"><strong>Violet</strong>#4a3aa7</div>
+        <div class="lbl"><strong>Red</strong>#e34948</div>
+      </div>
+    </div>
+
+    <div class="color-block">
+      <h3>Sequential · magnitude</h3>
+      <div class="caption">One hue, light to dark. Used for heatmaps, choropleths, and any ramp where more-is-darker.</div>
+      <div class="seq-ramp">
+        <div style="background:#cde2fb">100</div>
+        <div style="background:#9ec5f4">200</div>
+        <div style="background:#3987e5">400</div>
+        <div style="background:#2a78d6">450</div>
+        <div style="background:#184f95">600</div>
+        <div style="background:#0d366b">700</div>
+      </div>
+    </div>
+
+    <div class="color-block">
+      <h3>Diverging · polarity</h3>
+      <div class="caption">Warm/cool poles with a neutral gray midpoint. Used for above/below baseline, MoM deltas, and target variance.</div>
+      <div class="diverging">
+        <div style="background:#0d366b"></div>
+        <div style="background:#184f95"></div>
+        <div style="background:#3987e5"></div>
+        <div style="background:#86b6ef"></div>
+        <div style="background:#f0efec"></div>
+        <div style="background:#f5b2b2"></div>
+        <div style="background:#e34948"></div>
+        <div style="background:#9c2b2a"></div>
+        <div style="background:#5c1919"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 Typography -->
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="section-num">03 · FOUNDATION</div>
+        <h2>Typography</h2>
+      </div>
+      <div class="desc">Lato throughout — the same public typeface Slack uses in its historical UI. Regular, bold, and black weights only. JetBrains Mono for figures.</div>
+    </div>
+
+    <div class="type-scale">
+      <div class="type-row">
+        <div class="meta">display / xl<br>64 · 900<br>-0.035em</div>
+        <div class="sample display-xl">Every rupee, understood.</div>
+      </div>
+      <div class="type-row">
+        <div class="meta">display / lg<br>48 · 900<br>-0.030em</div>
+        <div class="sample display-lg">Understand where your money goes.</div>
+      </div>
+      <div class="type-row">
+        <div class="meta">display / md<br>32 · 900<br>-0.025em</div>
+        <div class="sample display-md">Your July spending, categorized</div>
+      </div>
+      <div class="type-row">
+        <div class="meta">heading / lg<br>22 · 700</div>
+        <div class="sample heading-lg">Categorization coverage this month</div>
+      </div>
+      <div class="type-row">
+        <div class="meta">heading / md<br>16 · 700</div>
+        <div class="sample heading-md">Top merchants — July 2026</div>
+      </div>
+      <div class="type-row">
+        <div class="meta">body / lg<br>17 · 400<br>Lato</div>
+        <div class="sample body-lg">Vitta reads statements from any Indian bank, UPI app, or credit card and turns raw transactions into a picture you can actually act on — without you typing a single row.</div>
+      </div>
+      <div class="type-row">
+        <div class="meta">body / md<br>15 · 400<br>Lato</div>
+        <div class="sample body-md">Rules engine matches known merchants instantly. Your first tag on a person name becomes a permanent rule. The AI narrates what changed, never invents numbers.</div>
+      </div>
+      <div class="type-row">
+        <div class="meta">body / sm<br>13 · 400<br>Lato</div>
+        <div class="sample body-sm">Password-protected PDFs are decrypted locally. Source files are deleted after parsing — Vitta stores only normalized rows.</div>
+      </div>
+      <div class="type-row">
+        <div class="meta">caption<br>11 · 500<br>Mono / caps</div>
+        <div class="sample caption">Auto-categorized · 4 of 5 merchants</div>
+      </div>
+      <div class="type-row">
+        <div class="meta">numeric / lg<br>Lato 900<br>tabular</div>
+        <div class="sample numeric-lg">₹61,933.28</div>
+      </div>
+      <div class="type-row">
+        <div class="meta">numeric / md<br>Mono 500<br>tabular</div>
+        <div class="sample numeric-md">₹1,818.00 · 03 Jul 2026 · UPI 618974358076</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 Radius + Spacing -->
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="section-num">04 · FOUNDATION</div>
+        <h2>Shape &amp; rhythm</h2>
+      </div>
+      <div class="desc">Moderate radius across the board — Slack's own restraint. Cards at 12, controls at 6, pills at full-round. Spacing on a 4px grid.</div>
+    </div>
+
+    <div class="color-block">
+      <h3>Radius scale</h3>
+      <div class="radius-row">
+        <div class="radius-item"><div class="box" style="border-radius:4px"></div><div class="label"><strong>4</strong>--r-1<br>chips</div></div>
+        <div class="radius-item"><div class="box" style="border-radius:6px"></div><div class="label"><strong>6</strong>--r-2<br>buttons</div></div>
+        <div class="radius-item"><div class="box" style="border-radius:8px"></div><div class="label"><strong>8</strong>--r-3<br>inputs</div></div>
+        <div class="radius-item"><div class="box" style="border-radius:12px"></div><div class="label"><strong>12</strong>--r-4<br>cards</div></div>
+        <div class="radius-item"><div class="box" style="border-radius:16px"></div><div class="label"><strong>16</strong>--r-5<br>modals</div></div>
+        <div class="radius-item"><div class="box" style="border-radius:999px"></div><div class="label"><strong>999</strong>--r-pill<br>tags</div></div>
+      </div>
+    </div>
+
+    <div class="color-block">
+      <h3>Spacing scale · 4px grid</h3>
+      <div class="space-row">
+        <div class="space-item"><div class="bar" style="height:4px"></div><div class="label"><strong>4</strong>xs</div></div>
+        <div class="space-item"><div class="bar" style="height:8px"></div><div class="label"><strong>8</strong>sm</div></div>
+        <div class="space-item"><div class="bar" style="height:12px"></div><div class="label"><strong>12</strong>md</div></div>
+        <div class="space-item"><div class="bar" style="height:16px"></div><div class="label"><strong>16</strong>lg</div></div>
+        <div class="space-item"><div class="bar" style="height:24px"></div><div class="label"><strong>24</strong>xl</div></div>
+        <div class="space-item"><div class="bar" style="height:32px"></div><div class="label"><strong>32</strong>2xl</div></div>
+        <div class="space-item"><div class="bar" style="height:48px"></div><div class="label"><strong>48</strong>3xl</div></div>
+        <div class="space-item"><div class="bar" style="height:64px"></div><div class="label"><strong>64</strong>4xl</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 Buttons -->
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="section-num">05 · COMPONENTS</div>
+        <h2>Buttons</h2>
+      </div>
+      <div class="desc">Primary is aubergine, always. Secondary carries a border. Ghost for tertiary actions. Danger only for irreversible operations.</div>
+    </div>
+    <div class="card-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="btn-group">
+        <div class="label">Variants</div>
+        <div class="btn-row">
+          <button class="btn btn-primary">Get started free</button>
+          <button class="btn btn-secondary">Talk to sales</button>
+          <button class="btn btn-ghost">Learn more →</button>
+          <button class="btn btn-danger">Delete account</button>
+        </div>
+      </div>
+      <div class="btn-group">
+        <div class="label">Sizes</div>
+        <div class="btn-row">
+          <button class="btn btn-primary btn-lg">Large primary</button>
+          <button class="btn btn-primary">Default</button>
+          <button class="btn btn-primary btn-sm">Small</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary btn-lg">Large</button>
+          <button class="btn btn-secondary">Default</button>
+          <button class="btn btn-secondary btn-sm">Small</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 Inputs & tags -->
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="section-num">06 · COMPONENTS</div>
+        <h2>Inputs &amp; tags</h2>
+      </div>
+      <div class="desc">Inputs read as calm and considered — a focus ring in the aubergine wash, an error state that colors the border and hint together.</div>
+    </div>
+    <div class="card-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="btn-group">
+        <div class="label">Form states</div>
+        <div class="field">
+          <label class="input-label">Work email</label>
+          <input class="input" value="varun@twenty20sys.com" readonly>
+          <div class="input-hint">We'll send a magic link to sign you in.</div>
+        </div>
+        <div class="field">
+          <label class="input-label">Statement password</label>
+          <input class="input error" type="password" value="wrong-password">
+          <div class="input-hint error">That password didn't decrypt the PDF. Try DDMMYYYY of your DOB.</div>
+        </div>
+        <div class="field">
+          <label class="input-label">Merchant category</label>
+          <select class="input"><option>Groceries</option><option>Food &amp; dining</option><option>Transport</option></select>
+        </div>
+      </div>
+      <div class="btn-group">
+        <div class="label">Tags &amp; status</div>
+        <div class="btn-row">
+          <span class="tag tag-success"><span class="dot"></span>Auto-categorized</span>
+          <span class="tag tag-warning"><span class="dot"></span>Needs review</span>
+          <span class="tag tag-danger"><span class="dot"></span>Parse failed</span>
+          <span class="tag tag-info"><span class="dot"></span>Recurring</span>
+        </div>
+        <div class="btn-row">
+          <span class="tag tag-brand">PRO</span>
+          <span class="tag tag-neutral">Self-transfer</span>
+          <span class="tag tag-neutral">UPI · 62197</span>
+          <span class="tag tag-neutral">Indian Bank · 7318</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 Cards -->
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="section-num">07 · COMPONENTS</div>
+        <h2>Cards</h2>
+      </div>
+      <div class="desc">Three card personalities: the stat tile leads dashboards, the feature card carries marketing, the chart card frames analytics.</div>
+    </div>
+
+    <h3 style="font-family:var(--f-display);font-size:15px;font-weight: 700;margin-bottom:12px;color:var(--ink);">Stat tiles</h3>
+    <div class="card-grid" style="margin-bottom:32px;">
+      <div class="card stat-card">
+        <div class="label">Total spent · July</div>
+        <div class="value">₹61,933</div>
+        <div class="delta down">▼ 8% vs June</div>
+      </div>
+      <div class="card stat-card">
+        <div class="label">Auto-categorized</div>
+        <div class="value">78%</div>
+        <div class="delta up">▲ 12% since May</div>
+      </div>
+      <div class="card stat-card">
+        <div class="label">Recurring · monthly</div>
+        <div class="value">₹4,247</div>
+        <div class="delta" style="color:var(--ink-muted)">6 subscriptions</div>
+      </div>
+      <div class="card stat-card">
+        <div class="label">Accounts connected</div>
+        <div class="value">3</div>
+        <div class="delta" style="color:var(--ink-muted)">Last synced 2 min ago</div>
+      </div>
+    </div>
+
+    <h3 style="font-family:var(--f-display);font-size:15px;font-weight: 700;margin-bottom:12px;color:var(--ink);">Feature cards</h3>
+    <div class="card-grid">
+      <div class="card feature-card elevated">
+        <div class="icon">01</div>
+        <h4>Multi-source ingest</h4>
+        <p>Upload statements from any Indian bank, GPay, PhonePe, and credit cards. Vitta merges them into one clean view — no duplicates.</p>
+      </div>
+      <div class="card feature-card elevated">
+        <div class="icon">02</div>
+        <h4>Tag once, remember forever</h4>
+        <p>Categorize a payee to a friend once. Every past and future payment to that name auto-organizes. Your dictionary compounds.</p>
+      </div>
+      <div class="card feature-card elevated">
+        <div class="icon">03</div>
+        <h4>Ask anything</h4>
+        <p>"How much did I spend on food last quarter?" Vitta reads your data and answers in plain English — grounded in actual numbers.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 Chart preview -->
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="section-num">08 · COMPOSITION</div>
+        <h2>Chart in context</h2>
+      </div>
+      <div class="desc">A stat tile row above; the analytical view below. Direct labels on bars, mono figures on values, muted grid recessive to the data.</div>
+    </div>
+
+    <div class="preview-chart">
+      <div class="head">
+        <div>
+          <h3>Category breakdown · July 2026</h3>
+        </div>
+        <span class="caption">₹61,933 across 8 categories</span>
+      </div>
+      <div class="bars">
+        <div class="bar-row"><div class="name">Transfers &amp; loans</div><div class="track"><div class="fill" style="width:88%;background:#eda100"></div></div><div class="val">₹35,264</div></div>
+        <div class="bar-row"><div class="name">Groceries</div><div class="track"><div class="fill" style="width:24%;background:#2a78d6"></div></div><div class="val">₹9,438</div></div>
+        <div class="bar-row"><div class="name">Shopping</div><div class="track"><div class="fill" style="width:18%;background:#1baf7a"></div></div><div class="val">₹7,024</div></div>
+        <div class="bar-row"><div class="name">Friends &amp; social</div><div class="track"><div class="fill" style="width:14%;background:#e87ba4"></div></div><div class="val">₹5,548</div></div>
+        <div class="bar-row"><div class="name">Food &amp; dining</div><div class="track"><div class="fill" style="width:8%;background:#eb6834"></div></div><div class="val">₹3,178</div></div>
+        <div class="bar-row"><div class="name">Government &amp; tax</div><div class="track"><div class="fill" style="width:5%;background:#008300"></div></div><div class="val">₹1,750</div></div>
+        <div class="bar-row"><div class="name">Health</div><div class="track"><div class="fill" style="width:4%;background:#4a3aa7"></div></div><div class="val">₹1,500</div></div>
+        <div class="bar-row"><div class="name">Services &amp; tech</div><div class="track"><div class="fill" style="width:2%;background:#e34948"></div></div><div class="val">₹256</div></div>
+      </div>
+      <div class="legend">
+        <div class="item"><span class="sw" style="background:#2a78d6"></span>Merchant-matched</div>
+        <div class="item"><span class="sw" style="background:#eda100"></span>User-tagged</div>
+        <div class="item"><span class="sw" style="background:var(--ink-faint)"></span>Uncategorized</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 Screen previews -->
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="section-num">09 · APPLIED</div>
+        <h2>What we're building next</h2>
+      </div>
+      <div class="desc">Six anchor screens using this design system. Each becomes its own artifact — a full-fidelity page you can walk into a sales meeting with.</div>
+    </div>
+
+    <div class="preview-row">
+      <div class="preview-thumb">
+        <div class="thumb-body">
+          <div class="mini-nav"><span class="bars"><span></span><span></span><span></span><span></span></span>Vitta · Home</div>
+          <div class="skel w-80" style="height:22px;"></div>
+          <div class="skel w-60" style="height:22px;"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <div style="padding:8px 14px;background:var(--brand);color:#fff;border-radius:6px;font-size:12px;font-weight: 700;">Get started</div>
+            <div style="padding:8px 14px;background:var(--bg-elevated);border:1px solid var(--border-strong);border-radius:6px;font-size:12px;font-weight: 700;color:var(--ink);">Talk to sales</div>
+          </div>
+          <div class="skel w-40" style="height:80px;margin-top:12px;background:linear-gradient(135deg,#f0efec,#e0dfd9);"></div>
+        </div>
+        <div class="thumb-meta">
+          <div class="name">Landing page</div>
+          <div class="desc">Hero · problem · features · trust · pricing · CTA</div>
+        </div>
+      </div>
+
+      <div class="preview-thumb">
+        <div class="thumb-body">
+          <div class="skel w-60" style="height:14px;"></div>
+          <div class="skel w-80" style="height:36px;"></div>
+          <div class="skel w-80"></div>
+          <div class="skel w-60"></div>
+          <div style="padding:8px 14px;background:var(--brand);color:#fff;border-radius:6px;font-size:12px;font-weight: 700;text-align:center;margin-top:6px;">Continue with Google</div>
+          <div class="skel w-40" style="margin:0 auto;"></div>
+        </div>
+        <div class="thumb-meta">
+          <div class="name">Login</div>
+          <div class="desc">Google OAuth · minimal, trusted</div>
+        </div>
+      </div>
+
+      <div class="preview-thumb">
+        <div class="thumb-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div class="skel" style="height:48px;"></div>
+            <div class="skel" style="height:48px;"></div>
+            <div class="skel" style="height:48px;"></div>
+            <div class="skel" style="height:48px;"></div>
+          </div>
+          <div class="skel w-80" style="height:80px;"></div>
+        </div>
+        <div class="thumb-meta">
+          <div class="name">Dashboard overview</div>
+          <div class="desc">Stat tiles · trend · category · top merchants</div>
+        </div>
+      </div>
+
+      <div class="preview-thumb">
+        <div class="thumb-body">
+          <div class="skel w-40" style="height:32px;"></div>
+          <div class="skel w-80"></div>
+          <div class="skel w-80"></div>
+          <div class="skel w-80"></div>
+          <div class="skel w-80"></div>
+          <div class="skel w-60"></div>
+        </div>
+        <div class="thumb-meta">
+          <div class="name">Transactions</div>
+          <div class="desc">Search · filter · inline re-tag · bulk actions</div>
+        </div>
+      </div>
+
+      <div class="preview-thumb">
+        <div class="thumb-body">
+          <div class="skel w-60" style="height:12px;"></div>
+          <div style="border:2px dashed var(--border-strong);border-radius:8px;padding:20px;text-align:center;color:var(--ink-muted);font-size:12px;">
+            <div style="font-family:var(--f-display);font-weight: 700;color:var(--ink);margin-bottom:4px;">Drop your statement</div>
+            PDF · CSV · Excel
+          </div>
+          <div class="skel w-40"></div>
+        </div>
+        <div class="thumb-meta">
+          <div class="name">Upload &amp; parse</div>
+          <div class="desc">Multi-file drop · password unlock · progress</div>
+        </div>
+      </div>
+
+      <div class="preview-thumb">
+        <div class="thumb-body">
+          <div class="skel w-40" style="height:12px;"></div>
+          <div class="skel w-80" style="height:16px;"></div>
+          <div class="skel w-80"></div>
+          <div style="padding:10px 12px;background:var(--brand-wash);border-radius:6px;color:var(--brand);font-size:12px;font-family:var(--f-display);font-weight: 700;">Send</div>
+          <div class="skel w-60"></div>
+        </div>
+        <div class="thumb-meta">
+          <div class="name">Talk to sales</div>
+          <div class="desc">B2B form · company · team size · use case</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot-note">
+    <span>vitta · design-system.v0.1 · 2026-08-24</span>
+    <span>next → landing page</span>
+  </div>
+</div>
+
+<script>
+  function toggleTheme() {
+    const root = document.documentElement;
+    const current = root.getAttribute('data-theme');
+    if (current === 'dark') root.setAttribute('data-theme','light');
+    else if (current === 'light') root.setAttribute('data-theme','dark');
+    else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      root.setAttribute('data-theme', prefersDark ? 'light' : 'dark');
+    }
+  }
+</script>
