@@ -1,0 +1,579 @@
+<title>Vitta — Sign in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --bg: #000000;
+    --bg-elevated: #0A0A0B;
+    --bg-card: #0F0F11;
+    --bg-glass: rgba(255,255,255,0.03);
+    --bg-glass-strong: rgba(255,255,255,0.06);
+    --bg-inset: rgba(255,255,255,0.02);
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.16);
+    --border-emphasis: rgba(255,255,255,0.28);
+    --ink: #FFFFFF;
+    --ink-secondary: rgba(255,255,255,0.75);
+    --ink-muted: rgba(255,255,255,0.55);
+    --ink-faint: rgba(255,255,255,0.35);
+    --brand: #22C55E;
+    --brand-bright: #4ADE80;
+    --brand-dim: #16A34A;
+    --brand-glow: rgba(74,222,128,0.35);
+    --brand-wash: rgba(34,197,94,0.08);
+    --brand-wash-strong: rgba(34,197,94,0.16);
+    --gold: #FCD34D;
+    --gold-bright: #FDE68A;
+    --gold-wash: rgba(252,211,77,0.08);
+    --danger: #EF4444;
+    --f-display: 'Fraunces', 'Times New Roman', serif;
+    --f-body: 'Inter', -apple-system, system-ui, sans-serif;
+    --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--f-body);
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Shared logo styles */
+  .logo { display: inline-block; line-height: 0; filter: drop-shadow(0 0 12px rgba(74,222,128,0.15)); }
+  .logo svg { display: block; overflow: visible; }
+  .logo .bar { transform-origin: bottom; transform-box: fill-box; }
+  .logo-animated .bar { animation: barGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .logo-animated .bar-1 { animation-delay: 0.15s; }
+  .logo-animated .bar-2 { animation-delay: 0.28s; }
+  .logo-animated .bar-3 { animation-delay: 0.41s; }
+  .logo-animated .bar-4 { animation-delay: 0.54s; }
+  .logo-animated .arc { stroke-dasharray: 240; stroke-dashoffset: 240; animation: drawArc 1.2s 0.35s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+  .logo-animated .swoosh { stroke-dasharray: 220; stroke-dashoffset: 220; animation: drawSwoosh 1.1s 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+  @keyframes barGrow { from { transform: scaleY(0); opacity: 0.2; } to { transform: scaleY(1); opacity: 1; } }
+  @keyframes drawArc { to { stroke-dashoffset: 0; } }
+  @keyframes drawSwoosh { to { stroke-dashoffset: 0; } }
+
+  /* Layout */
+  .auth-wrap {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 900px) {
+    .auth-wrap { grid-template-columns: 1fr; }
+    .auth-side { display: none; }
+  }
+
+  /* Left panel — brand */
+  .auth-side {
+    position: relative;
+    padding: 48px 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    border-right: 1px solid var(--border);
+  }
+  .auth-side-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .auth-side-bg::before, .auth-side-bg::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.5;
+  }
+  .auth-side-bg::before {
+    top: -10%; left: -20%;
+    width: 70%; height: 80%;
+    background: radial-gradient(circle, rgba(34,197,94,0.55) 0%, rgba(74,222,128,0.2) 40%, transparent 70%);
+    animation: driftA 24s ease-in-out infinite;
+  }
+  .auth-side-bg::after {
+    bottom: -10%; right: -15%;
+    width: 60%; height: 70%;
+    background: radial-gradient(circle, rgba(252,211,77,0.35) 0%, rgba(74,222,128,0.15) 40%, transparent 70%);
+    animation: driftB 30s ease-in-out infinite;
+  }
+  @keyframes driftA {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(30px,-20px) scale(1.1); }
+  }
+  @keyframes driftB {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-20px,30px) scale(0.95); }
+  }
+  .auth-side-dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 28px 28px;
+    z-index: 1;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse 80% 100% at 40% 40%, #000, transparent 70%);
+  }
+
+  .auth-side > * { position: relative; z-index: 2; }
+
+  .side-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--f-display);
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+
+  .side-hero {
+    max-width: 500px;
+  }
+  .side-hero h1 {
+    font-family: var(--f-display);
+    font-size: clamp(40px, 4.4vw, 60px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+    margin-bottom: 20px;
+    text-wrap: balance;
+    animation: fadeUp 0.9s 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .side-hero h1 em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--brand-bright) 0%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 600;
+  }
+  .side-hero p {
+    color: var(--ink-secondary);
+    font-size: 16px;
+    line-height: 1.6;
+    animation: fadeUp 0.9s 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .side-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.9s 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .side-stat .val {
+    font-family: var(--f-display);
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--brand-bright);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .side-stat .lbl {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 6px;
+  }
+
+  /* Right panel — form */
+  .auth-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+    background: var(--bg);
+    position: relative;
+  }
+  .auth-main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 40% 60% at 50% 30%, rgba(34,197,94,0.06), transparent 70%);
+    pointer-events: none;
+  }
+
+  .auth-form {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.8s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .auth-mobile-brand {
+    display: none;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 900px) { .auth-mobile-brand { display: flex; } }
+
+  .auth-form h2 {
+    font-family: var(--f-display);
+    font-size: 34px;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .auth-form h2 em {
+    font-style: italic;
+    color: var(--brand-bright);
+    font-weight: 500;
+  }
+  .auth-form > .subtitle {
+    color: var(--ink-muted);
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  /* Google button */
+  .btn-google {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 13px 20px;
+    background: #FFFFFF;
+    color: #1F1F1F;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--f-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+  .btn-google:hover {
+    background: #F5F5F5;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -8px rgba(255,255,255,0.15);
+  }
+  .btn-google svg { flex-shrink: 0; }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+    color: var(--ink-faint);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-family: var(--f-mono);
+    font-weight: 500;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .field {
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-secondary);
+    margin-bottom: 8px;
+    letter-spacing: -0.005em;
+  }
+  .field label .hint {
+    float: right;
+    color: var(--brand-bright);
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 12px;
+    transition: opacity 0.15s;
+  }
+  .field label .hint:hover { opacity: 0.8; }
+
+  .field input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 14px;
+    transition: all 0.18s;
+    outline: none;
+  }
+  .field input::placeholder { color: var(--ink-faint); }
+  .field input:hover { border-color: var(--border-emphasis); }
+  .field input:focus {
+    border-color: var(--brand);
+    background: rgba(34,197,94,0.03);
+    box-shadow: 0 0 0 4px var(--brand-wash);
+  }
+
+  .field-pw { position: relative; }
+  .pw-toggle {
+    position: absolute;
+    right: 12px; top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--ink-faint);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s;
+    margin-top: 14px;
+  }
+  .pw-toggle:hover { color: var(--ink-secondary); }
+
+  .btn-submit {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: var(--brand);
+    color: #041706;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--f-body);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    line-height: 1;
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px -8px rgba(34,197,94,0.4);
+  }
+  .btn-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+  }
+  .btn-submit:hover {
+    background: var(--brand-bright);
+    transform: translateY(-1px);
+    box-shadow: 0 0 30px 0 var(--brand-glow), 0 12px 32px -8px rgba(34,197,94,0.5);
+  }
+  .btn-submit:hover::before { transform: translateX(100%); }
+
+  .auth-alt {
+    margin-top: 32px;
+    text-align: center;
+    color: var(--ink-muted);
+    font-size: 14px;
+  }
+  .auth-alt a {
+    color: var(--brand-bright);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.15s;
+  }
+  .auth-alt a:hover { opacity: 0.85; }
+
+  .auth-legal {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-faint);
+    line-height: 1.5;
+  }
+  .auth-legal a {
+    color: var(--ink-muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1px;
+    transition: color 0.15s;
+  }
+  .auth-legal a:hover { color: var(--ink-secondary); }
+
+  .back-link {
+    position: absolute;
+    top: 24px; left: 24px;
+    color: var(--ink-muted);
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.15s;
+    z-index: 10;
+  }
+  .back-link:hover { color: var(--ink); background: var(--bg-glass); }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lg-bar" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stop-color="#FEF3C7"/>
+      <stop offset="18%" stop-color="#FCD34D"/>
+      <stop offset="52%" stop-color="#A3E635"/>
+      <stop offset="100%" stop-color="#22C55E"/>
+    </linearGradient>
+    <linearGradient id="lg-shine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.55)"/>
+      <stop offset="60%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+    <linearGradient id="lg-arc" x1="0" y1="1" x2="1" y2="0.4">
+      <stop offset="0%" stop-color="#166534" stop-opacity="0.6"/>
+      <stop offset="35%" stop-color="#22C55E"/>
+      <stop offset="75%" stop-color="#4ADE80"/>
+      <stop offset="100%" stop-color="#22C55E" stop-opacity="0.4"/>
+    </linearGradient>
+    <linearGradient id="lg-swoosh" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#15803D"/>
+      <stop offset="45%" stop-color="#22C55E"/>
+      <stop offset="100%" stop-color="#4ADE80"/>
+    </linearGradient>
+    <marker id="lg-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 L 2 5 Z" fill="#4ADE80"/>
+    </marker>
+    <symbol id="vitta-logo" viewBox="0 0 108 108">
+      <path class="arc" d="M 18 82 A 40 40 0 1 1 92 56" fill="none" stroke="url(#lg-arc)" stroke-width="3.5" stroke-linecap="round"/>
+      <g class="bars">
+        <rect class="bar bar-1" x="26" y="58" width="10" height="34" rx="1.5" fill="url(#lg-bar)"/>
+        <rect class="bar bar-2" x="40" y="42" width="10" height="50" rx="1.5" fill="url(#lg-bar)"/>
+        <rect class="bar bar-3" x="54" y="26" width="10" height="66" rx="1.5" fill="url(#lg-bar)"/>
+        <rect class="bar bar-4" x="68" y="10" width="10" height="82" rx="1.5" fill="url(#lg-bar)"/>
+        <rect x="26" y="58" width="2.5" height="34" rx="1" fill="url(#lg-shine)"/>
+        <rect x="40" y="42" width="2.5" height="50" rx="1" fill="url(#lg-shine)"/>
+        <rect x="54" y="26" width="2.5" height="66" rx="1" fill="url(#lg-shine)"/>
+        <rect x="68" y="10" width="2.5" height="82" rx="1" fill="url(#lg-shine)"/>
+      </g>
+      <path class="swoosh" d="M 8 82 Q 22 66, 38 70 Q 48 73, 54 62 Q 60 50, 70 44 Q 82 38, 94 20" stroke="url(#lg-swoosh)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#lg-arrow)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="auth-wrap">
+  <!-- Left brand panel -->
+  <aside class="auth-side">
+    <div class="auth-side-bg"></div>
+    <div class="auth-side-dots"></div>
+
+    <a href="landing.html" class="side-brand" style="color:var(--ink);text-decoration:none;">
+      <span class="logo logo-animated"><svg width="40" height="40" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      Vitta
+    </a>
+
+    <div class="side-hero">
+      <h1>Welcome back to <em>every rupee, understood.</em></h1>
+      <p>Sign in to see your latest spending, review categorized transactions, and ask Vitta anything about your money.</p>
+    </div>
+
+    <div class="side-stats">
+      <div class="side-stat">
+        <div class="val">500+</div>
+        <div class="lbl">Active users</div>
+      </div>
+      <div class="side-stat">
+        <div class="val">78%</div>
+        <div class="lbl">Auto-categorized</div>
+      </div>
+      <div class="side-stat">
+        <div class="val">₹2.4Cr</div>
+        <div class="lbl">Analyzed this month</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right auth panel -->
+  <main class="auth-main">
+    <a href="landing.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back
+    </a>
+
+    <div class="auth-form">
+      <div class="auth-mobile-brand">
+        <span class="logo logo-animated"><svg width="56" height="56" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      </div>
+
+      <h2>Welcome <em>back.</em></h2>
+      <p class="subtitle">Sign in to your Vitta workspace to continue.</p>
+
+      <a href="#" class="btn-google">
+        <svg width="18" height="18" viewBox="0 0 18 18">
+          <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+        </svg>
+        Continue with Google
+      </a>
+
+      <div class="divider">or with email</div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">Work email</label>
+          <input type="email" id="email" placeholder="you@company.com" autocomplete="email" required>
+        </div>
+        <div class="field field-pw">
+          <label for="password">Password <a href="#forgot" class="hint">Forgot?</a></label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+          <button type="button" class="pw-toggle" aria-label="Show password" onclick="togglePw()">
+            <svg id="pw-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+
+        <button type="submit" class="btn-submit">Sign in →</button>
+      </form>
+
+      <div class="auth-alt">
+        Don't have an account yet? <a href="#signup">Get started free</a>
+      </div>
+
+      <div class="auth-legal">
+        By continuing, you agree to Vitta's <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  function togglePw() {
+    const pw = document.getElementById('password');
+    const icon = document.getElementById('pw-icon');
+    if (pw.type === 'password') {
+      pw.type = 'text';
+      icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    } else {
+      pw.type = 'password';
+      icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    }
+  }
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    window.location.href = 'dashboard.html';
+  });
+</script>
