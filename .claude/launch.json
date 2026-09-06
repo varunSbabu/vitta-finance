@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vitta-app",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["vitta/serve.py"],
+      "port": 5757,
+      "url": "http://localhost:5757"
+    }
+  ]
+}

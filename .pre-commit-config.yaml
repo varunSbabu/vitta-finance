@@ -1,0 +1,42 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+      - id: check-added-large-files
+        args: ["--maxkb=2000"]
+      - id: check-case-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.6
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+        files: ^vitta/backend/
+      - id: ruff-format
+        files: ^vitta/backend/
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: ^vitta/backend/requirements-lock\.txt$
+
+  # mypy runs on real type errors that predate this config (see
+  # docs/adr/0001-router-split-and-tooling.md) — advisory for now, not a
+  # commit blocker. Run explicitly with:
+  #   pre-commit run mypy --hook-stage manual --all-files
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy (advisory)
+        entry: bash -c 'cd vitta/backend && ../.venv/bin/mypy .'
+        language: system
+        files: ^vitta/backend/.*\.py$
+        pass_filenames: false
+        stages: [manual]
