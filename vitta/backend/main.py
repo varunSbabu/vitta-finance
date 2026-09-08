@@ -30,7 +30,18 @@ from starlette.middleware.sessions import SessionMiddleware
 
 import auth
 from db import init_db
-from routes import accounts, contacts, ingest, merchants, summary, system, transactions, transfers
+from routes import (
+    accounts,
+    ask,
+    contacts,
+    ingest,
+    insights,
+    merchants,
+    summary,
+    system,
+    transactions,
+    transfers,
+)
 
 app = FastAPI(title="Vitta API", version="0.5.0")
 
@@ -78,6 +89,8 @@ app.include_router(summary.router)
 app.include_router(merchants.router)
 app.include_router(contacts.router)
 app.include_router(transfers.router)
+app.include_router(insights.router)
+app.include_router(ask.router)
 app.include_router(system.router)
 
 
