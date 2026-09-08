@@ -1,0 +1,15 @@
+# Never leak local state into an image.
+.env
+.env.local
+vitta.db
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.DS_Store
+
+# Tests are not needed at runtime. If a future integration test image
+# is added, drop this line or use a separate stage.
+test_*.py

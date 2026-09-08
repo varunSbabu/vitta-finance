@@ -1,0 +1,87 @@
+# Vitta — local dev stack.
+#
+#   make dev     # build + start api + web + postgres
+#   make test    # run pytest against the running api container
+#   make down    # stop everything, keep volumes
+#
+# postgres is declared here so the connection string is available now,
+# but the app still reads from SQLite by default — the switchover is
+# Phase 1 (see vitta/docs/adr/0002-multitenancy-plan.md).
+
+name: vitta
+
+services:
+  api:
+    build:
+      # Build context is the backend directory itself so pip's COPY of
+      # requirements-lock.txt is short and the .dockerignore in there
+      # applies without extra path fiddling.
+      context: ./vitta/backend
+      dockerfile: Dockerfile
+    image: vitta-api:local
+    container_name: vitta-api
+    ports:
+      - "8001:8001"
+    environment:
+      # Anything the app reads at runtime. Secrets come from .env.local
+      # via env_file below — never bake them into the image.
+      LOG_FORMAT: json
+      LOG_LEVEL: INFO
+      # Frontend running on the web service, reachable from the browser
+      # on http://localhost:5757 (not from inside this container).
+      ALLOWED_ORIGINS: http://localhost:5757,http://127.0.0.1:5757
+    env_file:
+      # Optional — if absent, the app boots with sensible defaults but
+      # Google OAuth + Groq fallback are disabled.
+      - path: ./vitta/backend/.env.local
+        required: false
+    volumes:
+      # Bind-mount the SQLite file into the container so data survives
+      # container restarts and the DB stays inspectable from the host.
+      # Replaced by the postgres service in Phase 1.
+      - ./vitta/backend/vitta.db:/app/vitta.db
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8001/api/health"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./vitta
+      dockerfile: web/Dockerfile
+    image: vitta-web:local
+    container_name: vitta-web
+    ports:
+      - "5757:5757"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Not the default DB yet — declared so Phase 1's multitenancy work has
+  # a target to run migrations against without waiting on infra changes.
+  # Bring it up with: docker compose up -d postgres
+  postgres:
+    image: postgres:16-alpine
+    container_name: vitta-postgres
+    profiles: ["future"]  # excluded from default `docker compose up`
+    environment:
+      POSTGRES_DB: vitta
+      POSTGRES_USER: vitta
+      POSTGRES_PASSWORD: vitta_dev_only  # pragma: allowlist secret — local dev only, never used in prod
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vitta -d vitta"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
