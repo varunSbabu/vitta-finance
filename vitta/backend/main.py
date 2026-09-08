@@ -30,6 +30,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 import auth
 from db import init_db
+from logging_setup import RequestIDMiddleware, configure_logging
 from routes import (
     accounts,
     ask,
@@ -43,6 +44,8 @@ from routes import (
     transfers,
 )
 
+configure_logging()
+
 app = FastAPI(title="Vitta API", version="0.5.0")
 
 SESSION_SECRET_KEY = os.environ.get("SESSION_SECRET_KEY")
@@ -54,6 +57,10 @@ if not SESSION_SECRET_KEY:
         "sessions. Set SESSION_SECRET_KEY in backend/.env for real use."
     )
 
+# Middleware execution order is REVERSE of add order — the last add is
+# the outermost layer that sees a request first and the response last.
+# Adding RequestIDMiddleware last means the request-id is bound before
+# session/cors do anything, so any log line those emit already carries it.
 app.add_middleware(
     SessionMiddleware,
     secret_key=SESSION_SECRET_KEY,
@@ -80,6 +87,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(RequestIDMiddleware)
 
 app.include_router(auth.router)
 app.include_router(ingest.router)
