@@ -35,9 +35,11 @@ async def api_parse(
     file: UploadFile = File(...),
     source: str = Query("gpay_pdf", description="gpay_pdf, bank_pdf, phonepe_pdf, cc_pdf"),
     password: Optional[str] = Query(None, description="PDF password (banks use DDMMYYYY DOB)"),
-    _user: dict = Depends(require_auth),
+    user: dict = Depends(require_auth),
 ):
     """Parse an uploaded PDF and return preview transactions (not yet saved)."""
+    user_id = user["id"]
+
     if not (file.filename or "").lower().endswith(".pdf"):
         raise HTTPException(400, "Only PDF files accepted for now.")
 
@@ -67,7 +69,7 @@ async def api_parse(
     # Tier 2a: resolve person-to-person VPAs against imported contacts so
     # "9876543210@ybl" shows up as "Amma" instead of a bank-registered blob.
     vpas = [t.get("vpa") for t in txns if t.get("vpa")]
-    contact_matches = resolve_contacts_batch(vpas) if vpas else {}
+    contact_matches = resolve_contacts_batch(vpas, user_id) if vpas else {}
     for t in txns:
         vpa = t.get("vpa")
         if vpa and vpa in contact_matches:
@@ -76,7 +78,10 @@ async def api_parse(
 
     # Tier 1 + Tier 2b: rules, then user dictionary (exact merchant_raw match)
     conn = get_conn()
-    dict_rows = conn.execute("SELECT merchant_key, category FROM merchant_dictionary").fetchall()
+    dict_rows = conn.execute(
+        "SELECT merchant_key, category FROM merchant_dictionary WHERE user_id = ?",
+        (user_id,),
+    ).fetchall()
     conn.close()
     user_dict = {r["merchant_key"].lower(): r["category"] for r in dict_rows}
 
@@ -147,14 +152,17 @@ async def api_parse(
 
 
 @router.post("/api/import")
-def api_import(txns: list[dict] = Body(..., embed=False), _user: dict = Depends(require_auth)):
+def api_import(txns: list[dict] = Body(..., embed=False), user: dict = Depends(require_auth)):
     """Bulk-insert transactions. Skips duplicates by upi_ref."""
+    user_id = user["id"]
     conn = get_conn()
     inserted = 0
     skipped_dup = 0
     accounts_by_key: dict[tuple[str, str], int] = {}
 
-    for row in conn.execute("SELECT id, bank_name, account_last4 FROM accounts"):
+    for row in conn.execute(
+        "SELECT id, bank_name, account_last4 FROM accounts WHERE user_id = ?", (user_id,)
+    ):
         accounts_by_key[(row["bank_name"], row["account_last4"])] = row["id"]
 
     for t in txns:
@@ -163,25 +171,22 @@ def api_import(txns: list[dict] = Body(..., embed=False), _user: dict = Depends(
         key = (bank, last4)
         if key not in accounts_by_key:
             cur = conn.execute(
-                "INSERT INTO accounts (bank_name, account_last4) VALUES (?, ?)",
-                (bank, last4),
+                "INSERT INTO accounts (user_id, bank_name, account_last4) VALUES (?, ?, ?)",
+                (user_id, bank, last4),
             )
             accounts_by_key[key] = cur.lastrowid
         account_id = accounts_by_key[key]
 
         upi_ref = t.get("upi_ref") or None
 
-        # No upi_ref (ATM, bill pay, NEFT without ref) — fall back to a
-        # composite-key dedup check so re-importing the same statement
-        # doesn't double-count these.
         if not upi_ref:
             existing = conn.execute(
                 """
                 SELECT id FROM transactions
-                WHERE account_id = ? AND txn_date = ? AND amount = ?
+                WHERE user_id = ? AND account_id = ? AND txn_date = ? AND amount = ?
                   AND direction = ? AND merchant_raw = ?
                 """,
-                (account_id, t["date"], t["amount"], t["direction"], t["merchant_raw"]),
+                (user_id, account_id, t["date"], t["amount"], t["direction"], t["merchant_raw"]),
             ).fetchone()
             if existing:
                 skipped_dup += 1
@@ -191,12 +196,13 @@ def api_import(txns: list[dict] = Body(..., embed=False), _user: dict = Depends(
             conn.execute(
                 """
                 INSERT INTO transactions
-                  (account_id, txn_date, txn_time, amount, direction,
+                  (user_id, account_id, txn_date, txn_time, amount, direction,
                    merchant_raw, merchant_clean, upi_ref, vpa, remark,
                    source, category, raw_json)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
+                    user_id,
                     account_id,
                     t["date"],
                     t.get("time"),

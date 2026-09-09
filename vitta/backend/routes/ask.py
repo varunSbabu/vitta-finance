@@ -14,12 +14,9 @@ router = APIRouter(tags=["ask"])
 
 
 @router.post("/api/ask")
-def api_ask(payload: dict = Body(...), _user: dict = Depends(require_auth)):
+def api_ask(payload: dict = Body(...), user: dict = Depends(require_auth)):
     question = (payload.get("question") or "").strip()
-    result = answer_question(question)
-    # `sql` and `rows` are returned so the UI can optionally show its work;
-    # `error` is a machine-readable tag (None on success), `answer` is always
-    # a user-facing string.
+    result = answer_question(question, user["id"])
     return {
         "question": question,
         "answer": result["answer"],

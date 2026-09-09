@@ -7,18 +7,25 @@ rows in one sentence. The LLM never computes a total itself; SQLite does
 the arithmetic and the LLM only phrases the result. This is the same
 "LLM never does math" invariant the categorization tiers hold.
 
+Multi-tenancy: the LLM is told to always filter by `user_id = :uid`.
+Validation rejects any query that doesn't contain this filter. At
+execution time, `:uid` is bound to the authenticated user's id — the LLM
+never sees the actual value and can't forge a different one.
+
 Security model (defense in depth — each layer alone would suffice, all
-three are applied):
+are applied):
 
   1. Static validation of the generated SQL (`_validate_sql`): the string
      must be a single SELECT/WITH statement; any mutating keyword,
      multiple statements, PRAGMA/ATTACH, sqlite_* internals, or a
      reference to the `users` table (which holds password_hash) is
      refused before execution.
-  2. A genuinely read-only connection (`?mode=ro` URI + PRAGMA
+  2. User-id scoping: the query must contain `:uid` and the actual value
+     is bound by the backend, not interpolated by the LLM.
+  3. A genuinely read-only connection (`?mode=ro` URI + PRAGMA
      query_only=ON): even if validation were bypassed, the driver itself
      rejects any write.
-  3. A progress handler that aborts a runaway query after a fixed VM-step
+  4. A progress handler that aborts a runaway query after a fixed VM-step
      budget, and a hard row cap, so a pathological but "valid" SELECT
      can't hang the process or return unbounded data.
 
@@ -36,12 +43,8 @@ from categorization import CATEGORIES
 from db import DB_PATH
 from llm import chat, is_available
 
-# Tables the generated SQL may reference. `users` is deliberately absent:
-# it holds password_hash and Google subject ids, and nothing a spending
-# question needs is in it.
 ALLOWED_TABLES = {"transactions", "accounts", "merchant_dictionary", "contacts"}
 
-# Whole-word matches that make a query non-read-only or otherwise unsafe.
 FORBIDDEN_KEYWORDS = {
     "insert",
     "update",
@@ -64,31 +67,22 @@ FORBIDDEN_KEYWORDS = {
     "savepoint",
     "trigger",
 }
-# Substrings that must never appear (SQLite internals + file/extension I/O).
 FORBIDDEN_SUBSTRINGS = ("sqlite_", "load_extension", "readfile", "writefile", "edit(")
 
-# The `users` table holds password_hash + Google subject ids. No spending
-# question ever needs the word "users", and rejecting the bare token
-# outright (not just as a FROM/JOIN target) closes the subtle case where a
-# CTE named `users` could shadow — or a self-referencing CTE body could
-# reach — the real table. No column in the allowed tables contains this
-# token, so this never produces a false positive on a legitimate query.
 FORBIDDEN_TABLE_TOKENS = {"users"}
 
 MAX_ROWS = 200
-PROGRESS_STEP_BUDGET = 1_000_000  # abort a query that burns more VM steps than this
+PROGRESS_STEP_BUDGET = 1_000_000
 
 _WORD_RE = re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*")
 _TABLE_REF_RE = re.compile(r"\b(?:from|join)\s+([a-zA-Z_][a-zA-Z0-9_]*)", re.IGNORECASE)
-# CTE names declared by `WITH name AS (...)` or `, name AS (...)`. These are
-# query-local aliases, not real tables, so they're allowed as FROM targets.
 _CTE_NAME_RE = re.compile(r"(?:\bwith|,)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s*\(", re.IGNORECASE)
 
 
-SCHEMA_DESCRIPTION = f"""You are writing SQLite SQL for a personal expense tracker. Only these tables exist:
+SCHEMA_DESCRIPTION = f"""You are writing SQLite SQL for a multi-tenant personal expense tracker. Only these tables exist:
 
 transactions(
-  id, account_id, txn_date TEXT 'YYYY-MM-DD', txn_time TEXT, amount REAL (always positive),
+  id, user_id INTEGER, account_id, txn_date TEXT 'YYYY-MM-DD', txn_time TEXT, amount REAL (always positive),
   direction TEXT ('debit' = money out, 'credit' = money in),
   merchant_raw, merchant_clean (display name — prefer this),
   upi_ref, vpa, remark (user's own note on the payment, e.g. 'coconut', 'rent'),
@@ -97,11 +91,12 @@ transactions(
   is_self_transfer (1 = a transfer between the user's own accounts; exclude these from spend/income totals),
   txn_date is the column to filter/group by month with substr(txn_date,1,7)
 )
-accounts(id, bank_name, account_last4, account_type)
-merchant_dictionary(merchant_key, category)  -- user's saved merchant->category tags
-contacts(phone_last10, display_name)
+accounts(id, user_id INTEGER, bank_name, account_last4, account_type)
+merchant_dictionary(user_id INTEGER, merchant_key, category)  -- user's saved merchant->category tags
+contacts(user_id INTEGER, phone_last10, display_name)
 
 Rules:
+- CRITICAL: Every table you query MUST be filtered by `user_id = :uid`. Use `:uid` as the parameter — never a literal number.
 - Almost every question about spending/income should include "WHERE is_self_transfer = 0".
 - "spent" / "spending" = direction='debit'. "received" / "income" = direction='credit'.
 - Amounts are rupees. Use ROUND(SUM(amount), 2) for money.
@@ -116,12 +111,11 @@ def is_configured() -> bool:
 
 def _validate_sql(sql: str) -> tuple[bool, str]:
     """Return (ok, reason). Refuses anything that isn't a single, plainly
-    read-only SELECT/WITH over the allowed tables."""
+    read-only SELECT/WITH over the allowed tables, with user_id scoping."""
     cleaned = sql.strip().rstrip(";").strip()
     if not cleaned:
         return False, "empty query"
 
-    # Single statement only — no stacking a write after a SELECT.
     if ";" in cleaned:
         return False, "multiple statements are not allowed"
 
@@ -142,20 +136,21 @@ def _validate_sql(sql: str) -> tuple[bool, str]:
     if forbidden_tbl:
         return False, f"query references a protected table: {sorted(forbidden_tbl)[0]!r}"
 
-    # Every table referenced after FROM/JOIN must be a base table in the
-    # allowlist or a CTE name declared in this same query.
     cte_names = {n.lower() for n in _CTE_NAME_RE.findall(lowered)}
     allowed = ALLOWED_TABLES | cte_names
     for tbl in _TABLE_REF_RE.findall(lowered):
         if tbl not in allowed:
             return False, f"query references a table that isn't allowed: {tbl!r}"
 
+    if ":uid" not in lowered:
+        return False, "query must filter by user_id = :uid"
+
     return True, ""
 
 
-def _run_readonly(sql: str) -> list[dict]:
+def _run_readonly(sql: str, user_id: int) -> list[dict]:
     """Execute a pre-validated SELECT on a read-only connection with a
-    runaway-query guard and a row cap."""
+    runaway-query guard and a row cap. Binds :uid to the authenticated user."""
     conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row
     try:
@@ -165,12 +160,10 @@ def _run_readonly(sql: str) -> list[dict]:
 
         def _guard():
             steps["n"] += 1
-            # Returning non-zero from the progress handler aborts the query.
             return 1 if steps["n"] > (PROGRESS_STEP_BUDGET // 1000) else 0
 
-        # Handler fires every ~1000 VM steps; budget above is in raw steps.
         conn.set_progress_handler(_guard, 1000)
-        cur = conn.execute(sql)
+        cur = conn.execute(sql, {"uid": user_id})
         rows = cur.fetchmany(MAX_ROWS)
         return [dict(r) for r in rows]
     finally:
@@ -187,7 +180,8 @@ def _generate_sql(question: str) -> str | None:
                 "content": (
                     f"Question: {question}\n\n"
                     "Reply with ONLY the SQL query — a single SELECT statement, "
-                    "no explanation, no markdown fences, no trailing semicolon."
+                    "no explanation, no markdown fences, no trailing semicolon. "
+                    "Remember: filter every table by user_id = :uid."
                 ),
             },
         ],
@@ -196,7 +190,6 @@ def _generate_sql(question: str) -> str | None:
     )
     if not content:
         return None
-    # Strip markdown fences the model sometimes adds despite instructions.
     content = content.strip()
     content = re.sub(r"^```(?:sql)?\s*", "", content)
     content = re.sub(r"\s*```$", "", content)
@@ -204,10 +197,6 @@ def _generate_sql(question: str) -> str | None:
 
 
 def _is_empty_result(rows: list[dict]) -> bool:
-    """A count/sum question that matched nothing comes back not as an empty
-    list but as a single row whose every value is NULL (SUM over zero rows
-    is NULL, COUNT is 0). Treat that as 'nothing found' so the answer reads
-    like ₹0 / no transactions instead of the literal 'null'."""
     if not rows:
         return True
     if len(rows) == 1:
@@ -218,8 +207,7 @@ def _is_empty_result(rows: list[dict]) -> bool:
 
 
 def _narrate(question: str, rows: list[dict]) -> str:
-    """Turn the query result into one plain-English sentence. The model
-    only ever sees already-computed rows — it phrases, it does not calculate."""
+    """Turn the query result into one plain-English sentence."""
     if _is_empty_result(rows):
         return "I couldn't find any transactions matching that — the total there is ₹0."
 
@@ -242,12 +230,8 @@ def _narrate(question: str, rows: list[dict]) -> str:
         max_tokens=300,
     )
     if narration:
-        # Strip any markdown emphasis the model adds despite instructions —
-        # the chat UI renders plain text, so **x** would show literally.
         return re.sub(r"\*{1,2}", "", narration).strip()
 
-    # LLM narration failed but we still have real rows — show them plainly
-    # rather than erroring.
     if len(rows) == 1 and len(rows[0]) == 1:
         val = next(iter(rows[0].values()))
         if isinstance(val, (int, float)):
@@ -256,7 +240,7 @@ def _narrate(question: str, rows: list[dict]) -> str:
     return f"Found {len(rows)} result row(s)."
 
 
-def answer_question(question: str) -> dict:
+def answer_question(question: str, user_id: int) -> dict:
     """Full Ask Vitta flow. Returns a dict the route serializes directly:
     {answer, sql, rows, error}. `error` is set (and answer is a friendly
     message) whenever the question can't be safely answered."""
@@ -290,7 +274,7 @@ def answer_question(question: str) -> dict:
         }
 
     try:
-        rows = _run_readonly(sql)
+        rows = _run_readonly(sql, user_id)
     except Exception as e:
         return {
             "answer": "That query didn't run cleanly — try asking a simpler question.",

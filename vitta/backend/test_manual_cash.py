@@ -244,14 +244,22 @@ def test_delete_refuses_statement_sourced_transaction():
     import db
 
     conn = db.get_conn()
-    conn.execute("INSERT INTO accounts (bank_name, account_last4) VALUES ('Test Bank', '9999')")
-    acc_id = conn.execute("SELECT id FROM accounts WHERE bank_name='Test Bank'").fetchone()["id"]
+    # Look up the test user created by _fresh_app's signup call
+    test_user = conn.execute("SELECT id FROM users WHERE email='test@example.com'").fetchone()
+    uid = test_user["id"]
+    conn.execute(
+        "INSERT INTO accounts (user_id, bank_name, account_last4) VALUES (?, 'Test Bank', '9999')",
+        (uid,),
+    )
+    acc_id = conn.execute(
+        "SELECT id FROM accounts WHERE bank_name='Test Bank' AND user_id=?", (uid,)
+    ).fetchone()["id"]
     conn.execute(
         """
-        INSERT INTO transactions (account_id, txn_date, amount, direction, merchant_raw, merchant_clean, source, category)
-        VALUES (?, '2026-08-01', 500, 'debit', 'Real Merchant', 'Real Merchant', 'bank_pdf', 'Shopping')
+        INSERT INTO transactions (user_id, account_id, txn_date, amount, direction, merchant_raw, merchant_clean, source, category)
+        VALUES (?, ?, '2026-08-01', 500, 'debit', 'Real Merchant', 'Real Merchant', 'bank_pdf', 'Shopping')
     """,
-        (acc_id,),
+        (uid, acc_id),
     )
     conn.commit()
     txn_id = conn.execute("SELECT id FROM transactions WHERE merchant_raw='Real Merchant'").fetchone()["id"]

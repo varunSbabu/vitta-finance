@@ -33,32 +33,34 @@ def api_transactions(
     account_id: Optional[int] = None,
     direction: Optional[str] = None,
     q: Optional[str] = None,
-    _user: dict = Depends(require_auth),
+    user: dict = Depends(require_auth),
 ):
-    where: list = []
-    params: list = []
+    user_id = user["id"]
+    where: list = ["t.user_id = ?"]
+    params: list = [user_id]
     if category:
-        where.append("category = ?")
+        where.append("t.category = ?")
         params.append(category)
     if account_id:
-        where.append("account_id = ?")
+        where.append("t.account_id = ?")
         params.append(account_id)
     if direction:
-        where.append("direction = ?")
+        where.append("t.direction = ?")
         params.append(direction)
     if q:
-        where.append("(merchant_clean LIKE ? OR merchant_raw LIKE ? OR remark LIKE ?)")
+        where.append("(t.merchant_clean LIKE ? OR t.merchant_raw LIKE ? OR t.remark LIKE ?)")
         params.extend([f"%{q}%", f"%{q}%", f"%{q}%"])
 
     sql = "SELECT t.*, a.bank_name, a.account_last4 FROM transactions t LEFT JOIN accounts a ON t.account_id = a.id"
-    if where:
-        sql += " WHERE " + " AND ".join(where)
-    sql += " ORDER BY txn_date DESC, id DESC LIMIT ? OFFSET ?"
+    sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY t.txn_date DESC, t.id DESC LIMIT ? OFFSET ?"
     params.extend([limit, offset])
 
     conn = get_conn()
     rows = conn.execute(sql, params).fetchall()
-    total = conn.execute("SELECT COUNT(*) AS c FROM transactions").fetchone()["c"]
+    total = conn.execute("SELECT COUNT(*) AS c FROM transactions WHERE user_id = ?", (user_id,)).fetchone()[
+        "c"
+    ]
     conn.close()
     return {"total": total, "count": len(rows), "transactions": [dict_from_row(r) for r in rows]}
 
@@ -71,24 +73,25 @@ def _parse_manual_date(s: str) -> bool:
         return False
 
 
-def _get_or_create_cash_account(conn) -> int:
+def _get_or_create_cash_account(conn, user_id: int) -> int:
     conn.execute(
-        "INSERT OR IGNORE INTO accounts (bank_name, account_last4, account_type) VALUES (?, ?, 'cash')",
-        (CASH_ACCOUNT_BANK_NAME, CASH_ACCOUNT_LAST4),
+        "INSERT OR IGNORE INTO accounts (user_id, bank_name, account_last4, account_type) VALUES (?, ?, ?, 'cash')",
+        (user_id, CASH_ACCOUNT_BANK_NAME, CASH_ACCOUNT_LAST4),
     )
     row = conn.execute(
-        "SELECT id FROM accounts WHERE bank_name = ? AND account_last4 = ?",
-        (CASH_ACCOUNT_BANK_NAME, CASH_ACCOUNT_LAST4),
+        "SELECT id FROM accounts WHERE user_id = ? AND bank_name = ? AND account_last4 = ?",
+        (user_id, CASH_ACCOUNT_BANK_NAME, CASH_ACCOUNT_LAST4),
     ).fetchone()
     return row["id"]
 
 
 @router.post("/api/transactions/manual")
-def api_add_manual_transaction(payload: dict = Body(...), _user: dict = Depends(require_auth)):
+def api_add_manual_transaction(payload: dict = Body(...), user: dict = Depends(require_auth)):
     """Log a transaction with no statement trail — cash spend, a cash gift
     received, etc. Always attached to the virtual Cash account (created on
     first use). Runs merchant text through the same Tier 1 rules as parsed
     transactions unless the caller supplies a category directly."""
+    user_id = user["id"]
     date = (payload.get("date") or "").strip()
     merchant = (payload.get("merchant") or "").strip()
     direction = (payload.get("direction") or "debit").strip()
@@ -111,22 +114,18 @@ def api_add_manual_transaction(payload: dict = Body(...), _user: dict = Depends(
     if not category:
         category = rule_categorize(merchant, remark)
         if category == "Uncategorized" and direction == "debit":
-            # No rule matched a hand-typed description — cash purchases
-            # skew toward everyday small spend, a safer default than
-            # leaving the whole entry uncategorized when the user is
-            # clearly telling us what it was for.
             category = "Cash"
 
     conn = get_conn()
-    account_id = _get_or_create_cash_account(conn)
+    account_id = _get_or_create_cash_account(conn, user_id)
     cur = conn.execute(
         """
         INSERT INTO transactions
-          (account_id, txn_date, amount, direction, merchant_raw, merchant_clean,
+          (user_id, account_id, txn_date, amount, direction, merchant_raw, merchant_clean,
            remark, source, category)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'manual_cash', ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'manual_cash', ?)
         """,
-        (account_id, date, amount, direction, merchant, merchant, remark, category),
+        (user_id, account_id, date, amount, direction, merchant, merchant, remark, category),
     )
     conn.commit()
     txn_id = cur.lastrowid
@@ -135,19 +134,22 @@ def api_add_manual_transaction(payload: dict = Body(...), _user: dict = Depends(
 
 
 @router.delete("/api/transactions/{txn_id}")
-def api_delete_manual_transaction(txn_id: int, _user: dict = Depends(require_auth)):
+def api_delete_manual_transaction(txn_id: int, user: dict = Depends(require_auth)):
     """Undo a manual entry. Scoped to source='manual_cash' only — this
     endpoint is for fixing a typo'd cash entry, not a general delete-any-
     transaction API for statement-derived history."""
+    user_id = user["id"]
     conn = get_conn()
-    row = conn.execute("SELECT source FROM transactions WHERE id = ?", (txn_id,)).fetchone()
+    row = conn.execute(
+        "SELECT source FROM transactions WHERE id = ? AND user_id = ?", (txn_id, user_id)
+    ).fetchone()
     if not row:
         conn.close()
         raise HTTPException(404, "Transaction not found")
     if row["source"] != "manual_cash":
         conn.close()
         raise HTTPException(403, "Only manually-entered transactions can be deleted here.")
-    conn.execute("DELETE FROM transactions WHERE id = ?", (txn_id,))
+    conn.execute("DELETE FROM transactions WHERE id = ? AND user_id = ?", (txn_id, user_id))
     conn.commit()
     conn.close()
     return {"ok": True}

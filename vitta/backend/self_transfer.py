@@ -25,17 +25,21 @@ WINDOW_DAYS = 2
 AMOUNT_EPSILON = 0.01
 
 
-def detect_self_transfers() -> dict:
-    """Scan all not-yet-flagged transactions and mark matching debit/credit
-    pairs across different accounts as self-transfers. Idempotent — running
-    it again only looks at transactions still marked is_self_transfer = 0."""
+def detect_self_transfers(user_id: int) -> dict:
+    """Scan all not-yet-flagged transactions for this user and mark matching
+    debit/credit pairs across different accounts as self-transfers.
+    Idempotent — running it again only looks at transactions still marked
+    is_self_transfer = 0."""
     conn = get_conn()
-    rows = conn.execute("""
+    rows = conn.execute(
+        """
         SELECT id, account_id, txn_date, amount, direction
         FROM transactions
-        WHERE is_self_transfer = 0
+        WHERE user_id = ? AND is_self_transfer = 0
         ORDER BY txn_date
-    """).fetchall()
+        """,
+        (user_id,),
+    ).fetchall()
 
     debits = [dict(r) for r in rows if r["direction"] == "debit"]
     credits = [dict(r) for r in rows if r["direction"] == "credit"]

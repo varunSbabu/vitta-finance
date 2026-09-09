@@ -26,22 +26,37 @@ db.init_db()
 import text_to_sql  # noqa: E402
 from text_to_sql import _validate_sql, answer_question  # noqa: E402
 
+TEST_USER_ID = 1
+
 
 @pytest.fixture(autouse=True)
 def _scratch_db():
     db.DB_PATH = pathlib.Path(_tmp_db.name)
-    # text_to_sql captured DB_PATH at import; keep it pointed at the scratch file.
     text_to_sql.DB_PATH = pathlib.Path(_tmp_db.name)
     db.init_db()
+    _ensure_test_user()
     yield
+
+
+def _ensure_test_user():
+    conn = db.get_conn()
+    conn.execute(
+        "INSERT OR IGNORE INTO users (id, email, name) VALUES (?, 'test@example.com', 'Test')",
+        (TEST_USER_ID,),
+    )
+    conn.commit()
+    conn.close()
 
 
 def _seed():
     conn = db.get_conn()
     conn.execute("DELETE FROM transactions")
     conn.execute("DELETE FROM accounts")
-    conn.execute("INSERT INTO accounts (bank_name, account_last4) VALUES ('Indian Bank','7318')")
-    acc = conn.execute("SELECT id FROM accounts").fetchone()["id"]
+    conn.execute(
+        "INSERT INTO accounts (user_id, bank_name, account_last4) VALUES (?, 'Indian Bank', '7318')",
+        (TEST_USER_ID,),
+    )
+    acc = conn.execute("SELECT id FROM accounts WHERE user_id = ?", (TEST_USER_ID,)).fetchone()["id"]
     rows = [
         ("2026-08-01", 500, "debit", "Swiggy", "Food"),
         ("2026-08-02", 1500, "debit", "Flipkart", "Shopping"),
@@ -50,9 +65,9 @@ def _seed():
     ]
     for d, amt, direction, m, cat in rows:
         conn.execute(
-            "INSERT INTO transactions (account_id, txn_date, amount, direction, merchant_raw, merchant_clean, source, category) "
-            "VALUES (?,?,?,?,?,?, 'bank_pdf', ?)",
-            (acc, d, amt, direction, m, m, cat),
+            "INSERT INTO transactions (user_id, account_id, txn_date, amount, direction, merchant_raw, merchant_clean, source, category) "
+            "VALUES (?,?,?,?,?,?,?, 'bank_pdf', ?)",
+            (TEST_USER_ID, acc, d, amt, direction, m, m, cat),
         )
     conn.commit()
     conn.close()
@@ -62,13 +77,15 @@ def _seed():
 
 
 def test_validate_accepts_plain_select():
-    ok, _ = _validate_sql("SELECT SUM(amount) FROM transactions WHERE direction='debit'")
+    ok, _ = _validate_sql("SELECT SUM(amount) FROM transactions WHERE user_id = :uid AND direction='debit'")
     assert ok is True
     print("  OK plain SELECT accepted")
 
 
 def test_validate_accepts_cte():
-    ok, _ = _validate_sql("WITH x AS (SELECT amount FROM transactions) SELECT SUM(amount) FROM x")
+    ok, _ = _validate_sql(
+        "WITH x AS (SELECT amount FROM transactions WHERE user_id = :uid) SELECT SUM(amount) FROM x"
+    )
     assert ok is True
     print("  OK WITH/CTE accepted")
 
@@ -92,12 +109,10 @@ def test_validate_rejects_stacked_statements():
 
 
 def test_validate_rejects_users_table():
-    # The whole point: a spending question must never be able to read the
-    # table that holds password_hash.
     for sql in [
-        "SELECT * FROM users",
-        "SELECT password_hash FROM users",
-        "SELECT t.amount FROM transactions t JOIN users u ON 1=1",
+        "SELECT * FROM users WHERE user_id = :uid",
+        "SELECT password_hash FROM users WHERE user_id = :uid",
+        "SELECT t.amount FROM transactions t JOIN users u ON 1=1 WHERE t.user_id = :uid",
     ]:
         ok, reason = _validate_sql(sql)
         assert ok is False, f"should have rejected users access: {sql}"
@@ -116,7 +131,7 @@ def test_validate_rejects_sqlite_internals_and_pragma():
 
 
 def test_validate_rejects_unknown_table():
-    ok, reason = _validate_sql("SELECT * FROM secrets")
+    ok, reason = _validate_sql("SELECT * FROM secrets WHERE user_id = :uid")
     assert ok is False
     assert "secrets" in reason
     print("  OK query against an unknown table rejected")
@@ -128,15 +143,20 @@ def test_validate_rejects_empty():
     print("  OK empty query rejected")
 
 
+def test_validate_rejects_missing_uid():
+    ok, reason = _validate_sql("SELECT SUM(amount) FROM transactions WHERE direction='debit'")
+    assert ok is False
+    assert "uid" in reason
+    print("  OK query without :uid is rejected")
+
+
 # ── read-only execution ─────────────────────────────────────────────
 
 
 def test_readonly_connection_blocks_writes():
-    # Even bypassing validation, the executor's connection must refuse a write.
     _seed()
     with pytest.raises(sqlite3.OperationalError):
-        text_to_sql._run_readonly("DELETE FROM transactions")
-    # And the data is untouched.
+        text_to_sql._run_readonly("DELETE FROM transactions", TEST_USER_ID)
     conn = db.get_conn()
     n = conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0]
     conn.close()
@@ -146,14 +166,17 @@ def test_readonly_connection_blocks_writes():
 
 def test_readonly_runs_real_aggregate():
     _seed()
-    rows = text_to_sql._run_readonly("SELECT SUM(amount) AS total FROM transactions WHERE direction='debit'")
+    rows = text_to_sql._run_readonly(
+        "SELECT SUM(amount) AS total FROM transactions WHERE user_id = :uid AND direction='debit'",
+        TEST_USER_ID,
+    )
     assert rows == [{"total": 2200}]
     print("  OK read-only executor returns correct aggregate (₹2,200 debit)")
 
 
 def test_readonly_row_cap():
     _seed()
-    rows = text_to_sql._run_readonly("SELECT * FROM transactions")
+    rows = text_to_sql._run_readonly("SELECT * FROM transactions WHERE user_id = :uid", TEST_USER_ID)
     assert len(rows) <= text_to_sql.MAX_ROWS
     print("  OK row cap enforced")
 
@@ -167,17 +190,15 @@ def test_answer_question_happy_path(monkeypatch):
 
     def fake_chat(messages, **kwargs):
         calls["n"] += 1
-        if calls["n"] == 1:  # SQL generation
-            return (
-                "SELECT SUM(amount) AS total FROM transactions WHERE direction='debit' AND is_self_transfer=0"
-            )
-        return "You've spent ₹2,200 so far."  # narration
+        if calls["n"] == 1:
+            return "SELECT SUM(amount) AS total FROM transactions WHERE user_id = :uid AND direction='debit' AND is_self_transfer=0"
+        return "You've spent ₹2,200 so far."
 
     monkeypatch.setenv("GROQ_API_KEY", "test-key")
     monkeypatch.setattr(text_to_sql, "chat", fake_chat)
     monkeypatch.setattr(text_to_sql, "is_available", lambda: True)
 
-    result = answer_question("how much have I spent?")
+    result = answer_question("how much have I spent?", TEST_USER_ID)
     assert result["error"] is None
     assert result["rows"] == [{"total": 2200}]
     assert "2,200" in result["answer"]
@@ -188,14 +209,12 @@ def test_answer_question_blocks_unsafe_generated_sql(monkeypatch):
     _seed()
 
     monkeypatch.setenv("GROQ_API_KEY", "test-key")
-    # Simulate the model going rogue / being prompt-injected into a write.
     monkeypatch.setattr(text_to_sql, "chat", lambda messages, **kw: "DELETE FROM transactions")
     monkeypatch.setattr(text_to_sql, "is_available", lambda: True)
 
-    result = answer_question("delete everything")
+    result = answer_question("delete everything", TEST_USER_ID)
     assert result["error"].startswith("unsafe_sql")
     assert result["rows"] == []
-    # Data untouched.
     conn = db.get_conn()
     n = conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0]
     conn.close()
@@ -206,30 +225,29 @@ def test_answer_question_blocks_unsafe_generated_sql(monkeypatch):
 def test_answer_question_not_configured(monkeypatch):
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
     monkeypatch.setattr(text_to_sql, "is_available", lambda: False)
-    result = answer_question("anything")
+    result = answer_question("anything", TEST_USER_ID)
     assert result["error"] == "not_configured"
     print("  OK reports not_configured cleanly without a key")
 
 
 def test_answer_question_empty():
-    result = answer_question("   ")
+    result = answer_question("   ", TEST_USER_ID)
     assert result["error"] == "empty"
     print("  OK empty question handled")
 
 
 def test_null_scalar_result_reads_as_zero_not_null(monkeypatch):
-    # A SUM over zero matching rows returns [{"total": None}] — the answer
-    # must read like ₹0, never the literal string "null".
     _seed()
     monkeypatch.setenv("GROQ_API_KEY", "test-key")
-    # Generate a query that matches nothing (a category with no rows).
     monkeypatch.setattr(
         text_to_sql,
         "chat",
-        lambda messages, **kw: "SELECT SUM(amount) AS total FROM transactions WHERE category='Nonexistent'",
+        lambda messages, **kw: (
+            "SELECT SUM(amount) AS total FROM transactions WHERE user_id = :uid AND category='Nonexistent'"
+        ),
     )
     monkeypatch.setattr(text_to_sql, "is_available", lambda: True)
-    result = answer_question("how much did I spend on nonexistent things?")
+    result = answer_question("how much did I spend on nonexistent things?", TEST_USER_ID)
     assert result["error"] is None
     assert "null" not in result["answer"].lower()
     assert "0" in result["answer"]
@@ -282,6 +300,7 @@ if __name__ == "__main__":
         test_validate_rejects_sqlite_internals_and_pragma,
         test_validate_rejects_unknown_table,
         test_validate_rejects_empty,
+        test_validate_rejects_missing_uid,
         test_readonly_connection_blocks_writes,
         test_readonly_runs_real_aggregate,
         test_readonly_row_cap,
@@ -299,6 +318,7 @@ if __name__ == "__main__":
             db.DB_PATH = pathlib.Path(_tmp_db.name)
             text_to_sql.DB_PATH = pathlib.Path(_tmp_db.name)
             db.init_db()
+            _ensure_test_user()
             if "monkeypatch" in t.__code__.co_varnames[: t.__code__.co_argcount]:
                 t(mp)
             else:

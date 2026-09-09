@@ -14,11 +14,12 @@ router = APIRouter(tags=["summary"])
 
 @router.get("/api/summary")
 def api_summary(
-    month: Optional[str] = Query(None, description="YYYY-MM"), _user: dict = Depends(require_auth)
+    month: Optional[str] = Query(None, description="YYYY-MM"), user: dict = Depends(require_auth)
 ):
+    user_id = user["id"]
     conn = get_conn()
-    where = "WHERE is_self_transfer = 0"
-    params: list = []
+    where = "WHERE user_id = ? AND is_self_transfer = 0"
+    params: list = [user_id]
     if month:
         where += " AND txn_date LIKE ?"
         params.append(f"{month}%")

@@ -11,8 +11,8 @@ router = APIRouter(tags=["transfers"])
 
 
 @router.post("/api/detect-transfers")
-def api_detect_transfers(_user: dict = Depends(require_auth)):
+def api_detect_transfers(user: dict = Depends(require_auth)):
     """Scan transactions for debit/credit pairs across the user's own
     accounts and flag them as self-transfers so they're excluded from
     spend/income totals. Safe to call repeatedly (idempotent)."""
-    return detect_self_transfers()
+    return detect_self_transfers(user["id"])
