@@ -35,16 +35,23 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: vitta/backend/requirements-lock.txt
+          cache-dependency-path: vitta/backend/requirements-runtime.txt
 
-      - name: Install runtime + dev deps
-        # The full lock includes ruff/mypy/pytest/pre-commit — that's
-        # what CI actually needs. On 3.12 the dev-tool transitives
-        # resolve cleanly (only the older 3.9 base of the local .venv
-        # had the filelock/virtualenv conflict).
+      - name: Install runtime + lint/test deps
+        # requirements-lock.txt (full `pip freeze` of the local dev venv,
+        # pre-commit included) is NOT installable fresh: pre-commit pulls
+        # in virtualenv, which requires filelock>=3.24.2, while the lock
+        # separately pins filelock==3.19.1 — a real conflict in the lock
+        # itself, not a Python-version artifact (this is the same failure
+        # the Dockerfile hit; see requirements-runtime.txt's origin).
+        # CI doesn't need pre-commit (it's a local git-hook tool, not a
+        # check CI runs) or detect-secrets (separate job, own install),
+        # so install runtime deps + just the lint/test tools this job
+        # actually uses.
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-lock.txt
+          pip install -r requirements-runtime.txt
+          pip install "pytest==8.4.2" "ruff==0.16.6" "mypy==1.19.1" "types-requests"
 
       - name: Ruff — lint
         run: ruff check .
