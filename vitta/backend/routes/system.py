@@ -18,8 +18,6 @@ def root():
         "name": "Vitta API",
         "version": "0.5.0",
         "docs": "/docs",
-        # Lets the frontend tell "backend down" apart from "OAuth not set up
-        # yet" and show the right message instead of navigating to a raw error.
         "auth_configured": auth.is_configured(),
         "llm_configured": llm_available(),
     }
@@ -35,11 +33,12 @@ def health():
 
 
 @router.post("/api/reset")
-def api_reset(_user: dict = Depends(require_auth)):
+def api_reset(user: dict = Depends(require_auth)):
+    user_id = user["id"]
     conn = get_conn()
-    conn.execute("DELETE FROM transactions")
-    conn.execute("DELETE FROM accounts")
-    conn.execute("DELETE FROM merchant_dictionary")
+    conn.execute("DELETE FROM transactions WHERE user_id = ?", (user_id,))
+    conn.execute("DELETE FROM accounts WHERE user_id = ?", (user_id,))
+    conn.execute("DELETE FROM merchant_dictionary WHERE user_id = ?", (user_id,))
     conn.commit()
     conn.close()
     return {"ok": True}

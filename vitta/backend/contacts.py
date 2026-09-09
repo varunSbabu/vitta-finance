@@ -84,25 +84,25 @@ def parse_google_contacts_csv(content: bytes) -> list[dict]:
     return contacts
 
 
-def import_contacts(parsed: list[dict]) -> dict:
-    """Upsert parsed contacts into the DB."""
+def import_contacts(parsed: list[dict], user_id: int) -> dict:
+    """Upsert parsed contacts into the DB for the given user."""
     conn = get_conn()
     for c in parsed:
         conn.execute(
             """
-            INSERT INTO contacts (phone_last10, display_name)
-            VALUES (?, ?)
-            ON CONFLICT(phone_last10) DO UPDATE SET display_name = excluded.display_name
+            INSERT INTO contacts (user_id, phone_last10, display_name)
+            VALUES (?, ?, ?)
+            ON CONFLICT(user_id, phone_last10) DO UPDATE SET display_name = excluded.display_name
             """,
-            (c["phone_last10"], c["display_name"]),
+            (user_id, c["phone_last10"], c["display_name"]),
         )
     conn.commit()
-    total = conn.execute("SELECT COUNT(*) AS c FROM contacts").fetchone()["c"]
+    total = conn.execute("SELECT COUNT(*) AS c FROM contacts WHERE user_id = ?", (user_id,)).fetchone()["c"]
     conn.close()
     return {"rows_in_csv": len(parsed), "total_contacts": total}
 
 
-def resolve_vpa_to_name(vpa: str) -> str | None:
+def resolve_vpa_to_name(vpa: str, user_id: int) -> str | None:
     """Given a VPA like '9876543210@ybl' or '9876543210-2@axl', look up a
     matching contact by the phone number embedded in the VPA's local part."""
     if not vpa or "@" not in vpa:
@@ -114,14 +114,14 @@ def resolve_vpa_to_name(vpa: str) -> str | None:
 
     conn = get_conn()
     row = conn.execute(
-        "SELECT display_name FROM contacts WHERE phone_last10 = ?",
-        (last10,),
+        "SELECT display_name FROM contacts WHERE user_id = ? AND phone_last10 = ?",
+        (user_id, last10),
     ).fetchone()
     conn.close()
     return row["display_name"] if row else None
 
 
-def resolve_contacts_batch(vpas: list[str]) -> dict[str, str]:
+def resolve_contacts_batch(vpas: list[str], user_id: int) -> dict[str, str]:
     """Resolve many VPAs in one DB round-trip. Returns {vpa: display_name}
     for only the ones that matched."""
     last10_by_vpa: dict[str, str] = {}
@@ -140,8 +140,8 @@ def resolve_contacts_batch(vpas: list[str]) -> dict[str, str]:
     placeholders = ",".join("?" * len(unique_last10))
     conn = get_conn()
     rows = conn.execute(
-        f"SELECT phone_last10, display_name FROM contacts WHERE phone_last10 IN ({placeholders})",
-        unique_last10,
+        f"SELECT phone_last10, display_name FROM contacts WHERE user_id = ? AND phone_last10 IN ({placeholders})",
+        [user_id, *unique_last10],
     ).fetchall()
     conn.close()
 

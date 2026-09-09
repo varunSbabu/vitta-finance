@@ -18,12 +18,11 @@ router = APIRouter(tags=["insights"])
 @router.get("/api/insights")
 def api_insights(
     month: Optional[str] = Query(None, description="YYYY-MM; defaults to the latest month that has data"),
-    _user: dict = Depends(require_auth),
+    user: dict = Depends(require_auth),
 ):
-    # `resolved` is what compute_insights actually reports on, so the UI can
-    # label it ("your August spending") even when the caller sent no month.
-    resolved = month or latest_month_with_data()
-    cards = compute_insights(month)
+    user_id = user["id"]
+    resolved = month or latest_month_with_data(user_id)
+    cards = compute_insights(user_id, month)
     cards = narrate_insights(cards)
     return {
         "month": resolved,

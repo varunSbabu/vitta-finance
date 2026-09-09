@@ -22,7 +22,7 @@ from db import get_conn
 from llm import chat, is_available
 
 
-def _resolve_month(conn, month: str | None) -> str:
+def _resolve_month(conn, user_id: int, month: str | None) -> str:
     """Pick which month to report on. An explicit month wins. Otherwise use
     the latest month that actually has transactions — a user opening Insights
     right after uploading a statement wants to see that statement's month,
@@ -31,7 +31,8 @@ def _resolve_month(conn, month: str | None) -> str:
     if month:
         return month
     row = conn.execute(
-        "SELECT MAX(substr(txn_date,1,7)) FROM transactions WHERE is_self_transfer=0"
+        "SELECT MAX(substr(txn_date,1,7)) FROM transactions WHERE user_id = ? AND is_self_transfer=0",
+        (user_id,),
     ).fetchone()
     if row and row[0]:
         return row[0]
@@ -45,55 +46,56 @@ def _prev_month(this: str) -> str:
     return f"{py:04d}-{pm:02d}"
 
 
-def latest_month_with_data() -> str | None:
+def latest_month_with_data(user_id: int) -> str | None:
     """The most recent 'YYYY-MM' that has non-transfer transactions, or None
     if there are none. The route uses this to label which month it reported."""
     conn = get_conn()
     row = conn.execute(
-        "SELECT MAX(substr(txn_date,1,7)) FROM transactions WHERE is_self_transfer=0"
+        "SELECT MAX(substr(txn_date,1,7)) FROM transactions WHERE user_id = ? AND is_self_transfer=0",
+        (user_id,),
     ).fetchone()
     conn.close()
     return row[0] if row and row[0] else None
 
 
-def compute_insights(month: str | None = None) -> list[dict]:
-    """Compute the insight facts. Pure SQL + Python; no LLM. Returns cards
-    with a default templated `body` that narrate_insights() may later
-    rewrite."""
+def compute_insights(user_id: int, month: str | None = None) -> list[dict]:
+    """Compute the insight facts for a specific user. Pure SQL + Python;
+    no LLM. Returns cards with a default templated `body` that
+    narrate_insights() may later rewrite."""
     conn = get_conn()
-    this_month = _resolve_month(conn, month)
+    this_month = _resolve_month(conn, user_id, month)
     prev_month = _prev_month(this_month)
 
     def scalar(sql, params=()):
         row = conn.execute(sql, params).fetchone()
         return row[0] if row and row[0] is not None else 0
 
-    # Real (non-transfer) spend this month and last month.
+    uid = user_id
+
     spent_this = scalar(
-        "SELECT SUM(amount) FROM transactions WHERE is_self_transfer=0 AND direction='debit' AND substr(txn_date,1,7)=?",
-        (this_month,),
+        "SELECT SUM(amount) FROM transactions WHERE user_id=? AND is_self_transfer=0 AND direction='debit' AND substr(txn_date,1,7)=?",
+        (uid, this_month),
     )
     spent_prev = scalar(
-        "SELECT SUM(amount) FROM transactions WHERE is_self_transfer=0 AND direction='debit' AND substr(txn_date,1,7)=?",
-        (prev_month,),
+        "SELECT SUM(amount) FROM transactions WHERE user_id=? AND is_self_transfer=0 AND direction='debit' AND substr(txn_date,1,7)=?",
+        (uid, prev_month),
     )
     received_this = scalar(
-        "SELECT SUM(amount) FROM transactions WHERE is_self_transfer=0 AND direction='credit' AND substr(txn_date,1,7)=?",
-        (this_month,),
+        "SELECT SUM(amount) FROM transactions WHERE user_id=? AND is_self_transfer=0 AND direction='credit' AND substr(txn_date,1,7)=?",
+        (uid, this_month),
     )
 
     cards: list[dict] = []
 
-    # 1. Top spending category this month.
     top_cat = conn.execute(
         """
         SELECT category, SUM(amount) AS total, COUNT(*) AS n
         FROM transactions
-        WHERE is_self_transfer=0 AND direction='debit' AND substr(txn_date,1,7)=?
+        WHERE user_id=? AND is_self_transfer=0 AND direction='debit' AND substr(txn_date,1,7)=?
           AND category != 'Uncategorized'
         GROUP BY category ORDER BY total DESC LIMIT 1
         """,
-        (this_month,),
+        (uid, this_month),
     ).fetchone()
     if top_cat and spent_this:
         share = round(top_cat["total"] / spent_this * 100)
@@ -112,7 +114,6 @@ def compute_insights(month: str | None = None) -> list[dict]:
             }
         )
 
-    # 2. Month-over-month spend change.
     if spent_prev:
         change = (spent_this - spent_prev) / spent_prev * 100
         direction = "more" if change >= 0 else "less"
@@ -129,7 +130,6 @@ def compute_insights(month: str | None = None) -> list[dict]:
             }
         )
 
-    # 3. Net position this month.
     net = received_this - spent_this
     if spent_this or received_this:
         if net >= 0:
@@ -148,15 +148,14 @@ def compute_insights(month: str | None = None) -> list[dict]:
             }
         )
 
-    # 4. Biggest single expense this month.
     biggest = conn.execute(
         """
         SELECT merchant_clean, amount, txn_date, category
         FROM transactions
-        WHERE is_self_transfer=0 AND direction='debit' AND substr(txn_date,1,7)=?
+        WHERE user_id=? AND is_self_transfer=0 AND direction='debit' AND substr(txn_date,1,7)=?
         ORDER BY amount DESC LIMIT 1
         """,
-        (this_month,),
+        (uid, this_month),
     ).fetchone()
     if biggest:
         cards.append(
@@ -173,21 +172,19 @@ def compute_insights(month: str | None = None) -> list[dict]:
             }
         )
 
-    # 5. Likely recurring merchants — since is_recurring isn't populated yet,
-    #    infer it: a merchant paid (as a debit) in 2+ distinct months is a
-    #    subscription/recurring candidate. This is all-time, not this-month.
     recurring = conn.execute(
         """
         SELECT merchant_clean,
                COUNT(DISTINCT substr(txn_date,1,7)) AS months,
                ROUND(AVG(amount), 0) AS avg_amount
         FROM transactions
-        WHERE is_self_transfer=0 AND direction='debit' AND merchant_clean IS NOT NULL
+        WHERE user_id=? AND is_self_transfer=0 AND direction='debit' AND merchant_clean IS NOT NULL
         GROUP BY merchant_clean
         HAVING months >= 2
         ORDER BY months DESC, avg_amount DESC
         LIMIT 5
-        """
+        """,
+        (uid,),
     ).fetchall()
     if recurring:
         names = ", ".join(r["merchant_clean"] for r in recurring[:3])
@@ -205,15 +202,14 @@ def compute_insights(month: str | None = None) -> list[dict]:
             }
         )
 
-    # 6. Uncategorized nudge.
     uncat = conn.execute(
         """
         SELECT COUNT(*) AS n, SUM(amount) AS total
         FROM transactions
-        WHERE is_self_transfer=0 AND direction='debit' AND category='Uncategorized'
+        WHERE user_id=? AND is_self_transfer=0 AND direction='debit' AND category='Uncategorized'
           AND substr(txn_date,1,7)=?
         """,
-        (this_month,),
+        (uid, this_month),
     ).fetchone()
     if uncat and uncat["n"]:
         cards.append(

@@ -12,14 +12,19 @@ router = APIRouter(tags=["accounts"])
 
 
 @router.get("/api/accounts")
-def api_accounts(_user: dict = Depends(require_auth)):
+def api_accounts(user: dict = Depends(require_auth)):
+    user_id = user["id"]
     conn = get_conn()
-    rows = conn.execute("""
+    rows = conn.execute(
+        """
         SELECT a.*,
-          (SELECT COUNT(*) FROM transactions WHERE account_id = a.id) AS txn_count,
-          (SELECT MAX(txn_date) FROM transactions WHERE account_id = a.id) AS last_txn
+          (SELECT COUNT(*) FROM transactions WHERE account_id = a.id AND user_id = ?) AS txn_count,
+          (SELECT MAX(txn_date) FROM transactions WHERE account_id = a.id AND user_id = ?) AS last_txn
         FROM accounts a
+        WHERE a.user_id = ?
         ORDER BY txn_count DESC
-    """).fetchall()
+        """,
+        (user_id, user_id, user_id),
+    ).fetchall()
     conn.close()
     return [dict_from_row(r) for r in rows]

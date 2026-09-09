@@ -14,9 +14,10 @@ router = APIRouter(tags=["contacts"])
 
 
 @router.post("/api/contacts/import")
-async def api_contacts_import(file: UploadFile = File(...), _user: dict = Depends(require_auth)):
+async def api_contacts_import(file: UploadFile = File(...), user: dict = Depends(require_auth)):
     """Upload a Google Contacts CSV export. Extracts name + phone numbers
     so future UPI transactions from those numbers resolve to real names."""
+    user_id = user["id"]
     if not (file.filename or "").lower().endswith(".csv"):
         raise HTTPException(400, "Only CSV files accepted (Google Contacts export).")
 
@@ -29,23 +30,26 @@ async def api_contacts_import(file: UploadFile = File(...), _user: dict = Depend
     if not parsed:
         return {
             "rows_in_csv": 0,
-            "total_contacts": _count_contacts(),
+            "total_contacts": _count_contacts(user_id),
             "note": "No usable name+phone rows found.",
         }
 
-    return import_contacts(parsed)
+    return import_contacts(parsed, user_id)
 
 
 @router.get("/api/contacts")
-def api_contacts_list(_user: dict = Depends(require_auth)):
+def api_contacts_list(user: dict = Depends(require_auth)):
+    user_id = user["id"]
     conn = get_conn()
-    rows = conn.execute("SELECT * FROM contacts ORDER BY display_name").fetchall()
+    rows = conn.execute(
+        "SELECT * FROM contacts WHERE user_id = ? ORDER BY display_name", (user_id,)
+    ).fetchall()
     conn.close()
     return [dict_from_row(r) for r in rows]
 
 
-def _count_contacts() -> int:
+def _count_contacts(user_id: int) -> int:
     conn = get_conn()
-    n = conn.execute("SELECT COUNT(*) AS c FROM contacts").fetchone()["c"]
+    n = conn.execute("SELECT COUNT(*) AS c FROM contacts WHERE user_id = ?", (user_id,)).fetchone()["c"]
     conn.close()
     return n
