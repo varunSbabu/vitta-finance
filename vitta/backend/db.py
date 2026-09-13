@@ -9,13 +9,25 @@ DB_PATH = Path(__file__).parent / "vitta.db"
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    google_sub    TEXT UNIQUE,
-    email         TEXT NOT NULL,
-    name          TEXT,
-    picture       TEXT,
-    password_hash TEXT,
-    created_at    TEXT DEFAULT CURRENT_TIMESTAMP
+    id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+    google_sub            TEXT UNIQUE,
+    email                 TEXT NOT NULL UNIQUE,
+    name                  TEXT,
+    picture               TEXT,
+    password_hash         TEXT,
+    email_verified        INTEGER DEFAULT 0,
+    email_verify_token    TEXT,
+    email_verify_expires  TEXT,
+    created_at            TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id),
+    token      TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    used       INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS accounts (
@@ -89,35 +101,45 @@ def _table_has_column(conn: sqlite3.Connection, table: str, column: str) -> bool
 
 
 def _migrate_users_table(conn: sqlite3.Connection) -> None:
-    """Bring an existing users table up to the current schema. Handles two
-    cases from earlier versions of this app: a missing password_hash column,
-    and google_sub still being NOT NULL (which SQLite can't ALTER away
-    directly, so this rebuilds the table when needed)."""
+    """Bring an existing users table up to the current schema.
+
+    Handles upgrades from any prior version: missing password_hash,
+    google_sub NOT NULL, missing email_verified / verification token
+    columns, missing UNIQUE on email. When any of these are detected,
+    the table is rebuilt from the canonical schema."""
     cols = {r["name"] for r in conn.execute("PRAGMA table_info(users)")}
     if not cols:
         return
 
-    needs_password_col = "password_hash" not in cols
-    google_sub_not_null = any(
-        r["name"] == "google_sub" and r["notnull"] for r in conn.execute("PRAGMA table_info(users)")
+    needs_rebuild = (
+        "password_hash" not in cols
+        or "email_verified" not in cols
+        or any(r["name"] == "google_sub" and r["notnull"] for r in conn.execute("PRAGMA table_info(users)"))
     )
 
-    if not needs_password_col and not google_sub_not_null:
+    if not needs_rebuild:
         return
 
-    conn.executescript("""
+    has_password_hash = "password_hash" in cols
+    password_col = ", password_hash" if has_password_hash else ""
+    password_src = ", password_hash" if has_password_hash else ""
+
+    conn.executescript(f"""
         ALTER TABLE users RENAME TO users_old;
         CREATE TABLE users (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            google_sub    TEXT UNIQUE,
-            email         TEXT NOT NULL,
-            name          TEXT,
-            picture       TEXT,
-            password_hash TEXT,
-            created_at    TEXT DEFAULT CURRENT_TIMESTAMP
+            id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+            google_sub            TEXT UNIQUE,
+            email                 TEXT NOT NULL UNIQUE,
+            name                  TEXT,
+            picture               TEXT,
+            password_hash         TEXT,
+            email_verified        INTEGER DEFAULT 0,
+            email_verify_token    TEXT,
+            email_verify_expires  TEXT,
+            created_at            TEXT DEFAULT CURRENT_TIMESTAMP
         );
-        INSERT INTO users (id, google_sub, email, name, picture, created_at)
-            SELECT id, google_sub, email, name, picture, created_at FROM users_old;
+        INSERT INTO users (id, google_sub, email, name, picture{password_col}, created_at)
+            SELECT id, google_sub, email, name, picture{password_src}, created_at FROM users_old;
         DROP TABLE users_old;
     """)
 

@@ -26,7 +26,6 @@ def _fresh_app():
     db.init_db()
 
     os.environ["SESSION_SECRET_KEY"] = "test-only-key-for-manual-cash"
-    os.environ["ALLOWED_EMAIL"] = ""  # open mode — any email may sign up in tests
     import auth
 
     importlib.reload(auth)
