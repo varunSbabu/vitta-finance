@@ -45,10 +45,11 @@ Open **http://localhost:5757** — not `127.0.0.1`. See the SameSite note below.
 |---|---|---|
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Sign-in | From Google Cloud Console, below |
 | `SESSION_SECRET_KEY` | Sign-in | `python3 -c "import secrets; print(secrets.token_hex(32))"` |
-| `ALLOWED_EMAIL` | Sign-in | Only this Google account may sign in |
 | `FRONTEND_URL` | Sign-in | Where to land after OAuth |
 | `ALLOWED_ORIGINS` | CORS | Comma-separated |
 | `GROQ_API_KEY` | Tier 3 categorization | Optional — free key at console.groq.com/keys |
+| `EMAIL_BACKEND` | Email | `log` (default) or a real provider |
+| `EMAIL_FROM` | Email | Sender address for verification/reset emails |
 
 `uvicorn --reload` only watches `*.py`, **not `.env`** — restart the server
 by hand after editing it.
@@ -76,12 +77,13 @@ for this reason — don't "fix" it to `127.0.0.1`.
 
 ## Auth model
 
-Single-account gate, not multi-tenancy. There is one set of financial data
-in `vitta.db` and it belongs to one person; `ALLOWED_EMAIL` is a lock on the
-front door. Anyone else who completes Google's flow gets a 403, not an
-account. Every `/api/*` route except `/api/auth/*` requires a session
-(`Depends(require_auth)`), enforced by a test that walks the live FastAPI
-route graph so a new endpoint can't ship ungated.
+Open signup — anyone can create an account via email+password or Google
+OAuth. Password signups require email verification (token-based); Google
+OAuth users are auto-verified. Password reset is available via a
+time-limited token sent to the user's email. All data is scoped by
+`user_id` (multi-tenant). Every `/api/*` route except `/api/auth/*`
+requires a session (`Depends(require_auth)`), enforced by a test that
+walks the live FastAPI route graph so a new endpoint can't ship ungated.
 
 ## Categorization tiers
 

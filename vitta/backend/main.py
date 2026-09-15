@@ -5,9 +5,8 @@ mounting, startup). Endpoints live in routes/*.py, one module per
 resource — see each module's docstring for its endpoints.
 
 All endpoints except /api/auth/* and /api/health require a signed-in
-session — see auth.py. This is a personal-use app: sign-in is gated to
-one Google account (ALLOWED_EMAIL in .env), not general multi-user access
-control — see docs/adr/0002-multitenancy-plan.md for the planned change.
+session — see auth.py. Multi-tenant: every data query is scoped by
+user_id, and open signup is available via password or Google OAuth.
 
 Run: uvicorn main:app --reload --host 0.0.0.0 --port 8001
 """

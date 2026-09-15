@@ -26,7 +26,6 @@ def _make_app():
     db.init_db()
 
     os.environ["SESSION_SECRET_KEY"] = "isolation-test-key"  # pragma: allowlist secret
-    os.environ["ALLOWED_EMAIL"] = ""
 
     import auth
 

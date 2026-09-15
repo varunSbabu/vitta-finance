@@ -33,7 +33,6 @@ def app_with_logging():
     db.init_db()
 
     os.environ["SESSION_SECRET_KEY"] = "test-only-key-for-logging"
-    os.environ.setdefault("ALLOWED_EMAIL", "")
     import auth
 
     importlib.reload(auth)
