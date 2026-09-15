@@ -141,6 +141,7 @@ def test_all_data_endpoints_are_gated():
         "/api/auth/resend-verification",
         "/api/auth/forgot-password",
         "/api/auth/reset-password",
+        "/api/contacts/google/callback",
         "/api/health",
     }
 

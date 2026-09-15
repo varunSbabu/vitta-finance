@@ -1,11 +1,12 @@
-"""Google Contacts CSV import + VPA phone matching.
+"""Google Contacts import (CSV or People API) + VPA phone matching.
 
-Google's "Export contacts" CSV has dozens of columns; the ones we care
-about are the display name and any "Phone N - Value" columns. We
-normalize phone numbers to their last 10 digits (Indian mobile numbers)
-and store them so incoming UPI VPAs like '9876543210@ybl' or
-'9876543210-2@axl' resolve to a real name instead of a raw bank-registered
-name blob like 'SANTHOSHKUMARREDDY'.
+Two import paths:
+  1. CSV upload — Google's "Export contacts" CSV, parsed locally.
+  2. Google People API — fetches contacts directly via OAuth access token.
+
+In both cases we normalize phone numbers to their last 10 digits (Indian
+mobile numbers) and store them so incoming UPI VPAs like '9876543210@ybl'
+resolve to a real name instead of a raw bank-registered name blob.
 """
 
 from __future__ import annotations
@@ -14,7 +15,12 @@ import csv
 import io
 import re
 
+import httpx
+import structlog
+
 from db import get_conn
+
+log = structlog.get_logger()
 
 DIGITS_RE = re.compile(r"\d+")
 
@@ -147,3 +153,65 @@ def resolve_contacts_batch(vpas: list[str], user_id: int) -> dict[str, str]:
 
     name_by_phone = {r["phone_last10"]: r["display_name"] for r in rows}
     return {vpa: name_by_phone[last10] for vpa, last10 in last10_by_vpa.items() if last10 in name_by_phone}
+
+
+# ── Google People API ───────────────────────────────────────────────
+
+PEOPLE_API_URL = "https://people.googleapis.com/v1/people/me/connections"
+PEOPLE_PAGE_SIZE = 1000
+
+
+def fetch_google_contacts(access_token: str) -> list[dict]:
+    """Fetch contacts from Google People API and return [{phone_last10, display_name}].
+
+    Paginates through all results. Deduplicates by phone (first name wins),
+    same as the CSV parser."""
+    contacts: list[dict] = []
+    seen_phones: set[str] = set()
+    next_page_token: str | None = None
+
+    with httpx.Client(timeout=30) as client:
+        while True:
+            params: dict = {
+                "personFields": "names,phoneNumbers",
+                "pageSize": PEOPLE_PAGE_SIZE,
+            }
+            if next_page_token:
+                params["pageToken"] = next_page_token
+
+            resp = client.get(
+                PEOPLE_API_URL,
+                params=params,
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+            if resp.status_code != 200:
+                log.error("people_api_error", status=resp.status_code, body=resp.text[:500])
+                raise RuntimeError(f"Google People API returned {resp.status_code}")
+
+            data = resp.json()
+            for person in data.get("connections", []):
+                name = _extract_person_name(person)
+                if not name:
+                    continue
+                for phone_obj in person.get("phoneNumbers", []):
+                    raw = phone_obj.get("value", "")
+                    norm = _normalize_phone(raw)
+                    if norm and norm not in seen_phones:
+                        seen_phones.add(norm)
+                        contacts.append({"phone_last10": norm, "display_name": name})
+
+            next_page_token = data.get("nextPageToken")
+            if not next_page_token:
+                break
+
+    log.info("google_contacts_fetched", count=len(contacts))
+    return contacts
+
+
+def _extract_person_name(person: dict) -> str | None:
+    """Extract the best display name from a People API person resource."""
+    for name_obj in person.get("names", []):
+        display = (name_obj.get("displayName") or "").strip()
+        if display:
+            return display
+    return None
