@@ -174,7 +174,7 @@ def _migrate_add_user_id(conn: sqlite3.Connection) -> None:
         conn.execute("INSERT INTO users (id, email, name) VALUES (1, 'migrated@local', 'Migrated User')")
 
     for table in tables_needing_migration:
-        conn.execute(f"ALTER TABLE {table} ADD COLUMN user_id INTEGER DEFAULT 1 REFERENCES users(id)")
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN user_id INTEGER DEFAULT 1")
 
     # Rebuild tables with proper composite UNIQUE constraints.
     # accounts: UNIQUE(user_id, bank_name, account_last4) replaces UNIQUE(bank_name, account_last4)

@@ -3741,8 +3741,7 @@
       <div id="login-error" class="auth-legal" style="display:none;margin-top:16px;color:var(--danger,#ef4444)"></div>
 
       <div class="auth-legal" style="margin-top:20px">
-        Vitta is set up for personal use — sign-in is restricted to a single
-        account.
+        Create an account or sign in to start analyzing your finances.
       </div>
 
       <div class="auth-legal">
@@ -4740,29 +4739,43 @@
           </div>
           <div class="spane" data-pane="contacts">
             <h2>Contacts</h2>
-            <p class="s-desc" style="margin-bottom:24px;max-width:520px">Upload your Google Contacts CSV export. Vitta will match phone numbers in payee VPAs against your saved contacts — so "Vasanth Kumar S" becomes "Vasanth – Kirana Shop" if that\'s what you saved it as.</p>
+            <p class="s-desc" style="margin-bottom:24px;max-width:520px">Import your Google Contacts so Vitta can match phone numbers in payee VPAs — "Vasanth Kumar S" becomes "Vasanth – Kirana Shop" automatically.</p>
             <div class="contacts-hero">
               <div class="contacts-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               </div>
               <div class="contacts-hero-body">
                 <div class="c-status" id="contacts-status"><span class="dot"></span> Not connected</div>
-                <div class="c-line" id="contacts-summary">Upload a CSV export from <a href="https://contacts.google.com" target="_blank" style="color:var(--brand-bright);text-decoration:none;border-bottom:1px solid currentColor">Google Contacts</a> to enrich payee names.</div>
+                <div class="c-line" id="contacts-summary">Connect your Google account or upload a CSV to enrich payee names.</div>
               </div>
-              <button class="btn btn-primary btn-sm" onclick="openContactsModal()">Upload CSV</button>
+              <button class="btn btn-primary btn-sm" id="contacts-google-btn" onclick="startGoogleContactsImport()">
+                <svg width="16" height="16" viewBox="0 0 18 18" style="vertical-align:-2px;margin-right:4px">
+                  <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+                  <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+                  <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+                  <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+                </svg>
+                Connect Google Contacts
+              </button>
             </div>
+
+            <div style="display:flex;align-items:center;gap:12px;margin:20px 0 8px">
+              <div style="flex:1;height:1px;background:var(--border)"></div>
+              <span style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-faint);font-weight:600">or upload manually</span>
+              <div style="flex:1;height:1px;background:var(--border)"></div>
+            </div>
+
+            <div style="margin-bottom:20px">
+              <button class="btn btn-secondary btn-sm" onclick="openContactsModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload CSV file
+              </button>
+              <span style="font-size:12px;color:var(--ink-faint);margin-left:8px">Google Contacts CSV export</span>
+            </div>
+
             <div class="s-row"><div><div class="s-title">Auto-match VPA phone numbers</div><div class="s-desc">Match phone digits in VPAs like <code>6361943681-3@axl</code> against your contacts.</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
             <div class="s-row"><div><div class="s-title">Store contact names</div><div class="s-desc">Cache resolved names for faster lookups. Names never leave Vitta.</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
             <div class="s-row"><div><div class="s-title">Clear contact cache</div><div class="s-desc">Delete all cached contact matches. Fresh upload required after clearing.</div></div><button class="btn btn-secondary btn-sm" onclick="showToast('Contact cache cleared')">Clear</button></div>
-            <div style="margin-top:24px;padding:14px 16px;background:var(--bg-inset);border-radius:10px;border-left:3px solid var(--gold);">
-              <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--gold-bright);font-weight:600;margin-bottom:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>How to export from Google Contacts</div>
-              <ol style="font-size:12.5px;color:var(--ink-muted);line-height:1.7;padding-left:20px;margin:0">
-                <li>Open <strong style="color:var(--ink)">contacts.google.com</strong> in a new tab</li>
-                <li>Click <strong style="color:var(--ink)">Export</strong> in the left sidebar</li>
-                <li>Select <strong style="color:var(--ink)">Google CSV</strong> format</li>
-                <li>Upload the downloaded file here</li>
-              </ol>
-            </div>
           </div>
           <div class="spane" data-pane="privacy">
             <h2>Data & Privacy</h2>
@@ -5626,6 +5639,37 @@ async function sendChat() {
   _chatBusy = false;
 }
 
+
+// --- Google Contacts direct import ---
+function startGoogleContactsImport() {
+  window.location.href = VITTA_API_BASE + '/api/contacts/google';
+}
+
+function handleContactsCallback() {
+  const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+  const status = params.get('contacts');
+  if (!status) return;
+
+  // Clean the URL so the params don't persist on refresh
+  const cleanHash = window.location.hash.split('?')[0];
+  history.replaceState(null, '', window.location.pathname + cleanHash);
+
+  const st = document.getElementById('contacts-status');
+  const summary = document.getElementById('contacts-summary');
+
+  if (status === 'ok') {
+    const imported = params.get('imported') || '0';
+    const total = params.get('total') || '0';
+    if (st) { st.classList.add('connected'); st.innerHTML = `<span class="dot"></span> Connected · ${total} contacts`; }
+    if (summary) summary.innerHTML = `<strong>${total} contacts</strong> imported from Google. Payee names resolve automatically on your next statement upload.`;
+    showToast(`Imported ${imported} contacts from Google (${total} total).`);
+  } else if (status === 'empty') {
+    showToast('No contacts with phone numbers found in your Google account.');
+  } else if (status === 'error') {
+    const msg = params.get('msg') || 'Google Contacts import failed.';
+    showToast(msg);
+  }
+}
 
 // --- Contacts modal ---
 function openContactsModal() {
@@ -6703,7 +6747,7 @@ document.addEventListener('DOMContentLoaded', wireUploadFileInput);
 // --- Router ---
 const routes = ['/', '/login', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/settings'];
 function route() {
-  let hash = (window.location.hash || '#/').slice(1);
+  let hash = (window.location.hash || '#/').slice(1).split('?')[0];
   if (!routes.includes(hash)) hash = '/';
 
   // Auth guard: /app* requires a session. VITTA_USER is resolved by
@@ -6735,8 +6779,7 @@ function route() {
   if (hash === '/login') refreshPasswordFormMode();
   if (hash === '/app/accounts') loadAccountsLive();
   if (hash === '/app/insights') renderInsights();
-  // Handle sales route → redirect to a simple modal for now
-  // /sales renders naturally via routing
+  if (hash === '/app/settings') handleContactsCallback();
 }
 window.addEventListener('hashchange', route);
 document.addEventListener('DOMContentLoaded', async () => {
