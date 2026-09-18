@@ -1037,6 +1037,16 @@
     margin: 0 auto 32px;
   }
 
+  /* Contact section */
+  .contact-section { padding: 80px 32px; text-align: center; position: relative; z-index: 2; }
+  .contact-cards { display: flex; justify-content: center; gap: 24px; margin-top: 40px; flex-wrap: wrap; }
+  .contact-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 32px; min-width: 200px; text-align: center; }
+  .contact-card .contact-icon { font-size: 24px; margin-bottom: 12px; }
+  .contact-card .contact-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--ink-muted); margin-bottom: 6px; }
+  .contact-card .contact-value { font-size: 16px; font-weight: 600; color: var(--ink); }
+  .contact-card .contact-value a { color: var(--brand-bright); text-decoration: none; }
+  .contact-card .contact-value a:hover { text-decoration: underline; }
+
   /* Footer */
   footer {
     padding: 64px 32px 32px;
@@ -3524,10 +3534,9 @@
     <span class="beta">BETA</span>
   </a>
   <div class="nav-links">
-    <a href="#features" class="link-hide">Product</a>
-    <a href="#pricing" class="link-hide">Pricing</a>
+    <a href="#features" class="link-hide">Features</a>
     <a href="#trust" class="link-hide">Security</a>
-    <a href="#/login" data-nav data-auth-cta class="btn btn-ghost btn-sm">Sign in</a>
+    <a href="javascript:void(0)" onclick="document.getElementById('contact-modal').style.display='flex'" class="btn btn-ghost btn-sm">Contact us</a>
     <a href="#/login" data-nav class="btn btn-primary btn-sm">Get started</a>
   </div>
 </nav>
@@ -3546,14 +3555,14 @@
     </div>
     <h1 class="hero-title"><span class="word">Every</span> <span class="word">rupee,</span> <span class="word accent">understood.</span></h1>
     <p class="hero-sub">
-      Upload your bank statement, UPI app export, or credit card statement. Vitta turns raw transactions into a picture you can actually act on — categorized, deduplicated, and narrated by AI.
+      Upload your bank statement or UPI app export. Vitta turns raw transactions into a picture you can actually act on — categorized, deduplicated, and narrated by AI.
     </p>
     <div class="hero-cta">
       <a href="#/login" data-nav class="btn btn-primary btn-lg">Get started free →</a>
-      <a href="#/#pricing" class="btn btn-secondary btn-lg">See pricing</a>
+      <a href="#features" class="btn btn-secondary btn-lg">See features</a>
     </div>
     <div class="hero-trust">
-      Trusted by <strong>500+ users</strong> · <strong>Bank-grade encryption</strong> · <strong>DPDP-ready</strong>
+      <strong>Open source</strong> · <strong>Self-hostable</strong> · <strong>Per-user data isolation</strong>
     </div>
   </div>
 </section>
@@ -3594,7 +3603,7 @@
       <div class="step" style="--i:0">
         <div class="step-num">01</div>
         <h3>Upload</h3>
-        <p>Drop your bank PDF, GPay export, or credit card statement. Password-protected files handled. Multi-file supported.</p>
+        <p>Drop your bank PDF, GPay export, or PhonePe statement. Password-protected PDFs supported. Multi-file upload.</p>
       </div>
       <div class="step" style="--i:1">
         <div class="step-num">02</div>
@@ -3610,76 +3619,6 @@
   </div>
 </section>
 
-<!-- Product preview -->
-<section id="preview">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">Live product</span>
-      <h2 class="section-title">See your money the way it <em>actually moves.</em></h2>
-      <p class="section-sub">Every account, every source, categorized and deduplicated — in one view.</p>
-    </div>
-    <div class="preview-wrap reveal">
-      <div class="preview">
-        <div class="preview-topbar">
-          <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
-          <div class="url">vitta.app/overview</div>
-        </div>
-        <div class="preview-body">
-          <aside class="preview-side">
-            <div class="brand-mini">
-              <span class="logo"><svg class="logo-static" width="20" height="20" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
-              Vitta
-            </div>
-            <div class="nav-item active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Overview</div>
-            <div class="nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Transactions</div>
-            <div class="nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Categories</div>
-            <div class="nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Merchants</div>
-            <div class="nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Accounts</div>
-            <div class="nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>Insights</div>
-          </aside>
-          <div class="preview-main">
-            <div class="preview-greeting">Good morning, Varun.</div>
-            <div class="preview-stats">
-              <div class="preview-stat">
-                <div class="label">Spent · July</div>
-                <div class="value">₹61,933</div>
-                <div class="delta down">▼ 8% vs June</div>
-              </div>
-              <div class="preview-stat">
-                <div class="label">Received</div>
-                <div class="value">₹78,140</div>
-                <div class="delta">▲ 12% vs June</div>
-              </div>
-              <div class="preview-stat">
-                <div class="label">Auto-categorized</div>
-                <div class="value">78%</div>
-                <div class="delta">▲ 43% vs baseline</div>
-              </div>
-              <div class="preview-stat">
-                <div class="label">Recurring</div>
-                <div class="value">₹4,247</div>
-                <div class="delta">6 subscriptions</div>
-              </div>
-            </div>
-            <div class="preview-chart">
-              <div class="preview-chart-head">
-                <h5>Category breakdown</h5>
-                <span class="caption">Real July data</span>
-              </div>
-              <div class="cat-bars">
-                <div class="cat-bar-row"><span class="name">Groceries</span><div class="track"><div class="fill" style="width:88%;background:linear-gradient(90deg,#4ADE80,#22C55E);animation-delay:0.1s"></div></div><span class="val">₹9,438</span></div>
-                <div class="cat-bar-row"><span class="name">Shopping</span><div class="track"><div class="fill" style="width:65%;background:linear-gradient(90deg,#FCD34D,#F59E0B);animation-delay:0.2s"></div></div><span class="val">₹7,024</span></div>
-                <div class="cat-bar-row"><span class="name">Friends</span><div class="track"><div class="fill" style="width:52%;background:linear-gradient(90deg,#60A5FA,#3B82F6);animation-delay:0.3s"></div></div><span class="val">₹5,548</span></div>
-                <div class="cat-bar-row"><span class="name">Food &amp; dining</span><div class="track"><div class="fill" style="width:30%;background:linear-gradient(90deg,#A78BFA,#8B5CF6);animation-delay:0.4s"></div></div><span class="val">₹3,178</span></div>
-                <div class="cat-bar-row"><span class="name">Health</span><div class="track"><div class="fill" style="width:14%;background:linear-gradient(90deg,#F472B6,#EC4899);animation-delay:0.5s"></div></div><span class="val">₹1,500</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- Features -->
 <section id="features">
@@ -3694,7 +3633,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
         </div>
         <h4>Multi-source ingest</h4>
-        <p>Bank statements, UPI app exports, and credit cards — Vitta parses them all and deduplicates via UPI transaction ID.</p>
+        <p>Bank PDFs, GPay and PhonePe exports — Vitta parses them all and deduplicates via UPI transaction ID.</p>
       </div>
       <div class="feature-card" style="--i:1">
         <div class="feature-icon">
@@ -3714,42 +3653,27 @@
         <div class="feature-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15A9 9 0 0 1 5.64 18.36L1 14"/></svg>
         </div>
-        <h4>Recurring detection</h4>
-        <p>Vitta finds every subscription — including the ones you forgot about. Same merchant, similar amount, monthly cadence.</p>
+        <h4>Debt & split tracking</h4>
+        <p>Split expenses with friends, track who owes you and who you owe. Settle debts and watch your net spend update in real time.</p>
       </div>
       <div class="feature-card" style="--i:4">
         <div class="feature-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
         </div>
         <h4>Multi-account handling</h4>
-        <p>Two bank accounts, three UPI apps, one credit card — no problem. Self-transfers between your own accounts auto-excluded.</p>
+        <p>Two bank accounts, three UPI apps — no problem. Self-transfers between your own accounts auto-excluded.</p>
       </div>
       <div class="feature-card" style="--i:5">
         <div class="feature-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
-        <h4>Bank-grade security</h4>
-        <p>Encrypted at rest. Source PDFs deleted after parsing. DPDP-compliant. Row-level security on every table. Never resold.</p>
+        <h4>Per-user isolation</h4>
+        <p>Every query is scoped to your user ID. Row-level isolation on every table. Your data is never shared, never resold.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Testimonial -->
-<section>
-  <div class="container">
-    <div class="quote-card reveal">
-      <div class="quote-mark">"</div>
-      <p class="quote">Vitta showed me I was paying for three streaming services I hadn't opened in months. Cancelled all three in one click. Paid for itself in a week.</p>
-      <div class="quote-author">
-        <div class="quote-avatar">P</div>
-        <div>
-          <strong>Priya Menon</strong> · Software engineer, Bengaluru
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- Trust -->
 <section id="trust">
@@ -3757,24 +3681,24 @@
     <div class="trust reveal">
       <div>
         <h3>Your data. Handled with care.</h3>
-        <p>Statement data is the most sensitive information on the internet. Vitta treats it that way. Source files are deleted after parsing — we keep only the numbers you need to see, encrypted and isolated per user.</p>
+        <p>Financial data is sensitive. Vitta stores only parsed transaction data — isolated per user with row-level scoping. Every database query is bound to your user ID. No data is shared or sold.</p>
       </div>
       <div class="trust-badges">
         <div class="badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+          <div><strong>Row-level isolation</strong><span>Scoped per user</span></div>
+        </div>
+        <div class="badge">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <div><strong>AES-256 at rest</strong><span>Encrypted storage</span></div>
+          <div><strong>Read-only SQL</strong><span>AI queries can't modify data</span></div>
         </div>
         <div class="badge">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <div><strong>DPDP-ready</strong><span>India-compliant</span></div>
+          <div><strong>No data sharing</strong><span>Never sold or shared</span></div>
         </div>
         <div class="badge">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
-          <div><strong>Row-level isolation</strong><span>Zero data leak</span></div>
-        </div>
-        <div class="badge">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
-          <div><strong>Delete on request</strong><span>Wipe in one click</span></div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <div><strong>Open source</strong><span>Audit the code yourself</span></div>
         </div>
       </div>
     </div>
@@ -3786,43 +3710,45 @@
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Pricing</span>
-      <h2 class="section-title">Free to start. <em>Fair to grow.</em></h2>
-      <p class="section-sub">No credit card required for the free tier. Cancel Pro anytime.</p>
+      <h2 class="section-title">Free while in <em>beta.</em></h2>
+      <p class="section-sub">Vitta is in active development. All features are free during the beta period — no limits, no credit card.</p>
     </div>
-    <div class="pricing reveal stagger" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;margin:0 auto">
-      <div class="price-card" style="--i:0">
-        <div class="price-plan">Free</div>
+    <div class="pricing reveal stagger" style="grid-template-columns:1fr;max-width:480px;margin:0 auto">
+      <div class="price-card featured" style="--i:0">
+        <div class="price-plan">Beta</div>
         <div class="price-amount">₹0</div>
-        <div class="price-desc">Get started, no strings attached.</div>
+        <div class="price-desc">Full access while we build.</div>
         <ul class="price-features">
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Multi-source ingest (bank + UPI + credit card)</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Auto-categorization + tag-once dictionary</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><strong>1 month</strong> of analytics history</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Basic insights &amp; charts</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Multi-source ingest (bank statements + GPay + PhonePe)</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Auto-categorization + tag-once merchant dictionary</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Complete transaction history — no limits</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Ask Vitta — natural-language queries over your data</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Expense planner, debt tracking, split expenses</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Google Contacts import + CSV upload</li>
         </ul>
-        <a href="#/login" data-nav class="btn btn-secondary">Get started free</a>
-      </div>
-      <div class="price-card featured" style="--i:1">
-        <div class="price-plan">Pro</div>
-        <div class="price-amount">₹49<small> / month</small></div>
-        <div class="price-desc">Complete access. Every rupee, forever.</div>
-        <ul class="price-features">
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><strong>Complete history</strong> — every transaction, forever</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>All AI insights, anomaly alerts, recurring detection</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Ask anything (natural-language queries)</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Contacts import + custom rules</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority parser support</li>
-        </ul>
-        <a href="#/login" data-nav class="btn btn-primary">Start 14-day trial</a>
+        <a href="#/login" data-nav class="btn btn-primary">Get started free →</a>
       </div>
       </div>
   </div>
 </section>
 
+<!-- Contact Modal -->
+<div id="contact-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;backdrop-filter:blur(4px)" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;max-width:400px;width:90%;text-align:center;padding:36px 32px;position:relative">
+    <button onclick="document.getElementById('contact-modal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--ink-faint);font-size:1.5rem;cursor:pointer;line-height:1">&times;</button>
+    <h3 style="margin:0 0 4px">Varun A S</h3>
+    <p style="color:var(--ink-faint);margin:0 0 20px;font-size:0.92rem">Questions, feedback, or collaboration</p>
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
+      <a href="tel:+917483528884" style="color:var(--brand);text-decoration:none;font-size:0.95rem">+91 7483528884</a>
+      <a href="mailto:varunbabu098@gmail.com" style="color:var(--brand);text-decoration:none;font-size:0.95rem">varunbabu098@gmail.com</a>
+    </div>
+  </div>
+</div>
+
 <!-- Final CTA -->
 <div class="cta-band">
   <h2>Start understanding your spending in <em>five minutes.</em></h2>
-  <p>Free forever for personal use. No credit card required.</p>
+  <p>Free during beta. No credit card required.</p>
   <a href="#/login" data-nav class="btn btn-primary btn-lg">Get started free →</a>
 </div>
 
@@ -3841,20 +3767,11 @@
         <a href="#features">Features</a>
         <a href="#pricing">Pricing</a>
         <a href="#trust">Security</a>
-        <a href="#">Changelog</a>
       </div>
       <div class="footer-col">
-        <h5>Company</h5>
-        <a href="#">About</a>
-        <a href="#">Careers</a>
-        <a href="#">Blog</a>
-      </div>
-      <div class="footer-col">
-        <h5>Legal</h5>
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">Data policy</a>
-        <a href="#">DPDP compliance</a>
+        <h5>Contact</h5>
+        <a href="mailto:varunbabu098@gmail.com">Email</a>
+        <a href="tel:+917483528884">Phone</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -4288,13 +4205,6 @@
       Settings
     </a>
 
-    <div class="sidebar-footer">
-      <div class="sidebar-upgrade">
-        <h5>Upgrade to Pro</h5>
-        <p>Complete history, all AI insights, complete access.</p>
-        <a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a>
-      </div>
-    </div>
   </aside>
 
   <!-- Main -->
@@ -4502,8 +4412,8 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>
         </div>
         <div class="insight-body">
-          <h4>Vitta detected 6 recurring subscriptions</h4>
-          <p>You're paying <strong>₹4,247/month</strong> across 6 subscriptions. 2 haven't been used in 45+ days — likely worth cancelling.<a href="#insights">Review →</a></p>
+          <h4>Ask Vitta anything about your spending</h4>
+          <p>Type a question like "How much did I spend on food this month?" and get an instant answer from your own data. <a href="#/app/ask" data-nav>Try it →</a></p>
         </div>
       </div>
 
@@ -4653,13 +4563,6 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       Settings
     </a>
-    <div class="sidebar-footer">
-      <div class="sidebar-upgrade">
-        <h5>Upgrade to Pro</h5>
-        <p>Complete history, all AI insights, complete access.</p>
-        <a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a>
-      </div>
-    </div>
   </aside>
 
   <div class="main">
@@ -4787,13 +4690,6 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>
       Settings
     </a>
-    <div class="sidebar-footer">
-      <div class="sidebar-upgrade">
-        <h5>Upgrade to Pro</h5>
-        <p>Complete history, all AI insights, complete access.</p>
-        <a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a>
-      </div>
-    </div>
   </aside>
   <div class="main">
 
@@ -4868,13 +4764,6 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>
       Settings
     </a>
-    <div class="sidebar-footer">
-      <div class="sidebar-upgrade">
-        <h5>Upgrade to Pro</h5>
-        <p>Complete history, all AI insights, complete access.</p>
-        <a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a>
-      </div>
-    </div>
   </aside>
   <div class="main">
 
@@ -4968,13 +4857,6 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>
       Settings
     </a>
-    <div class="sidebar-footer">
-      <div class="sidebar-upgrade">
-        <h5>Upgrade to Pro</h5>
-        <p>Complete history, all AI insights, complete access.</p>
-        <a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a>
-      </div>
-    </div>
   </aside>
   <div class="main">
 
@@ -5061,7 +4943,7 @@
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </div>
           <div class="add-account-title">Connect another account</div>
-          <div class="add-account-sub">Upload a bank statement, UPI export, or credit card statement.</div>
+          <div class="add-account-sub">Upload a bank statement or UPI export (GPay, PhonePe).</div>
         </button>
       </div>
     </div>
@@ -5088,7 +4970,6 @@
     <a href="#/app/planner" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Plan Expenses</a>
     <div class="sidebar-section-label">Account</div>
     <a href="#/app/settings" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
-    <div class="sidebar-footer"><div class="sidebar-upgrade"><h5>Upgrade to Pro</h5><p>Complete history, all AI insights, complete access.</p><a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a></div></div>
   </aside>
   <div class="main">
 
@@ -5142,7 +5023,6 @@
     <a href="#/app/ask" data-nav class="nav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask Vitta</a>
     <div class="sidebar-section-label">Account</div>
     <a href="#/app/settings" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
-    <div class="sidebar-footer"><div class="sidebar-upgrade"><h5>Upgrade to Pro</h5><p>Complete history, all AI insights, complete access.</p><a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a></div></div>
   </aside>
   <div class="main">
 
@@ -5204,7 +5084,6 @@
     <a href="#/app/planner" data-nav class="nav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Plan Expenses</a>
     <div class="sidebar-section-label">Account</div>
     <a href="#/app/settings" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
-    <div class="sidebar-footer"><div class="sidebar-upgrade"><h5>Upgrade to Pro</h5><p>Complete history, all AI insights, complete access.</p><a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a></div></div>
   </aside>
 
   <div class="main" style="overflow-y:auto">
@@ -5399,7 +5278,6 @@
     <a href="#/app/planner" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Plan Expenses</a>
     <div class="sidebar-section-label">Account</div>
     <a href="#/app/settings" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
-    <div class="sidebar-footer"><div class="sidebar-upgrade"><h5>Upgrade to Pro</h5><p>Complete history, all AI insights, complete access.</p><a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a></div></div>
   </aside>
 
   <div class="main">
@@ -5468,7 +5346,6 @@
     <a href="#/app/planner" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Plan Expenses</a>
     <div class="sidebar-section-label">Account</div>
     <a href="#/app/settings" data-nav class="nav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
-    <div class="sidebar-footer"><div class="sidebar-upgrade"><h5>Upgrade to Pro</h5><p>Complete history, all AI insights, complete access.</p><a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a></div></div>
   </aside>
   <div class="main">
 
@@ -5545,17 +5422,14 @@
           </div>
           <div class="spane" data-pane="privacy">
             <h2>Data & Privacy</h2>
-            <div class="s-row"><div><div class="s-title">Encrypt at rest</div><div class="s-desc">All data encrypted with AES-256. Always on.</div></div><div class="s-tag on">Enabled</div></div>
+            <div class="s-row"><div><div class="s-title">Per-user data isolation</div><div class="s-desc">Every query is scoped to your user ID. No cross-user data access.</div></div><div class="s-tag on">Enabled</div></div>
             <div class="s-row"><div><div class="s-title">Delete source PDFs after parsing</div><div class="s-desc">Vitta keeps only normalized rows after parsing.</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
             <div class="s-row"><div><div class="s-title">Export all data</div><div class="s-desc">Download a CSV + JSON of every transaction.</div></div><button class="btn btn-secondary btn-sm" onclick="showToast('Export queued. You will get an email when ready.')">Export</button></div>
             <div class="s-row"><div><div class="s-title">Delete a statement</div><div class="s-desc">Remove all rows from a specific uploaded statement.</div></div><button class="btn btn-secondary btn-sm" onclick="showToast('Choose a statement in Accounts')">Choose statement</button></div>
           </div>
           <div class="spane" data-pane="notifs">
             <h2>Notifications</h2>
-            <div class="s-row"><div><div class="s-title">Weekly summary email</div><div class="s-desc">Every Monday, top merchants and category shifts.</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="s-row"><div><div class="s-title">Unusual spending alerts</div><div class="s-desc">Ping me when a category jumps >30%.</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="s-row"><div><div class="s-title">Recurring subscription found</div><div class="s-desc">Tell me when a new subscription is detected.</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="s-row"><div><div class="s-title">Marketing emails</div><div class="s-desc">Product updates and news.</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            <p style="color:var(--ink-faint);font-size:0.92rem;margin:0 0 12px">Notification features are coming soon.</p>
           </div>
           <div class="spane" data-pane="security">
             <h2>Security</h2>
@@ -5722,7 +5596,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <p class="modal-sub">Drop your bank statement, UPI app export, or credit card statement. Vitta parses and categorizes automatically.</p>
+    <p class="modal-sub">Drop your bank statement or UPI app export (GPay, PhonePe). Vitta parses and categorizes automatically.</p>
 
     <div class="field" style="margin-bottom:14px">
       <label for="upload-source">Statement type</label>
@@ -6777,7 +6651,7 @@ const CMDK_ITEMS = [
     icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'},
   {section:'Pages', title:'Settings',       desc:'Profile, contacts, privacy, danger zone', route:'#/app/settings',
     icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>'},
-  {section:'Actions', title:'Upload statement',  desc:'Parse a new bank / UPI / credit card statement', action:'openUpload',
+  {section:'Actions', title:'Upload statement',  desc:'Parse a new bank or UPI statement', action:'openUpload',
     icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'},
   {section:'Actions', title:'Log cash expense',  desc:'Record a cash purchase — no statement trail exists for these', action:'openCashModal',
     icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'},
@@ -7115,11 +6989,6 @@ function applySessionToUI() {
     } else {
       el.textContent = label.trim().charAt(0).toUpperCase();
     }
-  });
-  // Landing "Sign in" vs "Open app"
-  document.querySelectorAll('[data-auth-cta]').forEach(el => {
-    el.textContent = u ? 'Open app' : 'Sign in';
-    el.setAttribute('href', u ? '#/app' : '#/login');
   });
 }
 
@@ -8347,6 +8216,7 @@ function getHashParams() {
 const routes = ['/', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/planner', '/app/debts', '/app/settings'];
 function route() {
   let hash = (window.location.hash || '#/').slice(1).split('?')[0];
+  if (!hash.startsWith('/') && document.getElementById(hash)) return;
   if (!routes.includes(hash)) hash = '/';
 
   // Auth guard: /app* requires a session. VITTA_USER is resolved by
