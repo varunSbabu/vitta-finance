@@ -96,7 +96,7 @@ transactions(
   direction TEXT ('debit' = money out, 'credit' = money in),
   merchant_raw, merchant_clean (display name — prefer this),
   upi_ref, vpa, remark (user's own note on the payment, e.g. 'coconut', 'rent'),
-  source ('bank_pdf', 'gpay_pdf', 'manual_cash'),
+  source ('bank_pdf', 'gpay_pdf', 'phonepe_pdf', 'cc_pdf', 'manual_cash'),
   category (one of: {", ".join(c for c in CATEGORIES)}),
   is_self_transfer (1 = a transfer between the user's own accounts; exclude these from spend/income totals),
   txn_date is the column to filter/group by month with substr(txn_date,1,7)

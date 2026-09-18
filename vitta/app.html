@@ -3555,7 +3555,7 @@
     </div>
     <h1 class="hero-title"><span class="word">Every</span> <span class="word">rupee,</span> <span class="word accent">understood.</span></h1>
     <p class="hero-sub">
-      Upload your bank statement or UPI app export. Vitta turns raw transactions into a picture you can actually act on — categorized, deduplicated, and narrated by AI.
+      Upload your bank statement, credit card statement, or UPI app export. Vitta turns raw transactions into a picture you can actually act on — categorized, deduplicated, and narrated by AI.
     </p>
     <div class="hero-cta">
       <a href="#/login" data-nav class="btn btn-primary btn-lg">Get started free →</a>
@@ -3603,7 +3603,7 @@
       <div class="step" style="--i:0">
         <div class="step-num">01</div>
         <h3>Upload</h3>
-        <p>Drop your bank PDF, GPay export, or PhonePe statement. Password-protected PDFs supported. Multi-file upload.</p>
+        <p>Drop your bank PDF, credit card statement, GPay or PhonePe export. Password-protected PDFs supported.</p>
       </div>
       <div class="step" style="--i:1">
         <div class="step-num">02</div>
@@ -3633,7 +3633,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
         </div>
         <h4>Multi-source ingest</h4>
-        <p>Bank PDFs, GPay and PhonePe exports — Vitta parses them all and deduplicates via UPI transaction ID.</p>
+        <p>Bank PDFs, credit card statements, GPay and PhonePe exports — Vitta parses them all and deduplicates via UPI transaction ID.</p>
       </div>
       <div class="feature-card" style="--i:1">
         <div class="feature-icon">
@@ -3661,7 +3661,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
         </div>
         <h4>Multi-account handling</h4>
-        <p>Two bank accounts, three UPI apps — no problem. Self-transfers between your own accounts auto-excluded.</p>
+        <p>Bank accounts, credit cards, UPI apps — no problem. Self-transfers between your own accounts auto-excluded.</p>
       </div>
       <div class="feature-card" style="--i:5">
         <div class="feature-icon">
@@ -3719,7 +3719,7 @@
         <div class="price-amount">₹0</div>
         <div class="price-desc">Full access while we build.</div>
         <ul class="price-features">
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Multi-source ingest (bank statements + GPay + PhonePe)</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Multi-source ingest (bank + credit card + GPay + PhonePe)</li>
           <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Auto-categorization + tag-once merchant dictionary</li>
           <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Complete transaction history — no limits</li>
           <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Ask Vitta — natural-language queries over your data</li>
@@ -4943,7 +4943,7 @@
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </div>
           <div class="add-account-title">Connect another account</div>
-          <div class="add-account-sub">Upload a bank statement or UPI export (GPay, PhonePe).</div>
+          <div class="add-account-sub">Upload a bank statement, credit card statement, or UPI export.</div>
         </button>
       </div>
     </div>
@@ -5596,7 +5596,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <p class="modal-sub">Drop your bank statement or UPI app export (GPay, PhonePe). Vitta parses and categorizes automatically.</p>
+    <p class="modal-sub">Drop your bank statement, credit card statement, or UPI app export. Vitta parses and categorizes automatically.</p>
 
     <div class="field" style="margin-bottom:14px">
       <label for="upload-source">Statement type</label>
@@ -5605,6 +5605,7 @@
         <option value="bank_pdf">Bank account statement (richest — has payment remarks)</option>
         <option value="gpay_pdf">Google Pay export</option>
         <option value="phonepe_pdf">PhonePe transaction statement</option>
+        <option value="cc_pdf">Credit card statement</option>
       </select>
     </div>
 
@@ -6651,7 +6652,7 @@ const CMDK_ITEMS = [
     icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'},
   {section:'Pages', title:'Settings',       desc:'Profile, contacts, privacy, danger zone', route:'#/app/settings',
     icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>'},
-  {section:'Actions', title:'Upload statement',  desc:'Parse a new bank or UPI statement', action:'openUpload',
+  {section:'Actions', title:'Upload statement',  desc:'Parse a new bank, credit card, or UPI statement', action:'openUpload',
     icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'},
   {section:'Actions', title:'Log cash expense',  desc:'Record a cash purchase — no statement trail exists for these', action:'openCashModal',
     icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'},
@@ -7762,7 +7763,7 @@ function openLiveTableTxn(i) {
 
 const SOURCE_LABELS = {
   bank_pdf: 'Bank statement', gpay_pdf: 'Google Pay export',
-  phonepe_pdf: 'PhonePe statement',
+  phonepe_pdf: 'PhonePe statement', cc_pdf: 'Credit card statement',
   manual_cash: 'Logged manually (cash)', unknown: 'Unknown',
 };
 
@@ -8113,9 +8114,11 @@ function onUploadSourceChange() {
   const src = document.getElementById('upload-source')?.value;
   const pwField = document.getElementById('upload-password-field');
   const pwHint = document.querySelector('#upload-password-field label span');
-  if (pwField) pwField.style.display = (src === 'bank_pdf' || src === 'phonepe_pdf') ? '' : 'none';
+  if (pwField) pwField.style.display = (src === 'bank_pdf' || src === 'phonepe_pdf' || src === 'cc_pdf') ? '' : 'none';
   if (pwHint) pwHint.textContent = src === 'phonepe_pdf'
     ? '— PhonePe PDFs are usually locked'
+    : src === 'cc_pdf'
+    ? '— optional, issuers use DOB or PAN+DOB'
     : '— optional, most banks use DDMMYYYY (your DOB)';
 }
 
