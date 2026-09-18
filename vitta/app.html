@@ -1317,6 +1317,52 @@
   }
   .back-link:hover { color: var(--ink); background: var(--bg-glass); }
 
+  /* Auth success / info states */
+  .auth-success-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(34,197,94,0.12); display: flex;
+    align-items: center; justify-content: center; margin: 0 auto 20px;
+  }
+  .auth-success-icon svg { color: var(--brand-bright); }
+  .auth-success-icon.error { background: rgba(239,68,68,0.12); }
+  .auth-success-icon.error svg { color: var(--danger, #ef4444); }
+  .auth-info-box {
+    background: var(--bg-inset); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;
+  }
+  .auth-info-box p { color: var(--ink-secondary); font-size: 14px; line-height: 1.6; margin: 0; }
+  .auth-info-box .email-highlight {
+    font-weight: 600; color: var(--ink); word-break: break-all;
+  }
+  .btn-link {
+    background: none; border: none; color: var(--brand-bright);
+    font-family: var(--f-body); font-size: 14px; font-weight: 500;
+    cursor: pointer; padding: 0; text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .btn-link:hover { opacity: 0.8; }
+  .btn-link:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary-auth {
+    display: flex; width: 100%; align-items: center; justify-content: center;
+    padding: 13px 20px; background: var(--bg-glass-strong); color: var(--ink);
+    border: 1px solid var(--border-strong); border-radius: 10px;
+    font-family: var(--f-body); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.18s; line-height: 1; margin-top: 12px;
+    text-decoration: none;
+  }
+  .btn-secondary-auth:hover { background: var(--bg-glass); border-color: var(--border-emphasis); }
+  .pw-strength { height: 3px; border-radius: 2px; margin-top: 8px; transition: all 0.3s; }
+  .pw-strength.weak { background: var(--danger, #ef4444); width: 33%; }
+  .pw-strength.medium { background: var(--gold, #f59e0b); width: 66%; }
+  .pw-strength.strong { background: var(--brand-bright); width: 100%; }
+  .auth-loading { text-align: center; padding: 40px 0; color: var(--ink-muted); }
+  .auth-loading .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--brand-bright); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   /* === Dashboard-specific === */
 :root {
     --bg: #050506;
@@ -3729,7 +3775,7 @@
           <input type="email" id="pw-email" placeholder="you@example.com" autocomplete="email" required>
         </div>
         <div class="field field-pw">
-          <label for="pw-password">Password</label>
+          <label for="pw-password">Password <a href="#/forgot-password" class="hint">Forgot password?</a></label>
           <input type="password" id="pw-password" placeholder="••••••••" autocomplete="current-password" required minlength="8">
           <button type="button" class="pw-toggle" aria-label="Show password" onclick="togglePwField()">
             <svg id="pw-field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -3740,12 +3786,285 @@
 
       <div id="login-error" class="auth-legal" style="display:none;margin-top:16px;color:var(--danger,#ef4444)"></div>
 
-      <div class="auth-legal" style="margin-top:20px">
-        Create an account or sign in to start analyzing your finances.
+      <div class="auth-alt">
+        Don't have an account? <a href="#/signup">Sign up</a>
       </div>
 
       <div class="auth-legal">
         By continuing, you agree to Vitta's <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- === Signup route === -->
+<div data-route="/signup">
+<div class="auth-wrap">
+  <aside class="auth-side">
+    <div class="auth-side-bg"></div>
+    <div class="auth-side-dots"></div>
+    <a href="#/" data-nav class="side-brand" style="color:var(--ink);text-decoration:none;">
+      <span class="logo logo-animated"><svg width="40" height="40" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      Vitta
+    </a>
+    <div class="side-hero">
+      <h1>Start understanding <em>every rupee.</em></h1>
+      <p>Create your account to track spending, categorize transactions, and get AI-powered insights about your money.</p>
+    </div>
+    <div class="side-stats">
+      <div class="side-stat"><div class="val">500+</div><div class="lbl">Active users</div></div>
+      <div class="side-stat"><div class="val">78%</div><div class="lbl">Auto-categorized</div></div>
+      <div class="side-stat"><div class="val">&#8377;2.4Cr</div><div class="lbl">Analyzed this month</div></div>
+    </div>
+  </aside>
+
+  <main class="auth-main">
+    <a href="#/" data-nav class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back
+    </a>
+    <div class="auth-form">
+      <div class="auth-mobile-brand">
+        <span class="logo logo-animated"><svg width="56" height="56" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      </div>
+
+      <h2>Create your <em>account.</em></h2>
+      <p class="subtitle">Sign up to start analyzing your finances.</p>
+
+      <a href="#" class="btn-google" onclick="startGoogleLogin(event)">
+        <svg width="18" height="18" viewBox="0 0 18 18">
+          <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+        </svg>
+        Continue with Google
+      </a>
+
+      <div class="divider">or</div>
+
+      <form id="signup-form" onsubmit="submitSignup(event)">
+        <div class="field">
+          <label for="signup-name">Full name <span style="color:var(--ink-faint);font-weight:400">(optional)</span></label>
+          <input type="text" id="signup-name" placeholder="Your name" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <div class="field field-pw">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" placeholder="At least 8 characters" autocomplete="new-password" required minlength="8" oninput="updatePwStrength(this)">
+          <button type="button" class="pw-toggle" aria-label="Show password" onclick="toggleField('signup-password', 'signup-pw-icon')">
+            <svg id="signup-pw-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <div id="signup-pw-strength" class="pw-strength"></div>
+        </div>
+        <button type="submit" class="btn-submit" id="signup-submit-btn">Create account</button>
+      </form>
+
+      <div id="signup-error" class="auth-legal" style="display:none;margin-top:16px;color:var(--danger,#ef4444)"></div>
+
+      <div class="auth-alt">
+        Already have an account? <a href="#/login">Sign in</a>
+      </div>
+
+      <div class="auth-legal">
+        By continuing, you agree to Vitta's <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- === Email verification route === -->
+<div data-route="/verify-email">
+<div class="auth-wrap">
+  <aside class="auth-side">
+    <div class="auth-side-bg"></div>
+    <div class="auth-side-dots"></div>
+    <a href="#/" data-nav class="side-brand" style="color:var(--ink);text-decoration:none;">
+      <span class="logo logo-animated"><svg width="40" height="40" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      Vitta
+    </a>
+    <div class="side-hero">
+      <h1>Almost <em>there.</em></h1>
+      <p>Just one more step to unlock your personal finance dashboard.</p>
+    </div>
+    <div class="side-stats">
+      <div class="side-stat"><div class="val">500+</div><div class="lbl">Active users</div></div>
+      <div class="side-stat"><div class="val">78%</div><div class="lbl">Auto-categorized</div></div>
+      <div class="side-stat"><div class="val">&#8377;2.4Cr</div><div class="lbl">Analyzed this month</div></div>
+    </div>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-form" style="text-align:center">
+      <div class="auth-mobile-brand">
+        <span class="logo logo-animated"><svg width="56" height="56" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      </div>
+
+      <!-- State 1: Check your email (no token) -->
+      <div id="verify-check-email">
+        <div class="auth-success-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </div>
+        <h2>Check your <em>email.</em></h2>
+        <div class="auth-info-box">
+          <p>We sent a verification link to<br><span id="verify-email-display" class="email-highlight"></span></p>
+        </div>
+        <p style="color:var(--ink-muted);font-size:14px;margin-bottom:24px">Click the link in the email to verify your account. Check your spam folder if you don't see it.</p>
+        <button id="resend-btn" class="btn-link" onclick="resendVerificationEmail()">Resend verification email</button>
+        <div id="resend-status" style="margin-top:12px;font-size:13px;color:var(--ink-muted)"></div>
+        <div style="margin-top:32px">
+          <a href="#/login" style="color:var(--ink-muted);font-size:13px;text-decoration:none">Back to sign in</a>
+        </div>
+      </div>
+
+      <!-- State 2: Token verification result -->
+      <div id="verify-token-result" style="display:none">
+        <div id="verify-result-icon" class="auth-success-icon"></div>
+        <h2 id="verify-result-heading"></h2>
+        <p id="verify-result-message" style="color:var(--ink-muted);font-size:14px;margin:16px 0 24px"></p>
+        <div id="verify-result-actions"></div>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- === Forgot password route === -->
+<div data-route="/forgot-password">
+<div class="auth-wrap">
+  <aside class="auth-side">
+    <div class="auth-side-bg"></div>
+    <div class="auth-side-dots"></div>
+    <a href="#/" data-nav class="side-brand" style="color:var(--ink);text-decoration:none;">
+      <span class="logo logo-animated"><svg width="40" height="40" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      Vitta
+    </a>
+    <div class="side-hero">
+      <h1>Let's get you <em>back in.</em></h1>
+      <p>No worries — we'll send you a link to reset your password.</p>
+    </div>
+    <div class="side-stats">
+      <div class="side-stat"><div class="val">500+</div><div class="lbl">Active users</div></div>
+      <div class="side-stat"><div class="val">78%</div><div class="lbl">Auto-categorized</div></div>
+      <div class="side-stat"><div class="val">&#8377;2.4Cr</div><div class="lbl">Analyzed this month</div></div>
+    </div>
+  </aside>
+
+  <main class="auth-main">
+    <a href="#/login" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to sign in
+    </a>
+    <div class="auth-form">
+      <div class="auth-mobile-brand">
+        <span class="logo logo-animated"><svg width="56" height="56" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      </div>
+
+      <!-- State 1: Form -->
+      <div id="forgot-form-state">
+        <h2>Reset your <em>password.</em></h2>
+        <p class="subtitle">Enter your email and we'll send you a reset link.</p>
+
+        <form id="forgot-form" onsubmit="submitForgotPassword(event)">
+          <div class="field">
+            <label for="forgot-email">Email</label>
+            <input type="email" id="forgot-email" placeholder="you@example.com" autocomplete="email" required>
+          </div>
+          <button type="submit" class="btn-submit" id="forgot-submit-btn">Send reset link</button>
+        </form>
+        <div id="forgot-error" class="auth-legal" style="display:none;margin-top:16px;color:var(--danger,#ef4444)"></div>
+      </div>
+
+      <!-- State 2: Success -->
+      <div id="forgot-success-state" style="display:none;text-align:center">
+        <div class="auth-success-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </div>
+        <h2>Check your <em>email.</em></h2>
+        <div class="auth-info-box">
+          <p>If an account exists for <span id="forgot-email-display" class="email-highlight"></span>, you'll receive a password reset link shortly.</p>
+        </div>
+        <p style="color:var(--ink-muted);font-size:14px;margin-bottom:24px">Check your spam folder if you don't see it within a few minutes.</p>
+        <a href="#/login" class="btn-secondary-auth">Back to sign in</a>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- === Reset password route === -->
+<div data-route="/reset-password">
+<div class="auth-wrap">
+  <aside class="auth-side">
+    <div class="auth-side-bg"></div>
+    <div class="auth-side-dots"></div>
+    <a href="#/" data-nav class="side-brand" style="color:var(--ink);text-decoration:none;">
+      <span class="logo logo-animated"><svg width="40" height="40" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      Vitta
+    </a>
+    <div class="side-hero">
+      <h1>Set a <em>fresh start.</em></h1>
+      <p>Choose a new password and you'll be back to your dashboard in no time.</p>
+    </div>
+    <div class="side-stats">
+      <div class="side-stat"><div class="val">500+</div><div class="lbl">Active users</div></div>
+      <div class="side-stat"><div class="val">78%</div><div class="lbl">Auto-categorized</div></div>
+      <div class="side-stat"><div class="val">&#8377;2.4Cr</div><div class="lbl">Analyzed this month</div></div>
+    </div>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-form">
+      <div class="auth-mobile-brand">
+        <span class="logo logo-animated"><svg width="56" height="56" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      </div>
+
+      <!-- State 1: Form -->
+      <div id="reset-form-state">
+        <h2>Set a new <em>password.</em></h2>
+        <p class="subtitle">Choose a strong password for your account.</p>
+
+        <form id="reset-form" onsubmit="submitResetPassword(event)">
+          <div class="field field-pw">
+            <label for="reset-password">New password</label>
+            <input type="password" id="reset-password" placeholder="At least 8 characters" autocomplete="new-password" required minlength="8" oninput="updatePwStrength(this)">
+            <button type="button" class="pw-toggle" aria-label="Show password" onclick="toggleField('reset-password', 'reset-pw-icon')">
+              <svg id="reset-pw-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <div class="pw-strength"></div>
+          </div>
+          <div class="field">
+            <label for="reset-password-confirm">Confirm password</label>
+            <input type="password" id="reset-password-confirm" placeholder="Re-enter your password" autocomplete="new-password" required minlength="8">
+          </div>
+          <button type="submit" class="btn-submit" id="reset-submit-btn">Reset password</button>
+        </form>
+        <div id="reset-error" class="auth-legal" style="display:none;margin-top:16px;color:var(--danger,#ef4444)"></div>
+      </div>
+
+      <!-- State 2: Success -->
+      <div id="reset-success-state" style="display:none;text-align:center">
+        <div class="auth-success-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h2>Password <em>reset!</em></h2>
+        <p style="color:var(--ink-muted);font-size:14px;margin:16px 0 24px">Your password has been updated. You're now signed in.</p>
+        <a href="#/app" class="btn-submit" style="text-decoration:none;display:flex;align-items:center;justify-content:center">Continue to dashboard</a>
+      </div>
+
+      <!-- State 3: Error (invalid/expired token) -->
+      <div id="reset-error-state" style="display:none;text-align:center">
+        <div class="auth-success-icon error">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <h2>Link <em>expired.</em></h2>
+        <p style="color:var(--ink-muted);font-size:14px;margin:16px 0 24px">This reset link is no longer valid. Please request a new one.</p>
+        <a href="#/forgot-password" class="btn-submit" style="text-decoration:none;display:flex;align-items:center;justify-content:center">Request new link</a>
       </div>
     </div>
   </main>
@@ -4726,6 +5045,7 @@
           <button class="stab" data-stab="contacts"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Contacts</button>
           <button class="stab" data-stab="privacy"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Data & Privacy</button>
           <button class="stab" data-stab="notifs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>Notifications</button>
+          <button class="stab" data-stab="security"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Security</button>
           <button class="stab" data-stab="danger"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Danger zone</button>
         </div>
         <div class="settings-panel">
@@ -4790,6 +5110,14 @@
             <div class="s-row"><div><div class="s-title">Unusual spending alerts</div><div class="s-desc">Ping me when a category jumps >30%.</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
             <div class="s-row"><div><div class="s-title">Recurring subscription found</div><div class="s-desc">Tell me when a new subscription is detected.</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
             <div class="s-row"><div><div class="s-title">Marketing emails</div><div class="s-desc">Product updates and news.</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="spane" data-pane="security">
+            <h2>Security</h2>
+            <div id="settings-email-verification" class="s-row" style="display:none">
+              <div><div class="s-title">Email verification</div><div class="s-desc" id="settings-email-status"></div></div>
+              <button id="settings-resend-btn" class="btn btn-sm" style="display:none" onclick="resendFromSettings()">Resend</button>
+            </div>
+            <div id="settings-pw-section"></div>
           </div>
           <div class="spane danger" data-pane="danger">
             <h2>Danger zone</h2>
@@ -6115,6 +6443,10 @@ const VittaAPI = {
   passwordStatus()               { return this._get('/api/auth/password-status'); },
   signup(email, password, name)  { return this._postAuthAttempt('/api/auth/signup', { email, password, name }); },
   loginPassword(email, password) { return this._postAuthAttempt('/api/auth/login-password', { email, password }); },
+  verifyEmail(token)             { return this._postAuthAttempt('/api/auth/verify-email', { token }); },
+  forgotPassword(email)          { return this._postAuthAttempt('/api/auth/forgot-password', { email }); },
+  resetPassword(token, password) { return this._postAuthAttempt('/api/auth/reset-password', { token, password }); },
+  resendVerification()           { return this._post('/api/auth/resend-verification'); },
 
   // --- statements ---
   parse(file, source='gpay_pdf', password=null) {
@@ -6744,8 +7076,15 @@ function wireUploadFileInput() {
 }
 document.addEventListener('DOMContentLoaded', wireUploadFileInput);
 
+function getHashParams() {
+  const hash = window.location.hash || '';
+  const qIdx = hash.indexOf('?');
+  if (qIdx === -1) return {};
+  return Object.fromEntries(new URLSearchParams(hash.slice(qIdx + 1)));
+}
+
 // --- Router ---
-const routes = ['/', '/login', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/settings'];
+const routes = ['/', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/settings'];
 function route() {
   let hash = (window.location.hash || '#/').slice(1).split('?')[0];
   if (!routes.includes(hash)) hash = '/';
@@ -6757,10 +7096,20 @@ function route() {
     window.location.hash = '#/login';
     hash = '/login';
   }
-  // Already signed in? Skip the login screen.
-  if (hash === '/login' && VITTA_USER) {
-    window.location.hash = '#/app';
-    hash = '/app';
+  // Email verification gate: signed-in but unverified → verify page
+  if (hash.startsWith('/app') && VITTA_USER && !VITTA_USER.email_verified) {
+    window.location.hash = '#/verify-email';
+    hash = '/verify-email';
+  }
+  // Already signed in? Skip login/signup screens.
+  if ((hash === '/login' || hash === '/signup') && VITTA_USER) {
+    if (!VITTA_USER.email_verified) {
+      window.location.hash = '#/verify-email';
+      hash = '/verify-email';
+    } else {
+      window.location.hash = '#/app';
+      hash = '/app';
+    }
   }
 
   document.querySelectorAll('[data-route]').forEach(el => {
@@ -6777,9 +7126,17 @@ function route() {
   if (hash === '/app/categories') renderCategories();
   if (hash === '/app/merchants') { renderMerchants(); loadMerchantsLive(); }
   if (hash === '/login') refreshPasswordFormMode();
+  if (hash === '/verify-email') initVerifyEmailPage();
+  if (hash === '/reset-password') initResetPasswordPage();
+  if (hash === '/forgot-password') {
+    const fs = document.getElementById('forgot-form-state');
+    const ss = document.getElementById('forgot-success-state');
+    if (fs) fs.style.display = 'block';
+    if (ss) ss.style.display = 'none';
+  }
   if (hash === '/app/accounts') loadAccountsLive();
   if (hash === '/app/insights') renderInsights();
-  if (hash === '/app/settings') handleContactsCallback();
+  if (hash === '/app/settings') { handleContactsCallback(); initSecuritySettings(); }
 }
 window.addEventListener('hashchange', route);
 document.addEventListener('DOMContentLoaded', async () => {
@@ -6897,6 +7254,9 @@ async function submitPasswordAuth(event) {
   try {
     if (_pwHasPassword === false) {
       await VittaAPI.signup(email, password);
+      await loadSession();
+      window.location.hash = '#/verify-email';
+      return;
     } else {
       await VittaAPI.loginPassword(email, password);
     }
@@ -6923,6 +7283,334 @@ function togglePwField() {
   } else {
     pw.type = 'password';
     icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
+function toggleField(inputId, iconId) {
+  const pw = document.getElementById(inputId);
+  const icon = document.getElementById(iconId);
+  if (!pw || !icon) return;
+  if (pw.type === 'password') {
+    pw.type = 'text';
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    pw.type = 'password';
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
+function updatePwStrength(input) {
+  const bar = input.parentElement.querySelector('.pw-strength');
+  if (!bar) return;
+  const v = input.value;
+  if (!v) { bar.className = 'pw-strength'; return; }
+  let score = 0;
+  if (v.length >= 8) score++;
+  if (v.length >= 12) score++;
+  if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+  if (/\d/.test(v)) score++;
+  if (/[^A-Za-z0-9]/.test(v)) score++;
+  if (score <= 2) bar.className = 'pw-strength weak';
+  else if (score <= 3) bar.className = 'pw-strength medium';
+  else bar.className = 'pw-strength strong';
+}
+
+// --- Signup page ---
+async function submitSignup(event) {
+  event.preventDefault();
+  const errEl = document.getElementById('signup-error');
+  const btn = document.getElementById('signup-submit-btn');
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  if (errEl) errEl.style.display = 'none';
+
+  if (!email || !password) return;
+  if (password.length < 8) {
+    if (errEl) { errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = 'block'; }
+    return;
+  }
+
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = 'Creating account…';
+  try {
+    await VittaAPI.signup(email, password, name || undefined);
+    await loadSession();
+    window.location.hash = '#/verify-email';
+  } catch (e) {
+    if (errEl) {
+      if (e.status === 409) {
+        errEl.innerHTML = 'An account with this email already exists. <a href="#/login" style="color:var(--brand-bright)">Sign in instead</a>';
+      } else {
+        errEl.textContent = e.message || 'Signup failed. Please try again.';
+      }
+      errEl.style.display = 'block';
+    }
+  } finally {
+    btn.disabled = false;
+    if (btn.textContent === 'Creating account…') btn.textContent = orig;
+  }
+}
+
+// --- Email verification page ---
+function initVerifyEmailPage() {
+  const params = getHashParams();
+  const checkEl = document.getElementById('verify-check-email');
+  const resultEl = document.getElementById('verify-token-result');
+
+  if (params.token) {
+    if (checkEl) checkEl.style.display = 'none';
+    if (resultEl) resultEl.style.display = 'block';
+    verifyWithToken(params.token);
+  } else {
+    if (checkEl) checkEl.style.display = 'block';
+    if (resultEl) resultEl.style.display = 'none';
+    const emailSpan = document.getElementById('verify-email-display');
+    if (emailSpan && VITTA_USER) emailSpan.textContent = VITTA_USER.email;
+  }
+}
+
+async function verifyWithToken(token) {
+  const iconEl = document.getElementById('verify-result-icon');
+  const headingEl = document.getElementById('verify-result-heading');
+  const msgEl = document.getElementById('verify-result-message');
+  const actionsEl = document.getElementById('verify-result-actions');
+
+  iconEl.innerHTML = '<div class="spinner" style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--brand-bright);border-radius:50%;animation:spin 0.8s linear infinite"></div>';
+  iconEl.className = 'auth-success-icon';
+  headingEl.innerHTML = 'Verifying…';
+  msgEl.textContent = '';
+  actionsEl.innerHTML = '';
+
+  try {
+    await VittaAPI.verifyEmail(token);
+    await loadSession();
+    iconEl.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+    headingEl.innerHTML = 'Email <em>verified!</em>';
+    msgEl.textContent = 'Your email has been confirmed. Welcome to Vitta!';
+    actionsEl.innerHTML = '<a href="#/app" class="btn-submit" style="text-decoration:none;display:flex;align-items:center;justify-content:center">Continue to dashboard</a>';
+  } catch (e) {
+    iconEl.className = 'auth-success-icon error';
+    iconEl.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    headingEl.innerHTML = 'Verification <em>failed.</em>';
+    msgEl.textContent = e.message || 'This link is invalid or has expired.';
+    actionsEl.innerHTML = VITTA_USER
+      ? '<button class="btn-link" onclick="resendVerificationEmail()">Resend verification email</button>'
+      : '<a href="#/login" class="btn-secondary-auth">Sign in to resend</a>';
+  }
+}
+
+let _resendCooldown = 0;
+let _resendTimer = null;
+async function resendVerificationEmail() {
+  if (_resendCooldown > 0) return;
+  const btn = document.getElementById('resend-btn');
+  const status = document.getElementById('resend-status');
+  if (btn) btn.disabled = true;
+
+  try {
+    await VittaAPI.resendVerification();
+    if (status) status.textContent = 'Verification email sent!';
+    _resendCooldown = 60;
+    if (_resendTimer) clearInterval(_resendTimer);
+    _resendTimer = setInterval(() => {
+      _resendCooldown--;
+      if (btn) btn.textContent = _resendCooldown > 0 ? `Resend in ${_resendCooldown}s` : 'Resend verification email';
+      if (_resendCooldown <= 0) {
+        clearInterval(_resendTimer);
+        _resendTimer = null;
+        if (btn) btn.disabled = false;
+      }
+    }, 1000);
+  } catch (e) {
+    if (status) status.textContent = e.message || 'Failed to resend. Please try again.';
+    if (btn) btn.disabled = false;
+  }
+}
+
+// --- Forgot password page ---
+async function submitForgotPassword(event) {
+  event.preventDefault();
+  const btn = document.getElementById('forgot-submit-btn');
+  const errEl = document.getElementById('forgot-error');
+  const email = document.getElementById('forgot-email').value.trim();
+  if (errEl) errEl.style.display = 'none';
+  if (!email) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    await VittaAPI.forgotPassword(email);
+    document.getElementById('forgot-form-state').style.display = 'none';
+    document.getElementById('forgot-success-state').style.display = 'block';
+    document.getElementById('forgot-email-display').textContent = email;
+  } catch (e) {
+    if (errEl) { errEl.textContent = e.message || 'Something went wrong.'; errEl.style.display = 'block'; }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send reset link';
+  }
+}
+
+// --- Reset password page ---
+function initResetPasswordPage() {
+  const params = getHashParams();
+  if (!params.token) {
+    document.getElementById('reset-form-state').style.display = 'none';
+    document.getElementById('reset-error-state').style.display = 'block';
+  } else {
+    document.getElementById('reset-form-state').style.display = 'block';
+    document.getElementById('reset-success-state').style.display = 'none';
+    document.getElementById('reset-error-state').style.display = 'none';
+  }
+}
+
+async function submitResetPassword(event) {
+  event.preventDefault();
+  const btn = document.getElementById('reset-submit-btn');
+  const errEl = document.getElementById('reset-error');
+  const password = document.getElementById('reset-password').value;
+  const confirm = document.getElementById('reset-password-confirm').value;
+  const params = getHashParams();
+  if (errEl) errEl.style.display = 'none';
+
+  if (password !== confirm) {
+    if (errEl) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; }
+    return;
+  }
+  if (password.length < 8) {
+    if (errEl) { errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = 'block'; }
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Resetting…';
+  try {
+    await VittaAPI.resetPassword(params.token, password);
+    await loadSession();
+    document.getElementById('reset-form-state').style.display = 'none';
+    document.getElementById('reset-success-state').style.display = 'block';
+  } catch (e) {
+    if (e.message && (e.message.includes('expired') || e.message.includes('invalid') || e.message.includes('Invalid'))) {
+      document.getElementById('reset-form-state').style.display = 'none';
+      document.getElementById('reset-error-state').style.display = 'block';
+    } else {
+      if (errEl) { errEl.textContent = e.message || 'Reset failed. Please try again.'; errEl.style.display = 'block'; }
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Reset password';
+  }
+}
+
+// --- Settings security tab ---
+async function initSecuritySettings() {
+  const section = document.getElementById('settings-pw-section');
+  const verRow = document.getElementById('settings-email-verification');
+  const verStatus = document.getElementById('settings-email-status');
+  const verBtn = document.getElementById('settings-resend-btn');
+  if (!section) return;
+
+  // Email verification status
+  if (VITTA_USER && verRow) {
+    verRow.style.display = 'flex';
+    if (VITTA_USER.email_verified) {
+      verStatus.innerHTML = '<span style="color:var(--brand-bright)">&#10003; Email verified</span>';
+      verBtn.style.display = 'none';
+    } else {
+      verStatus.textContent = 'Your email is not yet verified.';
+      verBtn.style.display = 'inline-flex';
+    }
+  }
+
+  // Password section
+  const ps = await VittaAPI.passwordStatus();
+  if (!ps) { section.innerHTML = '<p style="color:var(--ink-muted)">Could not load password status.</p>'; return; }
+
+  if (ps.has_password) {
+    section.innerHTML = `
+      <div class="s-row" style="flex-direction:column;align-items:stretch;gap:16px">
+        <div><div class="s-title">Change password</div><div class="s-desc">Update your current password.</div></div>
+        <form id="change-pw-form" onsubmit="submitChangePassword(event)" style="display:flex;flex-direction:column;gap:12px;max-width:360px">
+          <input type="password" id="change-pw-current" placeholder="Current password" autocomplete="current-password" required style="padding:10px 12px;background:var(--bg-inset);border:1px solid var(--border-strong);border-radius:8px;color:var(--ink);font-size:14px">
+          <input type="password" id="change-pw-new" placeholder="New password (min 8 chars)" autocomplete="new-password" required minlength="8" style="padding:10px 12px;background:var(--bg-inset);border:1px solid var(--border-strong);border-radius:8px;color:var(--ink);font-size:14px">
+          <input type="password" id="change-pw-confirm" placeholder="Confirm new password" autocomplete="new-password" required minlength="8" style="padding:10px 12px;background:var(--bg-inset);border:1px solid var(--border-strong);border-radius:8px;color:var(--ink);font-size:14px">
+          <div id="change-pw-error" style="display:none;color:var(--danger,#ef4444);font-size:13px"></div>
+          <button type="submit" class="btn btn-sm" id="change-pw-btn">Update password</button>
+        </form>
+      </div>`;
+  } else {
+    section.innerHTML = `
+      <div class="s-row" style="flex-direction:column;align-items:stretch;gap:16px">
+        <div><div class="s-title">Set a password</div><div class="s-desc">You signed in with Google. Set a password to also enable email+password login.</div></div>
+        <form id="set-pw-form" onsubmit="submitSetPassword(event)" style="display:flex;flex-direction:column;gap:12px;max-width:360px">
+          <input type="password" id="set-pw-new" placeholder="Password (min 8 chars)" autocomplete="new-password" required minlength="8" style="padding:10px 12px;background:var(--bg-inset);border:1px solid var(--border-strong);border-radius:8px;color:var(--ink);font-size:14px">
+          <input type="password" id="set-pw-confirm" placeholder="Confirm password" autocomplete="new-password" required minlength="8" style="padding:10px 12px;background:var(--bg-inset);border:1px solid var(--border-strong);border-radius:8px;color:var(--ink);font-size:14px">
+          <div id="set-pw-error" style="display:none;color:var(--danger,#ef4444);font-size:13px"></div>
+          <button type="submit" class="btn btn-sm" id="set-pw-btn">Set password</button>
+        </form>
+      </div>`;
+  }
+}
+
+async function submitSetPassword(event) {
+  event.preventDefault();
+  const pw = document.getElementById('set-pw-new').value;
+  const confirm = document.getElementById('set-pw-confirm').value;
+  const errEl = document.getElementById('set-pw-error');
+  const btn = document.getElementById('set-pw-btn');
+  if (errEl) errEl.style.display = 'none';
+  if (pw !== confirm) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return; }
+  if (pw.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = 'block'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Setting…';
+  try {
+    await VittaAPI.signup(VITTA_USER.email, pw, VITTA_USER.name);
+    showToast('Password set successfully!');
+    initSecuritySettings();
+  } catch (e) {
+    if (errEl) { errEl.textContent = e.message || 'Failed to set password.'; errEl.style.display = 'block'; }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Set password';
+  }
+}
+
+async function submitChangePassword(event) {
+  event.preventDefault();
+  const current = document.getElementById('change-pw-current').value;
+  const pw = document.getElementById('change-pw-new').value;
+  const confirm = document.getElementById('change-pw-confirm').value;
+  const errEl = document.getElementById('change-pw-error');
+  const btn = document.getElementById('change-pw-btn');
+  if (errEl) errEl.style.display = 'none';
+  if (pw !== confirm) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return; }
+  if (pw.length < 8) { errEl.textContent = 'New password must be at least 8 characters.'; errEl.style.display = 'block'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Updating…';
+  try {
+    await VittaAPI.loginPassword(VITTA_USER.email, current);
+    // TODO: Backend needs a change-password endpoint. For now, show success.
+    showToast('Password verification passed. Change-password endpoint coming soon.');
+  } catch (e) {
+    if (errEl) { errEl.textContent = e.message || 'Current password is incorrect.'; errEl.style.display = 'block'; }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Update password';
+  }
+}
+
+async function resendFromSettings() {
+  const btn = document.getElementById('settings-resend-btn');
+  if (btn) btn.disabled = true;
+  try {
+    await VittaAPI.resendVerification();
+    showToast('Verification email sent!');
+  } catch (e) {
+    showToast(e.message || 'Failed to resend.');
+  } finally {
+    if (btn) { btn.disabled = false; }
   }
 }
 
