@@ -34,9 +34,11 @@ from routes import (
     accounts,
     ask,
     contacts,
+    debts,
     ingest,
     insights,
     merchants,
+    planner,
     summary,
     system,
     transactions,
@@ -99,6 +101,8 @@ app.include_router(contacts.router)
 app.include_router(transfers.router)
 app.include_router(insights.router)
 app.include_router(ask.router)
+app.include_router(planner.router)
+app.include_router(debts.router)
 app.include_router(system.router)
 
 

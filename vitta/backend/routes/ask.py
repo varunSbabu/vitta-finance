@@ -16,7 +16,8 @@ router = APIRouter(tags=["ask"])
 @router.post("/api/ask")
 def api_ask(payload: dict = Body(...), user: dict = Depends(require_auth)):
     question = (payload.get("question") or "").strip()
-    result = answer_question(question, user["id"])
+    history = payload.get("history") or []
+    result = answer_question(question, user["id"], history=history)
     return {
         "question": question,
         "answer": result["answer"],

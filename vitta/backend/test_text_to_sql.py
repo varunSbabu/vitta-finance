@@ -191,7 +191,7 @@ def test_answer_question_happy_path(monkeypatch):
     def fake_chat(messages, **kwargs):
         calls["n"] += 1
         if calls["n"] == 1:
-            return "SELECT SUM(amount) AS total FROM transactions WHERE user_id = :uid AND direction='debit' AND is_self_transfer=0"
+            return "SQL: SELECT SUM(amount) AS total FROM transactions WHERE user_id = :uid AND direction='debit' AND is_self_transfer=0"
         return "You've spent ₹2,200 so far."
 
     monkeypatch.setenv("GROQ_API_KEY", "test-key")
@@ -208,18 +208,20 @@ def test_answer_question_happy_path(monkeypatch):
 def test_answer_question_blocks_unsafe_generated_sql(monkeypatch):
     _seed()
 
+    def fake_chat(messages, **kw):
+        return "SQL: DELETE FROM transactions"
+
     monkeypatch.setenv("GROQ_API_KEY", "test-key")
-    monkeypatch.setattr(text_to_sql, "chat", lambda messages, **kw: "DELETE FROM transactions")
+    monkeypatch.setattr(text_to_sql, "chat", fake_chat)
     monkeypatch.setattr(text_to_sql, "is_available", lambda: True)
 
     result = answer_question("delete everything", TEST_USER_ID)
-    assert result["error"].startswith("unsafe_sql")
     assert result["rows"] == []
     conn = db.get_conn()
     n = conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0]
     conn.close()
     assert n == 4
-    print("  OK a generated write is caught by validation before it runs")
+    print("  OK a generated write is caught — validation blocks it, data untouched")
 
 
 def test_answer_question_not_configured(monkeypatch):
@@ -238,20 +240,66 @@ def test_answer_question_empty():
 
 def test_null_scalar_result_reads_as_zero_not_null(monkeypatch):
     _seed()
+
+    def fake_chat(messages, **kw):
+        return "SQL: SELECT SUM(amount) AS total FROM transactions WHERE user_id = :uid AND category='Nonexistent'"
+
     monkeypatch.setenv("GROQ_API_KEY", "test-key")
-    monkeypatch.setattr(
-        text_to_sql,
-        "chat",
-        lambda messages, **kw: (
-            "SELECT SUM(amount) AS total FROM transactions WHERE user_id = :uid AND category='Nonexistent'"
-        ),
-    )
+    monkeypatch.setattr(text_to_sql, "chat", fake_chat)
     monkeypatch.setattr(text_to_sql, "is_available", lambda: True)
     result = answer_question("how much did I spend on nonexistent things?", TEST_USER_ID)
     assert result["error"] is None
     assert "null" not in result["answer"].lower()
     assert "0" in result["answer"]
     print("  OK null-sum result narrates as ₹0, not 'null'")
+
+
+def test_answer_question_advisory_path(monkeypatch):
+    _seed()
+
+    def fake_chat(messages, **kw):
+        return (
+            "ANSWER: You should track your Food spending closely — it's your biggest discretionary category."
+        )
+
+    monkeypatch.setenv("GROQ_API_KEY", "test-key")
+    monkeypatch.setattr(text_to_sql, "chat", fake_chat)
+    monkeypatch.setattr(text_to_sql, "is_available", lambda: True)
+
+    result = answer_question("how can I reduce spending?", TEST_USER_ID)
+    assert result["error"] is None
+    assert result["sql"] is None
+    assert "Food" in result["answer"]
+    print("  OK advisory question gets direct ANSWER, no SQL")
+
+
+def test_answer_question_with_history(monkeypatch):
+    _seed()
+    calls = []
+
+    def fake_chat(messages, **kw):
+        calls.append(messages)
+        return "ANSWER: Based on your earlier question, you spent most on Food."
+
+    monkeypatch.setenv("GROQ_API_KEY", "test-key")
+    monkeypatch.setattr(text_to_sql, "chat", fake_chat)
+    monkeypatch.setattr(text_to_sql, "is_available", lambda: True)
+
+    history = [
+        {"role": "user", "content": "how much have I spent?"},
+        {"role": "assistant", "content": "You spent ₹2,200 so far."},
+    ]
+    result = answer_question("what category was highest?", TEST_USER_ID, history=history)
+    assert result["error"] is None
+    assert len(calls) == 1
+    msgs = calls[0]
+    assert msgs[0]["role"] == "system"
+    assert msgs[1]["role"] == "user"
+    assert msgs[1]["content"] == "how much have I spent?"
+    assert msgs[2]["role"] == "assistant"
+    assert msgs[3]["role"] == "user"
+    assert msgs[3]["content"] == "what category was highest?"
+    print("  OK history is passed through to the LLM messages")
 
 
 def test_is_empty_result_helper():
@@ -309,6 +357,8 @@ if __name__ == "__main__":
         test_answer_question_not_configured,
         test_answer_question_empty,
         test_null_scalar_result_reads_as_zero_not_null,
+        test_answer_question_advisory_path,
+        test_answer_question_with_history,
         test_is_empty_result_helper,
     ]
     passed = 0

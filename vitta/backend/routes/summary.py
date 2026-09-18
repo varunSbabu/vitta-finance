@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -70,3 +71,47 @@ def api_summary(
         "categories": [dict_from_row(r) for r in cats],
         "top_merchants": [dict_from_row(r) for r in top_merch],
     }
+
+
+@router.get("/api/spending-trend")
+def api_spending_trend(
+    weeks: int = Query(24, ge=4, le=52),
+    user: dict = Depends(require_auth),
+):
+    """Weekly spending totals for the trend chart."""
+    user_id = user["id"]
+    today = date.today()
+    # Start from the Monday `weeks` weeks ago
+    start_monday = today - timedelta(days=today.weekday()) - timedelta(weeks=weeks - 1)
+
+    conn = get_conn()
+    rows = conn.execute(
+        """
+        SELECT
+          date(txn_date, 'weekday 0', '-6 days') AS week_start,
+          ROUND(SUM(CASE WHEN direction='debit' THEN amount ELSE 0 END), 0) AS spent,
+          ROUND(SUM(CASE WHEN direction='credit' THEN amount ELSE 0 END), 0) AS received,
+          COUNT(*) AS n
+        FROM transactions
+        WHERE user_id = ? AND is_self_transfer = 0
+          AND txn_date >= ?
+        GROUP BY week_start
+        ORDER BY week_start
+        """,
+        (user_id, start_monday.isoformat()),
+    ).fetchall()
+    conn.close()
+
+    # Build a dense array with zeros for weeks with no transactions
+    week_map = {r["week_start"]: dict_from_row(r) for r in rows}
+    result = []
+    cursor = start_monday
+    while cursor <= today:
+        key = cursor.isoformat()
+        if key in week_map:
+            result.append(week_map[key])
+        else:
+            result.append({"week_start": key, "spent": 0, "received": 0, "n": 0})
+        cursor += timedelta(weeks=1)
+
+    return {"weeks": result}

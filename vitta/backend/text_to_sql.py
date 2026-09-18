@@ -43,7 +43,17 @@ from categorization import CATEGORIES
 from db import DB_PATH
 from llm import chat, is_available
 
-ALLOWED_TABLES = {"transactions", "accounts", "merchant_dictionary", "contacts"}
+ALLOWED_TABLES = {
+    "transactions",
+    "accounts",
+    "merchant_dictionary",
+    "contacts",
+    "income_sources",
+    "obligations",
+    "budget_plans",
+    "savings_goals",
+    "debts",
+}
 
 FORBIDDEN_KEYWORDS = {
     "insert",
@@ -102,6 +112,24 @@ Rules:
 - Amounts are rupees. Use ROUND(SUM(amount), 2) for money.
 - Group months with substr(txn_date, 1, 7).
 - Return a small result — aggregate rather than dumping raw rows when the question is a total/count/ranking.
+"""
+
+VITTA_SYSTEM_PROMPT = f"""You are Vitta, a friendly and smart personal finance assistant for Indian users.
+You have access to the user's real transaction database and can query it to answer questions.
+
+When the user asks a FACTUAL question that requires looking up data (totals, counts, lists, comparisons, specific transactions), respond with ONLY a SQL query prefixed by "SQL:" on the first line, like:
+SQL: SELECT ...
+
+When the user asks for ADVICE, tips, explanations, opinions, or anything conversational that cannot be answered by a single SQL query, respond with a helpful answer prefixed by "ANSWER:" on the first line. Use the financial context provided to give specific, personalized advice — reference their real categories, merchants, and amounts. Keep advice to 3-5 sentences. Use ₹ for Indian rupee amounts.
+
+DATABASE SCHEMA:
+{SCHEMA_DESCRIPTION}
+
+IMPORTANT:
+- For SQL responses: write ONLY the SQL query after "SQL:", no explanation. Single SELECT statement only.
+- For ANSWER responses: write plain text, no markdown, no bold, no asterisks. Be warm, specific, and actionable.
+- When unsure if data is needed, prefer to query the data first and then advise.
+- You remember the conversation history — refer back to previous questions and answers naturally.
 """
 
 
@@ -171,29 +199,37 @@ def _run_readonly(sql: str, user_id: int) -> list[dict]:
         conn.close()
 
 
-def _generate_sql(question: str) -> str | None:
-    content = chat(
-        [
-            {"role": "system", "content": SCHEMA_DESCRIPTION},
-            {
-                "role": "user",
-                "content": (
-                    f"Question: {question}\n\n"
-                    "Reply with ONLY the SQL query — a single SELECT statement, "
-                    "no explanation, no markdown fences, no trailing semicolon. "
-                    "Remember: filter every table by user_id = :uid."
-                ),
-            },
-        ],
-        temperature=0,
-        max_tokens=400,
-    )
+def _generate_response(question: str, history: list[dict] | None, context: str) -> tuple[str, str | None]:
+    """Ask the LLM to either produce SQL or a direct answer.
+    Returns (type, content) where type is 'sql' or 'answer'."""
+    system = VITTA_SYSTEM_PROMPT
+    if context:
+        system += f"\n\nUSER'S CURRENT FINANCIAL CONTEXT:\n{context}"
+
+    messages = [{"role": "system", "content": system}]
+    if history:
+        for h in history[-10:]:
+            messages.append({"role": h.get("role", "user"), "content": h.get("content", "")})
+    messages.append({"role": "user", "content": question})
+
+    content = chat(messages, temperature=0.2, max_tokens=800)
     if not content:
-        return None
+        return ("answer", None)
+
     content = content.strip()
     content = re.sub(r"^```(?:sql)?\s*", "", content)
     content = re.sub(r"\s*```$", "", content)
-    return content.strip()
+
+    if content.upper().startswith("SQL:"):
+        sql = content[4:].strip().rstrip(";").strip()
+        sql = re.sub(r"^```(?:sql)?\s*", "", sql)
+        sql = re.sub(r"\s*```$", "", sql)
+        return ("sql", sql)
+    if content.upper().startswith("ANSWER:"):
+        return ("answer", content[7:].strip())
+    if re.match(r"(?i)^(SELECT|WITH)\b", content):
+        return ("sql", content.rstrip(";").strip())
+    return ("answer", content)
 
 
 def _is_empty_result(rows: list[dict]) -> bool:
@@ -240,10 +276,64 @@ def _narrate(question: str, rows: list[dict]) -> str:
     return f"Found {len(rows)} result row(s)."
 
 
-def answer_question(question: str, user_id: int) -> dict:
-    """Full Ask Vitta flow. Returns a dict the route serializes directly:
-    {answer, sql, rows, error}. `error` is set (and answer is a friendly
-    message) whenever the question can't be safely answered."""
+def _fetch_spending_context(user_id: int) -> str:
+    """Fetch a summary of the user's spending to give the LLM context."""
+    conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.execute("PRAGMA query_only = ON")
+
+        monthly = conn.execute(
+            "SELECT substr(txn_date,1,7) AS month, "
+            "ROUND(SUM(CASE WHEN direction='debit' AND is_self_transfer=0 THEN amount ELSE 0 END),0) AS spent, "
+            "ROUND(SUM(CASE WHEN direction='credit' AND is_self_transfer=0 THEN amount ELSE 0 END),0) AS income "
+            "FROM transactions WHERE user_id = ? "
+            "GROUP BY month ORDER BY month DESC LIMIT 3",
+            (user_id,),
+        ).fetchall()
+
+        by_category = conn.execute(
+            "SELECT category, ROUND(SUM(amount),0) AS total, COUNT(*) AS n "
+            "FROM transactions "
+            "WHERE user_id = ? AND direction='debit' AND is_self_transfer=0 "
+            "AND substr(txn_date,1,7) = substr(date('now'),1,7) "
+            "GROUP BY category ORDER BY total DESC LIMIT 10",
+            (user_id,),
+        ).fetchall()
+
+        top_merchants = conn.execute(
+            "SELECT merchant_clean, ROUND(SUM(amount),0) AS total, COUNT(*) AS n "
+            "FROM transactions "
+            "WHERE user_id = ? AND direction='debit' AND is_self_transfer=0 "
+            "AND substr(txn_date,1,7) = substr(date('now'),1,7) "
+            "GROUP BY merchant_clean ORDER BY total DESC LIMIT 10",
+            (user_id,),
+        ).fetchall()
+
+        parts = []
+        if monthly:
+            parts.append("Monthly summary (recent):")
+            for r in monthly:
+                parts.append(f"  {r['month']}: spent ₹{r['spent']:,.0f}, income ₹{r['income']:,.0f}")
+
+        if by_category:
+            parts.append("\nThis month's spending by category:")
+            for r in by_category:
+                parts.append(f"  {r['category'] or 'Uncategorized'}: ₹{r['total']:,.0f} ({r['n']} txns)")
+
+        if top_merchants:
+            parts.append("\nThis month's top merchants:")
+            for r in top_merchants:
+                parts.append(f"  {r['merchant_clean'] or 'Unknown'}: ₹{r['total']:,.0f} ({r['n']} txns)")
+
+        return "\n".join(parts) if parts else ""
+    finally:
+        conn.close()
+
+
+def answer_question(question: str, user_id: int, history: list[dict] | None = None) -> dict:
+    """Full Ask Vitta flow — single-pass LLM decides whether to write SQL or
+    give a direct answer. Returns {answer, sql, rows, error}."""
     question = (question or "").strip()
     if not question:
         return {"answer": "Ask me something about your spending.", "sql": None, "rows": [], "error": "empty"}
@@ -255,10 +345,23 @@ def answer_question(question: str, user_id: int) -> dict:
             "error": "not_configured",
         }
 
-    sql = _generate_sql(question)
+    context = _fetch_spending_context(user_id)
+    resp_type, content = _generate_response(question, history, context)
+
+    if resp_type == "answer":
+        if not content:
+            return {
+                "answer": "I'm having trouble right now — try again in a moment.",
+                "sql": None,
+                "rows": [],
+                "error": "llm_failed",
+            }
+        return {"answer": content, "sql": None, "rows": [], "error": None}
+
+    sql = content
     if not sql:
         return {
-            "answer": "I couldn't turn that into a query — try rephrasing it.",
+            "answer": "I couldn't figure that out — try rephrasing your question.",
             "sql": None,
             "rows": [],
             "error": "generation_failed",
@@ -267,7 +370,7 @@ def answer_question(question: str, user_id: int) -> dict:
     ok, reason = _validate_sql(sql)
     if not ok:
         return {
-            "answer": "I can only answer read-only questions about your own transactions, and that one didn't qualify. Try asking about your spending, categories, or merchants.",
+            "answer": "I can only run read-only queries on your own transactions. Try asking differently.",
             "sql": sql,
             "rows": [],
             "error": f"unsafe_sql: {reason}",

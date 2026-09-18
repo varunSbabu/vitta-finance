@@ -85,6 +85,61 @@ CREATE TABLE IF NOT EXISTS contacts (
     created_at    TEXT DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, phone_last10)
 );
+
+CREATE TABLE IF NOT EXISTS income_sources (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id),
+    name       TEXT NOT NULL,
+    amount     REAL NOT NULL,
+    frequency  TEXT DEFAULT 'monthly' CHECK(frequency IN ('monthly','weekly','yearly')),
+    is_active  INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS obligations (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id),
+    name       TEXT NOT NULL,
+    category   TEXT NOT NULL,
+    amount     REAL NOT NULL,
+    due_day    INTEGER,
+    is_active  INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS budget_plans (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id),
+    month      TEXT NOT NULL,
+    category   TEXT NOT NULL,
+    limit_amount REAL NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, month, category)
+);
+
+CREATE TABLE IF NOT EXISTS savings_goals (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id),
+    name       TEXT NOT NULL DEFAULT 'Savings',
+    target     REAL NOT NULL DEFAULT 0,
+    is_active  INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS debts (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id        INTEGER NOT NULL REFERENCES users(id),
+    contact_name   TEXT NOT NULL,
+    amount         REAL NOT NULL,
+    direction      TEXT NOT NULL CHECK(direction IN ('they_owe', 'i_owe')),
+    reason         TEXT DEFAULT '',
+    txn_id         INTEGER,
+    status         TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'settled', 'partial')),
+    settled_amount REAL DEFAULT 0,
+    created_at     TEXT DEFAULT CURRENT_TIMESTAMP,
+    settled_at     TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_debts_user ON debts(user_id, status);
 """
 
 

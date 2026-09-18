@@ -26,6 +26,7 @@ from llm_categorize import CONFIDENCE_THRESHOLD, categorize_batch
 from llm_categorize import is_available as llm_available
 from parsers.bank_statement import parse as parse_bank
 from parsers.gpay import parse as parse_gpay
+from parsers.phonepe import parse as parse_phonepe
 
 router = APIRouter(tags=["ingest"])
 
@@ -52,6 +53,8 @@ async def api_parse(
             txns = parse_gpay(tmp_path)
         elif source == "bank_pdf":
             txns = parse_bank(tmp_path, password=password)
+        elif source == "phonepe_pdf":
+            txns = parse_phonepe(tmp_path, password=password)
         else:
             raise HTTPException(400, f"Parser for source={source!r} not implemented yet.")
     except Exception as e:
