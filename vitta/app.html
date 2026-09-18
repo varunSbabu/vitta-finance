@@ -1891,14 +1891,13 @@
     border-radius: 14px;
     padding: 22px;
     margin-bottom: 24px;
-    animation: fadeUp 0.6s 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   .chart-svg {
     width: 100%;
-    height: 260px;
+    height: 220px;
     display: block;
   }
-  @media (max-width: 700px) { .chart-svg { height: 200px; } }
+  @media (max-width: 900px) { .chart-svg { height: 180px; } }
 
   .chart-legend {
     display: flex;
@@ -2346,12 +2345,12 @@
   .drawer-field:last-child { border-bottom: none; }
   .drawer-field .lbl { color: var(--ink-muted); }
   .drawer-field .val { color: var(--ink); font-family: var(--f-mono); font-size: 13px; text-align: right; }
-  .drawer-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .drawer-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
   .drawer-actions button {
-    padding: 9px 14px; background: var(--bg-inset); border: 1px solid var(--border-strong);
-    border-radius: 8px; color: var(--ink); font-family: var(--f-body); font-size: 12.5px;
+    padding: 8px 14px; background: var(--bg-inset); border: 1px solid var(--border-strong);
+    border-radius: 8px; color: var(--ink); font-family: var(--f-body); font-size: 12px;
     font-weight: 500; cursor: pointer; transition: all 0.15s;
-    display: inline-flex; align-items: center; gap: 6px;
+    display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
   }
   .drawer-actions button:hover { border-color: var(--border-emphasis); background: var(--bg-glass); }
   .drawer-actions button.primary { background: var(--brand); color: #041706; border-color: var(--brand); }
@@ -2424,7 +2423,34 @@
   .debt-tab button:last-child { border-radius: 0 8px 8px 0; }
   .debt-tab button.active { background: var(--brand); color: #041706; border-color: var(--brand); font-weight: 600; }
 
+  /* Debts overview card (on dashboard) */
+  .debts-overview-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 24px; margin-bottom: 32px;
+  }
+  .debts-overview-card .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .debts-overview-card .card-head h3 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .debts-overview-card .card-head h3 .pending-badge {
+    font-size: 11px; background: var(--brand); color: #041706; padding: 2px 8px;
+    border-radius: 99px; font-weight: 600;
+  }
+  .debts-overview-card .manage-btn {
+    padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    border: 1px solid var(--border); background: transparent; color: var(--ink-secondary);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .debts-overview-card .manage-btn:hover { border-color: var(--brand); color: var(--brand-bright); }
+  .debts-overview-empty {
+    text-align: center; padding: 12px 0; color: var(--ink-muted); font-size: 13px;
+  }
+  .debts-overview-empty button {
+    margin-top: 8px; padding: 8px 20px; border-radius: 8px; font-size: 13px;
+    font-weight: 500; border: 1px solid var(--brand); background: transparent;
+    color: var(--brand-bright); cursor: pointer; transition: all 0.15s;
+  }
+  .debts-overview-empty button:hover { background: var(--brand); color: #041706; }
 
+  /* Debts management modal (full popup) */
   /* Empty-state placeholder pages */
   .empty-state {
     max-width: 480px;
@@ -2473,6 +2499,8 @@
   .modal-backdrop.open { opacity: 1; pointer-events: auto; }
   .modal {
     width: 100%; max-width: 560px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
     background: var(--bg-elevated);
     border: 1px solid var(--border-strong);
     border-radius: 20px;
@@ -2492,6 +2520,23 @@
   }
   .modal-head h3 em { font-style: italic; color: var(--brand-bright); font-weight: 500; }
   .modal-sub { color: var(--ink-muted); font-size: 14px; margin-bottom: 24px; }
+
+  .split-txn-info { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--bg-inset,rgba(255,255,255,.04)); border-radius:10px; margin-bottom:18px; border:1px solid var(--border,rgba(255,255,255,.12)); }
+  .split-txn-info .split-merchant { font-weight:600; font-size:15px; }
+  .split-txn-info .split-amount { font-family:var(--f-mono,monospace); font-size:18px; color:var(--danger,#ef4444); font-weight:600; }
+  .split-rows { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; max-height:260px; overflow-y:auto; }
+  .split-row { display:flex; gap:8px; align-items:center; }
+  .split-row input { padding:10px 12px; border-radius:8px; background:var(--bg-inset,rgba(255,255,255,.04)); color:inherit; border:1px solid var(--border,rgba(255,255,255,.12)); font:inherit; font-size:14px; }
+  .split-row input[type="text"] { flex:1; min-width:0; }
+  .split-row input[type="number"] { width:100px; }
+  .split-row .split-remove { background:none; border:none; color:var(--danger,#ef4444); cursor:pointer; padding:4px; opacity:.7; transition:opacity .15s; flex-shrink:0; }
+  .split-row .split-remove:hover { opacity:1; }
+  .split-add-btn { display:inline-flex; align-items:center; gap:6px; background:none; border:1px dashed var(--border-strong,rgba(255,255,255,.18)); color:var(--ink-muted); padding:8px 14px; border-radius:8px; cursor:pointer; font:inherit; font-size:13px; transition:all .15s; margin-bottom:14px; }
+  .split-add-btn:hover { border-color:var(--brand); color:var(--brand); }
+  .split-total { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--bg-inset,rgba(255,255,255,.04)); border-radius:10px; margin-bottom:18px; border:1px solid var(--border,rgba(255,255,255,.12)); font-size:14px; }
+  .split-total .split-total-amount { font-family:var(--f-mono,monospace); font-weight:600; }
+  .split-total .split-total-amount.over { color:var(--danger,#ef4444); }
+  .split-total .split-total-amount.ok { color:var(--brand); }
 
   .dropzone {
     border: 2px dashed var(--border-strong);
@@ -4218,6 +4263,10 @@
       Accounts
       <span class="count">3</span>
     </a>
+    <a href="#/app/debts" data-nav class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Who Owes Who
+    </a>
 
     <div class="sidebar-section-label">AI</div>
     <a href="#/app/insights" data-nav class="nav-item">
@@ -4271,7 +4320,7 @@
     <div class="content">
       <!-- Greeting -->
       <div class="greeting">
-        <h1>Good morning, <em>Varun.</em></h1>
+        <h1 id="dash-greeting">Good morning, <em>Varun.</em></h1>
         <p>
           Here's what's happened across your accounts.
           <span class="synced"><span class="dot"></span>Last synced 3 min ago</span>
@@ -4291,56 +4340,55 @@
           <div class="meta"><span class="delta up" id="received-delta">▲ 12.4%</span><span id="received-delta-label">vs June</span></div>
         </div>
         <div class="stat-tile" style="--accent: var(--gold)">
-          <div class="lbl">Auto-categorized</div>
-          <div class="val" data-target="78" data-suffix="%">0%</div>
-          <div class="meta"><span class="delta up">▲ 43%</span>vs baseline</div>
+          <div class="lbl" id="net-tile-label">Net spend · July</div>
+          <div class="val" id="net-spend-val" data-target="0">₹0</div>
+          <div class="meta"><span id="net-spend-note">Spent minus received</span></div>
         </div>
         <div class="stat-tile" style="--accent: var(--violet)">
-          <div class="lbl">Recurring monthly</div>
-          <div class="val" data-target="4247">₹0</div>
-          <div class="meta">6 subscriptions</div>
+          <div class="lbl">Debts</div>
+          <div class="val" id="debt-tile-val" data-target="0">₹0</div>
+          <div class="meta"><span id="debt-tile-note">No pending debts</span></div>
         </div>
       </div>
 
-      <!-- Spending trend chart (weekly) -->
-      <div class="chart-area">
-        <div class="card-head">
-          <div>
-            <h3>Spending trend</h3>
-            <div class="sub" id="trend-sub">Weekly · all accounts</div>
+      <!-- Trend + Category row (side by side) -->
+      <div class="row-2" id="trend-cat-row">
+        <div class="chart-area" style="margin-bottom:0">
+          <div class="card-head">
+            <div>
+              <h3>Spending trend</h3>
+              <div class="sub" id="trend-sub">Weekly · all accounts</div>
+            </div>
+            <div class="segmented" id="trend-range-btns">
+              <button data-weeks="12">3M</button>
+              <button data-weeks="24" class="active">6M</button>
+              <button data-weeks="52">1Y</button>
+            </div>
           </div>
-          <div class="segmented" id="trend-range-btns">
-            <button data-weeks="12">3M</button>
-            <button data-weeks="24" class="active">6M</button>
-            <button data-weeks="52">1Y</button>
+          <div id="trend-chart-container" style="position:relative">
+            <svg class="chart-svg" id="trend-svg" viewBox="0 0 800 280" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#4ADE80" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#4ADE80" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div id="trend-tooltip" style="display:none;position:absolute;pointer-events:none;background:var(--surface-card);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink);white-space:nowrap;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.3)"></div>
+          </div>
+          <div class="chart-legend">
+            <div class="item"><span class="swatch" style="background:#4ADE80"></span>Spending</div>
+            <div class="item"><span class="swatch" style="background:#FCD34D"></span>Current week</div>
           </div>
         </div>
-        <div id="trend-chart-container" style="position:relative">
-          <svg class="chart-svg" id="trend-svg" viewBox="0 0 800 280" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#4ADE80" stop-opacity="0.25"/>
-                <stop offset="100%" stop-color="#4ADE80" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-          </svg>
-          <div id="trend-tooltip" style="display:none;position:absolute;pointer-events:none;background:var(--surface-card);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink);white-space:nowrap;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.3)"></div>
-        </div>
-        <div class="chart-legend">
-          <div class="item"><span class="swatch" style="background:#4ADE80"></span>Spending</div>
-          <div class="item"><span class="swatch" style="background:#FCD34D"></span>Current week</div>
-        </div>
-      </div>
 
-      <!-- Category + Merchants row -->
-      <div class="row-2">
         <div class="card">
           <div class="card-head">
             <div>
-              <h3>Category breakdown</h3>
-              <div class="sub">July 2026 · ₹61,933 total</div>
+              <h3>Where it went</h3>
+              <div class="sub" id="cat-breakdown-sub">July 2026 · ₹61,933 total</div>
             </div>
-            <a href="#" class="view-all-link">All →</a>
+            <a href="#/app/categories" class="view-all-link">All →</a>
           </div>
           <div class="cat-bars">
             <div class="cat-row">
@@ -4385,18 +4433,20 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <h3>Top merchants</h3>
-              <div class="sub" id="top-merchants-sub">By total spent · July</div>
-            </div>
-            <a href="#" class="view-all-link">All →</a>
+      <!-- Top merchants -->
+      <div class="card" style="margin-bottom:24px;animation:fadeUp 0.6s 0.65s cubic-bezier(0.16, 1, 0.3, 1) both">
+        <div class="card-head">
+          <div>
+            <h3>Top merchants</h3>
+            <div class="sub" id="top-merchants-sub">By total spent · July</div>
           </div>
-          <div class="merchant-list">
-            <div class="merchant-row">
-              <div class="merchant-avatar" style="background:#22C55E;color:#041706;">S</div>
+          <a href="#/app/merchants" class="view-all-link">All →</a>
+        </div>
+        <div class="merchant-list">
+          <div class="merchant-row">
+            <div class="merchant-avatar" style="background:#22C55E;color:#041706;">S</div>
               <div class="merchant-info">
                 <div class="name">Swiggy Instamart</div>
                 <div class="cat">Groceries · 5 txns</div>
@@ -4445,7 +4495,6 @@
             </div>
           </div>
         </div>
-      </div>
 
       <!-- Insight callout -->
       <div class="insight-callout">
@@ -4455,6 +4504,32 @@
         <div class="insight-body">
           <h4>Vitta detected 6 recurring subscriptions</h4>
           <p>You're paying <strong>₹4,247/month</strong> across 6 subscriptions. 2 haven't been used in 45+ days — likely worth cancelling.<a href="#insights">Review →</a></p>
+        </div>
+      </div>
+
+      <!-- Who owes who (debts card) -->
+      <div class="debts-overview-card" id="debts-overview-card" style="display:none">
+        <div class="card-head">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Who owes who
+            <span class="pending-badge" id="debts-pending-badge" style="display:none">0</span>
+          </h3>
+          <a href="#/app/debts" data-nav class="manage-btn" style="text-decoration:none">Manage →</a>
+        </div>
+        <div class="debts-bar" id="debts-overview-summary"></div>
+      </div>
+      <div class="debts-overview-card" id="debts-overview-empty" style="display:none">
+        <div class="card-head">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Who owes who
+          </h3>
+        </div>
+        <div class="debts-overview-empty">
+          No debts tracked yet
+          <br>
+          <a href="#/app/debts" data-nav style="text-decoration:none;margin-top:8px;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--brand);background:transparent;color:var(--brand-bright);cursor:pointer;transition:all 0.15s;display:inline-block">+ Track a debt</a>
         </div>
       </div>
 
@@ -4560,6 +4635,10 @@
       Accounts
       <span class="count">3</span>
     </a>
+    <a href="#/app/debts" data-nav class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Who Owes Who
+    </a>
     <div class="sidebar-section-label">AI</div>
     <a href="#/app/insights" data-nav class="nav-item">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>
@@ -4641,27 +4720,6 @@
         </div>
       </div>
 
-      <!-- Debts (who owes who) -->
-      <div id="debts-panel" style="display:none">
-        <div class="debts-bar" id="debts-summary-cards"></div>
-        <div class="debt-add-bar">
-          <button onclick="openDebtModal('they_owe')">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            They owe me
-          </button>
-          <button onclick="openDebtModal('i_owe')">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            I owe someone
-          </button>
-        </div>
-        <div class="debt-tab" id="debt-tab">
-          <button class="active" onclick="switchDebtTab('they_owe')">They owe me</button>
-          <button onclick="switchDebtTab('i_owe')">I owe them</button>
-          <button onclick="switchDebtTab('settled')">Settled</button>
-        </div>
-        <div id="debts-list"></div>
-      </div>
-
       <!-- Table -->
       <div class="txn-table-wrap">
         <div class="txn-table-head">
@@ -4710,6 +4768,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       Accounts
       <span class="count">3</span>
+    </a>
+    <a href="#/app/debts" data-nav class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Who Owes Who
     </a>
     <div class="sidebar-section-label">AI</div>
     <a href="#/app/insights" data-nav class="nav-item">
@@ -4787,6 +4849,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       Accounts
       <span class="count">3</span>
+    </a>
+    <a href="#/app/debts" data-nav class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Who Owes Who
     </a>
     <div class="sidebar-section-label">AI</div>
     <a href="#/app/insights" data-nav class="nav-item">
@@ -5015,6 +5081,7 @@
     <a href="#/app/categories" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Categories</a>
     <a href="#/app/merchants" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Merchants</a>
     <a href="#/app/accounts" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Accounts<span class="count">3</span></a>
+    <a href="#/app/debts" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Who Owes Who</a>
     <div class="sidebar-section-label">AI</div>
     <a href="#/app/insights" data-nav class="nav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>Insights</a>
     <a href="#/app/ask" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask Vitta</a>
@@ -5069,6 +5136,7 @@
     <a href="#/app/categories" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Categories</a>
     <a href="#/app/merchants" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Merchants</a>
     <a href="#/app/accounts" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Accounts<span class="count">3</span></a>
+    <a href="#/app/debts" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Who Owes Who</a>
     <div class="sidebar-section-label">AI</div>
     <a href="#/app/insights" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>Insights</a>
     <a href="#/app/ask" data-nav class="nav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask Vitta</a>
@@ -5129,6 +5197,7 @@
     <a href="#/app/categories" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Categories</a>
     <a href="#/app/merchants" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Merchants</a>
     <a href="#/app/accounts" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Accounts</a>
+    <a href="#/app/debts" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Who Owes Who</a>
     <div class="sidebar-section-label">AI</div>
     <a href="#/app/insights" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>Insights</a>
     <a href="#/app/ask" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask Vitta</a>
@@ -5309,6 +5378,76 @@
   </div>
 </div>
 
+<!-- === Debts (who owes who) route === -->
+
+<div data-route="/app/debts" class="app">
+  <aside class="sidebar">
+    <a href="#/" data-nav class="sidebar-brand">
+      <span class="logo"><svg width="26" height="26" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      Vitta<span class="beta">Beta</span>
+    </a>
+    <div class="sidebar-section-label">Overview</div>
+    <a href="#/app" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Overview</a>
+    <a href="#/app/transactions" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Transactions</a>
+    <a href="#/app/categories" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Categories</a>
+    <a href="#/app/merchants" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Merchants</a>
+    <a href="#/app/accounts" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Accounts</a>
+    <a href="#/app/debts" data-nav class="nav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Who Owes Who</a>
+    <div class="sidebar-section-label">AI</div>
+    <a href="#/app/insights" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>Insights</a>
+    <a href="#/app/ask" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask Vitta</a>
+    <a href="#/app/planner" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Plan Expenses</a>
+    <div class="sidebar-section-label">Account</div>
+    <a href="#/app/settings" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
+    <div class="sidebar-footer"><div class="sidebar-upgrade"><h5>Upgrade to Pro</h5><p>Complete history, all AI insights, complete access.</p><a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a></div></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search transactions, merchants, categories…">
+        <span class="kbd">⌘K</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="upload-btn" onclick="openCashModal()" style="background:transparent;color:var(--ink);border:1px solid var(--border)" title="Log a cash expense">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span class="lbl">Log cash</span></button>
+        <button class="upload-btn" onclick="openUpload()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span class="lbl">Upload statement</span></button>
+        <div class="avatar" title="Varun A S">V</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="greeting">
+        <h1>Who owes <em>who</em></h1>
+        <p>Track money owed to you and by you.</p>
+      </div>
+
+      <div class="debts-bar" id="debts-page-summary"></div>
+
+      <div class="debt-add-bar">
+        <button onclick="openDebtModal('they_owe')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          They owe me
+        </button>
+        <button onclick="openDebtModal('i_owe')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          I owe someone
+        </button>
+      </div>
+
+      <div class="debt-tab" id="debts-page-tab">
+        <button class="active" onclick="switchDebtTab('they_owe')">They owe me</button>
+        <button onclick="switchDebtTab('i_owe')">I owe them</button>
+        <button onclick="switchDebtTab('settled')">Settled</button>
+      </div>
+
+      <div id="debts-page-list"></div>
+    </div>
+  </div>
+</div>
+
 <div data-route="/app/settings" class="app">
 
   <aside class="sidebar">
@@ -5322,6 +5461,7 @@
     <a href="#/app/categories" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Categories</a>
     <a href="#/app/merchants" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Merchants</a>
     <a href="#/app/accounts" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Accounts<span class="count">3</span></a>
+    <a href="#/app/debts" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Who Owes Who</a>
     <div class="sidebar-section-label">AI</div>
     <a href="#/app/insights" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>Insights</a>
     <a href="#/app/ask" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask Vitta</a>
@@ -5665,6 +5805,41 @@
   </div>
 </div>
 
+<!-- Split expense modal -->
+<div id="split-modal" class="modal-backdrop" onclick="if(event.target===this) closeSplitModal()">
+  <div class="modal" role="dialog" aria-labelledby="split-modal-title" style="max-width:480px">
+    <div class="modal-head">
+      <h3 id="split-modal-title">Split <em>expense</em></h3>
+      <button class="icon-btn" onclick="closeSplitModal()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="split-txn-info">
+      <span class="split-merchant" id="split-merchant"></span>
+      <span class="split-amount" id="split-full-amount"></span>
+    </div>
+    <input type="hidden" id="split-txn-id" value="">
+    <div id="split-rows" class="split-rows"></div>
+    <button type="button" class="split-add-btn" onclick="addSplitRow()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add person
+    </button>
+    <div class="field" style="margin-bottom:14px">
+      <label for="split-reason">Reason <span style="opacity:.6;font-weight:400">(optional)</span></label>
+      <input type="text" id="split-reason" placeholder="e.g. Dinner, Movie night, Trip" autocomplete="off"
+             style="width:100%;padding:11px 12px;border-radius:8px;background:var(--bg-inset,rgba(255,255,255,.04));color:inherit;border:1px solid var(--border,rgba(255,255,255,.12));font:inherit">
+    </div>
+    <div class="split-total">
+      <span>Split total</span>
+      <span class="split-total-amount" id="split-total-display">₹0</span>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="cancel" onclick="closeSplitModal()">Cancel</button>
+      <button type="button" class="confirm" id="split-submit-btn" onclick="submitSplit()">Split &amp; track debts</button>
+    </div>
+  </div>
+</div>
+
 <!-- Log cash expense modal -->
 <div id="cash-modal" class="modal-backdrop" onclick="if(event.target===this) closeCashModal()">
   <div class="modal" role="dialog" aria-labelledby="cash-title">
@@ -5866,11 +6041,9 @@ function openDrawer(index) {
     <div class="drawer-section">
       <h5>Actions</h5>
       <div class="drawer-actions">
-        <button class="primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Confirm</button>
-        <button><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Re-tag</button>
-        <button><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>Tag merchant</button>
         <button onclick="openDebtFromDrawer('${t.dir}', ${t.amount}, '${(t.merchant || '').replace(/'/g, "\\'")}', ${t.id || 'null'})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${t.dir === 'debit' ? 'They owe me' : 'I owe them'}</button>
-        ${t.source === 'manual_cash' && t.id ? `<button onclick="deleteOpenDrawerTxn(${t.id})" style="color:var(--danger,#ef4444);border-color:var(--danger,#ef4444)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete entry</button>` : ''}
+        ${t.dir === 'debit' ? `<button onclick="openSplitFromDrawer(${t.amount}, '${(t.merchant || '').replace(/'/g, "\\'")}', ${t.id || 'null'})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>Split expense</button>` : ''}
+        ${t.source === 'manual_cash' && t.id ? `<button onclick="deleteOpenDrawerTxn(${t.id})" style="color:var(--danger,#ef4444);border-color:var(--danger,#ef4444)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button>` : ''}
       </div>
     </div>
   `;
@@ -6322,10 +6495,7 @@ async function sendChat() {
     el.querySelector('.content').innerHTML = `<p>I couldn't reach the backend. Is the server running on :8001?</p>`;
     _chatHistory.push({ role: 'assistant', content: 'Backend unreachable.' });
   } else {
-    const sqlBlock = res.sql
-      ? `<div class="sql-label">Generated SQL &middot; read-only</div><div class="sql-panel">${esc(res.sql)}</div>`
-      : '';
-    el.querySelector('.content').innerHTML = `${sqlBlock}<p>${esc(res.answer)}</p>`;
+    el.querySelector('.content').innerHTML = `<p>${esc(res.answer)}</p>`;
     _chatHistory.push({ role: 'assistant', content: res.answer });
   }
   if (_chatHistory.length > 20) _chatHistory = _chatHistory.slice(-20);
@@ -6507,11 +6677,12 @@ async function realDeleteAllData() {
 async function refreshVisibleData() {
   refreshNavCounts();
   const hash = window.location.hash.slice(1);
-  if (hash === '/app') { _dashboardInitialized = false; await loadDashboardLive(); initDashboard(); }
-  else if (hash === '/app/transactions') { await loadTransactionsLive(); loadDebtsPanel(); }
+  if (hash === '/app') { _dashboardInitialized = false; await loadDashboardLive(); initDashboard(); loadDebtsOverview(); }
+  else if (hash === '/app/transactions') { await loadTransactionsLive(); }
   else if (hash === '/app/accounts') await loadAccountsLive();
   else if (hash === '/app/merchants') await loadMerchantsLive();
   else if (hash === '/app/categories') { document.getElementById('cat-grid')?.removeAttribute('data-rendered'); await renderCategories(); }
+  else if (hash === '/app/debts') await loadDebtsPage();
 }
 
 // --- Theme (light / dark / system) with localStorage persistence ---
@@ -7017,6 +7188,16 @@ function niceCeil(v) {
 }
 
 async function loadDashboardLive() {
+  // Time-based greeting
+  const greetEl = document.getElementById('dash-greeting');
+  if (greetEl) {
+    const h = new Date().getHours();
+    const timeGreet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    const rawName = VITTA_USER?.name?.split(' ')[0] || 'there';
+    const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+    greetEl.innerHTML = `${timeGreet}, <em>${name}.</em>`;
+  }
+
   const summary = await VittaAPI.summary(CURRENT_MONTH);
   if (!summary) return false;
 
@@ -7030,15 +7211,60 @@ async function loadDashboardLive() {
   const tiles = document.querySelectorAll('[data-route="/app"] .stat-tile .val');
   if (tiles[0]) { tiles[0].dataset.target = Math.round(summary.spent); tiles[0].textContent = fmtINR(summary.spent); }
   if (tiles[1]) { tiles[1].dataset.target = Math.round(summary.received); tiles[1].textContent = fmtINR(summary.received); }
-  if (tiles[2]) { tiles[2].dataset.target = summary.auto_categorized; tiles[2].textContent = summary.auto_categorized + '%'; }
-  // Recurring-transaction detection isn't built yet (no code path ever
-  // sets is_recurring) — show an honest zero rather than the old fake
-  // "₹4,247 · 6 subscriptions" mockup number.
-  if (tiles[3]) {
-    tiles[3].dataset.target = 0;
-    tiles[3].textContent = '₹0';
-    const recurringMeta = tiles[3].closest('.stat-tile')?.querySelector('.meta');
-    if (recurringMeta) recurringMeta.textContent = 'Recurring detection coming soon';
+  // Fetch debts for net spend calculation and debts tile
+  let debtsRes = null;
+  let recoveredThisMonth = 0;
+  try { debtsRes = await VittaAPI.debts(); } catch {}
+  if (debtsRes && debtsRes.debts) {
+    for (const d of debtsRes.debts) {
+      if (d.direction === 'they_owe' && d.settled_amount > 0) {
+        const settledMonth = d.settled_at ? d.settled_at.slice(0, 7) : d.created_at?.slice(0, 7);
+        if (settledMonth === CURRENT_MONTH) recoveredThisMonth += d.settled_amount;
+      }
+    }
+  }
+  const net = summary.spent - summary.received - recoveredThisMonth;
+
+  // Fetch monthly income from planner to decide color
+  let monthlyIncome = 0;
+  try {
+    const plan = await VittaAPI.plannerGet();
+    if (plan && plan.totals) monthlyIncome = plan.totals.income || 0;
+  } catch {}
+
+  const netEl = document.getElementById('net-spend-val');
+  if (netEl) {
+    netEl.dataset.target = Math.round(Math.abs(net));
+    netEl.textContent = (net >= 0 ? '' : '+') + fmtINR(Math.abs(net));
+    const isOverBudget = monthlyIncome > 0 ? net > monthlyIncome : net > 0;
+    netEl.style.color = isOverBudget ? 'var(--danger,#ef4444)' : 'var(--brand)';
+  }
+  const netLabel = document.getElementById('net-tile-label');
+  if (netLabel) netLabel.textContent = `Net spend · ${monthLabel}`;
+  const netNote = document.getElementById('net-spend-note');
+  if (netNote) {
+    let note = 'Balanced';
+    if (net > 0 && monthlyIncome > 0 && net > monthlyIncome) note = `Over salary by ${fmtINR(net - monthlyIncome)}`;
+    else if (net > 0 && monthlyIncome > 0) note = `${fmtINR(monthlyIncome - net)} under salary`;
+    else if (net > 0) note = `You spent ${fmtINR(net)} more than received`;
+    else if (net < 0) note = `You received ${fmtINR(Math.abs(net))} more than spent`;
+    if (recoveredThisMonth > 0) note += ` · ${fmtINR(recoveredThisMonth)} recovered`;
+    netNote.textContent = note;
+  }
+
+  // Debts tile — show both directions
+  const debtVal = document.getElementById('debt-tile-val');
+  const debtNote = document.getElementById('debt-tile-note');
+  if (debtVal && debtsRes?.summary) {
+    const ds = debtsRes.summary;
+    const netDebt = ds.they_owe_total - ds.i_owe_total;
+    debtVal.dataset.target = Math.round(Math.abs(netDebt));
+    debtVal.textContent = fmtINR(Math.abs(netDebt));
+    debtVal.style.color = netDebt > 0 ? 'var(--brand)' : netDebt < 0 ? 'var(--danger,#ef4444)' : '';
+    const parts = [];
+    if (ds.they_owe_total > 0) parts.push(`Get <span style="color:var(--brand)">+${fmtINR(ds.they_owe_total)}</span>`);
+    if (ds.i_owe_total > 0) parts.push(`Pay <span style="color:var(--danger,#ef4444)">−${fmtINR(ds.i_owe_total)}</span>`);
+    debtNote.innerHTML = parts.length ? parts.join(' · ') : 'No pending debts';
   }
 
   // Real month-over-month deltas — these were hardcoded "▼8.0% vs June" /
@@ -7072,6 +7298,8 @@ async function loadDashboardLive() {
   // message), never leave the seeded rows in place. The previous version
   // skipped this entirely when summary.categories was [], which is why a
   // freshly reset account still showed the mockup's Groceries/Shopping/etc.
+  const catSub = document.getElementById('cat-breakdown-sub');
+  if (catSub) catSub.textContent = `${monthLabel} · ${fmtINR(summary.spent)} total`;
   const bars = document.querySelector('[data-route="/app"] .cat-bars');
   if (bars) {
     if (summary.categories && summary.categories.length) {
@@ -7687,34 +7915,43 @@ async function deleteOpenDrawerTxn(id) {
 let _debtsData = null;
 let _debtTab = 'they_owe';
 
-async function loadDebtsPanel() {
+async function loadDebtsData() {
   try {
     _debtsData = await VittaAPI.debts();
   } catch { _debtsData = { debts: [], summary: { they_owe_total: 0, i_owe_total: 0, net: 0, pending_count: 0 } }; }
-  const panel = document.getElementById('debts-panel');
-  if (!panel) return;
-  panel.style.display = '';
-  const cards = document.getElementById('debts-summary-cards');
-  const tabs = document.getElementById('debt-tab');
-  const list = document.getElementById('debts-list');
+}
+
+async function loadDebtsOverview() {
+  await loadDebtsData();
+  const card = document.getElementById('debts-overview-card');
+  const empty = document.getElementById('debts-overview-empty');
+  if (!card || !empty) return;
+
   if (_debtsData.debts.length) {
-    if (cards) cards.style.display = '';
-    if (tabs) tabs.style.display = '';
-    if (list) list.style.display = '';
-    renderDebtsSummary();
-    renderDebtsList();
+    card.style.display = '';
+    empty.style.display = 'none';
+    const s = _debtsData.summary;
+    const badge = document.getElementById('debts-pending-badge');
+    if (badge) {
+      if (s.pending_count > 0) { badge.textContent = s.pending_count; badge.style.display = ''; }
+      else badge.style.display = 'none';
+    }
+    renderDebtsSummary(document.getElementById('debts-overview-summary'));
   } else {
-    if (cards) cards.style.display = 'none';
-    if (tabs) tabs.style.display = 'none';
-    if (list) list.style.display = 'none';
+    card.style.display = 'none';
+    empty.style.display = '';
   }
 }
 
-function renderDebtsSummary() {
-  if (!_debtsData) return;
+async function loadDebtsPage() {
+  await loadDebtsData();
+  renderDebtsSummary(document.getElementById('debts-page-summary'));
+  renderDebtsList();
+}
+
+function renderDebtsSummary(el) {
+  if (!_debtsData || !el) return;
   const s = _debtsData.summary;
-  const el = document.getElementById('debts-summary-cards');
-  if (!el) return;
   const netCls = s.net >= 0 ? 'net-pos' : 'net-neg';
   const netSign = s.net >= 0 ? '+' : '';
   el.innerHTML = `
@@ -7735,7 +7972,7 @@ function renderDebtsSummary() {
 
 function renderDebtsList() {
   if (!_debtsData) return;
-  const el = document.getElementById('debts-list');
+  const el = document.getElementById('debts-page-list');
   if (!el) return;
 
   let filtered;
@@ -7777,9 +8014,9 @@ function renderDebtsList() {
 
 function switchDebtTab(tab) {
   _debtTab = tab;
-  document.querySelectorAll('#debt-tab button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#debts-page-tab button').forEach(b => b.classList.remove('active'));
   const labels = { they_owe: 'They owe me', i_owe: 'I owe them', settled: 'Settled' };
-  document.querySelectorAll('#debt-tab button').forEach(b => {
+  document.querySelectorAll('#debts-page-tab button').forEach(b => {
     if (b.textContent.trim() === labels[tab]) b.classList.add('active');
   });
   renderDebtsList();
@@ -7804,6 +8041,13 @@ function openDebtFromDrawer(dir, amount, merchant, txnId) {
   openDebtModal(direction, amount, merchant, txnId);
 }
 
+async function refreshDebtsUI() {
+  await loadDebtsData();
+  renderDebtsSummary(document.getElementById('debts-page-summary'));
+  renderDebtsList();
+  loadDebtsOverview();
+}
+
 async function submitDebt(e) {
   e.preventDefault();
   const direction = document.getElementById('debt-direction').value;
@@ -7816,7 +8060,8 @@ async function submitDebt(e) {
     await VittaAPI.debtCreate({ contact_name, amount, direction, reason, txn_id: txn_id ? parseInt(txn_id) : null });
     closeDebtModal();
     showToast(direction === 'they_owe' ? `${contact_name} owes you ${fmtINR(amount)}` : `You owe ${contact_name} ${fmtINR(amount)}`);
-    await loadDebtsPanel();
+    await refreshDebtsUI();
+    if (window.location.hash.slice(1) !== '/app/debts') window.location.hash = '#/app/debts';
   } catch (err) {
     showToast(err.message || 'Could not add debt.');
   }
@@ -7827,7 +8072,7 @@ async function settleDebt(id) {
   try {
     await VittaAPI.debtSettle(id);
     showToast('Debt settled!');
-    await loadDebtsPanel();
+    await refreshDebtsUI();
   } catch (err) {
     showToast(err.message || 'Could not settle debt.');
   }
@@ -7838,9 +8083,97 @@ async function deleteDebt(id) {
   try {
     await VittaAPI.debtDelete(id);
     showToast('Debt removed.');
-    await loadDebtsPanel();
+    await refreshDebtsUI();
   } catch (err) {
     showToast(err.message || 'Could not delete debt.');
+  }
+}
+
+// --- Split expense ---
+let _splitTxnAmount = 0;
+function openSplitFromDrawer(amount, merchant, txnId) {
+  closeDrawer();
+  _splitTxnAmount = amount;
+  document.getElementById('split-merchant').textContent = merchant || 'Transaction';
+  document.getElementById('split-full-amount').textContent = '−₹' + amount.toLocaleString('en-IN');
+  document.getElementById('split-txn-id').value = txnId || '';
+  document.getElementById('split-reason').value = '';
+  const rows = document.getElementById('split-rows');
+  rows.innerHTML = '';
+  addSplitRow();
+  addSplitRow();
+  updateSplitTotal();
+  document.getElementById('split-modal').classList.add('open');
+}
+function closeSplitModal() { document.getElementById('split-modal').classList.remove('open'); }
+
+function addSplitRow() {
+  const rows = document.getElementById('split-rows');
+  const row = document.createElement('div');
+  row.className = 'split-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Name" required>
+    <input type="number" placeholder="₹ Amount" min="0.01" step="0.01" oninput="updateSplitTotal()">
+    <button type="button" class="split-remove" onclick="removeSplitRow(this)" aria-label="Remove">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+  rows.appendChild(row);
+}
+
+function removeSplitRow(btn) {
+  const rows = document.getElementById('split-rows');
+  if (rows.children.length <= 1) return;
+  btn.closest('.split-row').remove();
+  updateSplitTotal();
+}
+
+function updateSplitTotal() {
+  let total = 0;
+  document.querySelectorAll('#split-rows .split-row').forEach(row => {
+    const val = parseFloat(row.querySelector('input[type="number"]').value) || 0;
+    total += val;
+  });
+  const el = document.getElementById('split-total-display');
+  el.textContent = '₹' + total.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  el.classList.toggle('over', total > _splitTxnAmount);
+  el.classList.toggle('ok', total > 0 && total <= _splitTxnAmount);
+}
+
+async function submitSplit() {
+  const rows = document.querySelectorAll('#split-rows .split-row');
+  const reason = document.getElementById('split-reason').value.trim();
+  const txnId = document.getElementById('split-txn-id').value || null;
+  const splits = [];
+  for (const row of rows) {
+    const name = row.querySelector('input[type="text"]').value.trim();
+    const amount = parseFloat(row.querySelector('input[type="number"]').value);
+    if (!name || !amount || amount <= 0) continue;
+    splits.push({ name, amount });
+  }
+  if (splits.length === 0) { showToast('Add at least one person with an amount.'); return; }
+  const btn = document.getElementById('split-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  try {
+    for (const s of splits) {
+      await VittaAPI.debtCreate({
+        contact_name: s.name,
+        amount: s.amount,
+        direction: 'they_owe',
+        reason: reason,
+        txn_id: txnId ? parseInt(txnId) : null,
+      });
+    }
+    closeSplitModal();
+    const names = splits.map(s => s.name).join(', ');
+    showToast(`Split tracked — ${names} owe you`);
+    await refreshDebtsUI();
+    if (window.location.hash.slice(1) !== '/app/debts') window.location.hash = '#/app/debts';
+  } catch (err) {
+    showToast(err.message || 'Could not save split.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Split & track debts';
   }
 }
 
@@ -8011,7 +8344,7 @@ function getHashParams() {
 }
 
 // --- Router ---
-const routes = ['/', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/planner', '/app/settings'];
+const routes = ['/', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/planner', '/app/debts', '/app/settings'];
 function route() {
   let hash = (window.location.hash || '#/').slice(1).split('?')[0];
   if (!routes.includes(hash)) hash = '/';
@@ -8046,10 +8379,10 @@ function route() {
   window.scrollTo(0, 0);
   // Trigger init for the active route
   if (hash === '/app') {
-    // Load live data first so count-up animates to real numbers, not seed
     loadDashboardLive().then(loaded => initDashboard());
+    loadDebtsOverview();
   }
-  if (hash === '/app/transactions') { renderTxns(); loadTransactionsLive(); loadDebtsPanel(); }
+  if (hash === '/app/transactions') { renderTxns(); loadTransactionsLive(); }
   if (hash === '/app/categories') renderCategories();
   if (hash === '/app/merchants') { renderMerchants(); loadMerchantsLive(); }
   if (hash === '/login') refreshPasswordFormMode();
@@ -8064,6 +8397,7 @@ function route() {
   if (hash === '/app/accounts') loadAccountsLive();
   if (hash === '/app/insights') renderInsights();
   if (hash === '/app/planner') loadPlannerPage();
+  if (hash === '/app/debts') loadDebtsPage();
   if (hash === '/app/settings') { handleContactsCallback(); initSecuritySettings(); }
 }
 window.addEventListener('hashchange', route);
