@@ -2357,6 +2357,73 @@
   .drawer-actions button.primary { background: var(--brand); color: #041706; border-color: var(--brand); }
   .drawer-actions button.primary:hover { background: var(--brand-bright); }
 
+  /* Debts (who owes who) */
+  .debts-bar {
+    display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .debt-card {
+    flex: 1; min-width: 180px; padding: 16px 20px; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  .debt-card .debt-label { font-size: 12px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .debt-card .debt-value { font-size: 22px; font-weight: 700; font-family: var(--f-display); letter-spacing: -0.02em; }
+  .debt-card .debt-value.receivable { color: var(--brand-bright); }
+  .debt-card .debt-value.payable { color: var(--danger, #ef4444); }
+  .debt-card .debt-value.net-pos { color: var(--brand-bright); }
+  .debt-card .debt-value.net-neg { color: var(--danger, #ef4444); }
+
+  .debts-section { margin-bottom: 28px; }
+  .debts-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .debts-section h3 .cnt { font-size: 11px; background: var(--surface-hover); padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+
+  .debt-row {
+    display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+    border-radius: 10px; background: var(--surface); border: 1px solid var(--border);
+    margin-bottom: 8px; transition: border-color 0.15s;
+  }
+  .debt-row:hover { border-color: var(--border-emphasis); }
+  .debt-row .debt-avatar {
+    width: 34px; height: 34px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-weight: 600;
+    font-size: 13px; flex-shrink: 0;
+  }
+  .debt-row .debt-info { flex: 1; min-width: 0; }
+  .debt-row .debt-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .debt-row .debt-reason { font-size: 12px; color: var(--ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .debt-row .debt-amt { font-weight: 700; font-family: var(--f-mono); font-size: 14px; white-space: nowrap; }
+  .debt-row .debt-amt.receivable { color: var(--brand-bright); }
+  .debt-row .debt-amt.payable { color: var(--danger, #ef4444); }
+  .debt-row .debt-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .debt-row .debt-actions button {
+    padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); background: transparent; color: var(--ink-secondary);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .debt-row .debt-actions button:hover { border-color: var(--border-emphasis); background: var(--bg-glass); }
+  .debt-row .debt-actions button.settle-btn { color: var(--brand-bright); border-color: var(--brand); }
+  .debt-row .debt-actions button.settle-btn:hover { background: var(--brand); color: #041706; }
+
+  .debt-settled { opacity: 0.5; }
+  .debt-settled .debt-name { text-decoration: line-through; }
+
+  .debt-add-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+  .debt-add-bar button {
+    padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    border: 1px solid var(--border); background: transparent; color: var(--ink-secondary);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .debt-add-bar button:hover { border-color: var(--brand); color: var(--brand-bright); }
+
+  .debt-tab { display: flex; gap: 0; margin-bottom: 16px; }
+  .debt-tab button {
+    flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 500;
+    border: 1px solid var(--border); background: transparent; color: var(--ink-muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .debt-tab button:first-child { border-radius: 8px 0 0 8px; }
+  .debt-tab button:last-child { border-radius: 0 8px 8px 0; }
+  .debt-tab button.active { background: var(--brand); color: #041706; border-color: var(--brand); font-weight: 600; }
+
 
   /* Empty-state placeholder pages */
   .empty-state {
@@ -3301,6 +3368,53 @@
   /* Prevent horizontal-scroll from body when SPA switches views */
   html, body { overflow-x: hidden; }
   body { min-height: 100vh; }
+
+  /* ── Expense Planner — Wizard ────────────────────────────── */
+  .pw-container { max-width:540px;margin:0 auto;padding:48px 24px 40px; }
+  .pw-progress { height:4px;background:var(--surface-hover);border-radius:99px;margin-bottom:8px;overflow:hidden; }
+  .pw-progress-fill { height:100%;background:var(--brand-bright);border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1); }
+  .pw-step-label { font-size:12px;color:var(--ink-faint);margin-bottom:40px;font-family:var(--f-mono);letter-spacing:0.04em; }
+  .pw-slides { position:relative; }
+  .pw-slide { display:none;animation:pwSlideIn .4s cubic-bezier(.4,0,.2,1) both; }
+  .pw-slide.active { display:block; }
+  .pw-slide.exit-left { display:block;animation:pwSlideOutLeft .3s cubic-bezier(.4,0,.2,1) both; }
+  .pw-slide.exit-right { display:block;animation:pwSlideOutRight .3s cubic-bezier(.4,0,.2,1) both; }
+  @keyframes pwSlideIn { from { opacity:0;transform:translateY(24px) } to { opacity:1;transform:translateY(0) } }
+  @keyframes pwSlideOutLeft { from { opacity:1;transform:translateX(0) } to { opacity:0;transform:translateX(-40px) } }
+  @keyframes pwSlideOutRight { from { opacity:1;transform:translateX(0) } to { opacity:0;transform:translateX(40px) } }
+  .pw-slide-icon { margin-bottom:20px; }
+  .pw-title { font-family:var(--f-display);font-size:26px;font-weight:500;letter-spacing:-0.02em;margin-bottom:8px;line-height:1.2; }
+  .pw-desc { color:var(--ink-muted);font-size:14.5px;line-height:1.5;margin-bottom:28px;max-width:440px; }
+  .pw-field-group { display:flex;flex-direction:column;gap:10px;margin-bottom:12px; }
+  .pw-field-row { display:flex;gap:10px;align-items:center; }
+  .pw-input { flex:1;padding:11px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--ink);font-size:15px;font-family:inherit;outline:none;transition:border-color .15s; }
+  .pw-input:focus { border-color:var(--brand-bright); }
+  .pw-input-wrap { position:relative;display:flex;align-items:center;flex:1; }
+  .pw-input-wrap .pw-input-prefix { position:absolute;left:14px;color:var(--ink-faint);font-size:15px;pointer-events:none;font-weight:500; }
+  .pw-input-wrap .pw-input { padding-left:32px; }
+  .pw-input-full { flex:1;max-width:280px; }
+  .pw-input-amount { max-width:180px;font-variant-numeric:tabular-nums; }
+  .pw-del { background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:6px;transition:color .15s;flex-shrink:0; }
+  .pw-del:hover { color:#F87171; }
+  .pw-add-link { background:none;border:none;color:var(--brand-bright);font-size:13px;cursor:pointer;padding:6px 0;font-family:inherit;opacity:0.8;transition:opacity .15s; }
+  .pw-add-link:hover { opacity:1; }
+  .pw-actions { display:flex;gap:10px;margin-top:32px;align-items:center; }
+  .pw-btn { padding:11px 28px;font-size:14.5px;border-radius:10px;font-family:inherit;font-weight:500;cursor:pointer;transition:all .15s; }
+  .pw-btn-ghost { background:none;border:1px solid var(--border);color:var(--ink); }
+  .pw-btn-ghost:hover { border-color:var(--ink-muted); }
+
+  /* ── Expense Planner — Dashboard ───────────────────────────── */
+  .planner-flow-card { background:var(--surface-card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center; }
+  .pfc-label { font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-faint);margin-bottom:4px; }
+  .pfc-amount { font-size:20px;font-weight:700; }
+  .budget-bar-wrap { margin-bottom:14px; }
+  .budget-bar-head { display:flex;justify-content:space-between;align-items:center;margin-bottom:4px; }
+  .budget-bar-head .cat-name { font-size:13.5px;font-weight:500; }
+  .budget-bar-head .cat-nums { font-size:12px;color:var(--ink-muted); }
+  .budget-bar-track { height:8px;background:var(--surface-hover);border-radius:99px;overflow:hidden; }
+  .budget-bar-fill { height:100%;border-radius:99px;transition:width .4s ease; }
+  .oblig-row { display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border); }
+  .oblig-row:last-child { border-bottom:none; }
 </style>
 
 <!-- Shared SVG defs -->
@@ -4114,6 +4228,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       Ask Vitta
     </a>
+    <a href="#/app/planner" data-nav class="nav-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Plan Expenses
+    </a>
 
     <div class="sidebar-section-label">Account</div>
     <a href="#/app/settings" data-nav class="nav-item">
@@ -4184,63 +4302,33 @@
         </div>
       </div>
 
-      <!-- Spending trend chart -->
+      <!-- Spending trend chart (weekly) -->
       <div class="chart-area">
         <div class="card-head">
           <div>
             <h3>Spending trend</h3>
-            <div class="sub">Last 6 months · all accounts</div>
+            <div class="sub" id="trend-sub">Weekly · all accounts</div>
           </div>
-          <div class="segmented">
-            <button>3M</button>
-            <button class="active">6M</button>
-            <button>1Y</button>
-            <button>All</button>
+          <div class="segmented" id="trend-range-btns">
+            <button data-weeks="12">3M</button>
+            <button data-weeks="24" class="active">6M</button>
+            <button data-weeks="52">1Y</button>
           </div>
         </div>
-        <svg class="chart-svg" viewBox="0 0 800 260" preserveAspectRatio="none">
-          <g class="grid">
-            <line x1="0" y1="30"  x2="800" y2="30"  stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-            <line x1="0" y1="90"  x2="800" y2="90"  stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-            <line x1="0" y1="150" x2="800" y2="150" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-            <line x1="0" y1="210" x2="800" y2="210" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-          </g>
-          <!-- Y-axis labels (approximate) -->
-          <g style="font-family: var(--f-mono); font-size: 10px; fill: var(--ink-faint);">
-            <text x="8" y="35">₹80K</text>
-            <text x="8" y="95">₹60K</text>
-            <text x="8" y="155">₹40K</text>
-            <text x="8" y="215">₹20K</text>
-          </g>
-          <!-- Area fill under line -->
-          <path id="area-path" d="M 60 165 L 200 155 L 340 130 L 480 105 L 620 70 L 760 62 L 760 230 L 60 230 Z" fill="url(#area-grad)" opacity="0"/>
-          <!-- Line -->
-          <path id="line-path" d="M 60 165 L 200 155 L 340 130 L 480 105 L 620 70 L 760 62"
-                stroke="#4ADE80" stroke-width="2.5" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"
-                stroke-dasharray="1600" stroke-dashoffset="1600"/>
-          <!-- Data points -->
-          <g id="chart-dots">
-            <circle cx="60"  cy="165" r="5" fill="#4ADE80" stroke="#050506" stroke-width="2" opacity="0"/>
-            <circle cx="200" cy="155" r="5" fill="#4ADE80" stroke="#050506" stroke-width="2" opacity="0"/>
-            <circle cx="340" cy="130" r="5" fill="#4ADE80" stroke="#050506" stroke-width="2" opacity="0"/>
-            <circle cx="480" cy="105" r="5" fill="#4ADE80" stroke="#050506" stroke-width="2" opacity="0"/>
-            <circle cx="620" cy="70" r="5" fill="#4ADE80" stroke="#050506" stroke-width="2" opacity="0"/>
-            <circle cx="760" cy="62" r="6" fill="#FCD34D" stroke="#050506" stroke-width="2" opacity="0"/>
-          </g>
-          <!-- X-axis labels -->
-          <g style="font-family: var(--f-mono); font-size: 10.5px; fill: var(--ink-faint);">
-            <text x="60"  y="252" text-anchor="middle">Feb</text>
-            <text x="200" y="252" text-anchor="middle">Mar</text>
-            <text x="340" y="252" text-anchor="middle">Apr</text>
-            <text x="480" y="252" text-anchor="middle">May</text>
-            <text x="620" y="252" text-anchor="middle">Jun</text>
-            <text x="760" y="252" text-anchor="middle" fill="#4ADE80" font-weight="600">Jul</text>
-          </g>
-        </svg>
+        <div id="trend-chart-container" style="position:relative">
+          <svg class="chart-svg" id="trend-svg" viewBox="0 0 800 280" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="area-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4ADE80" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#4ADE80" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div id="trend-tooltip" style="display:none;position:absolute;pointer-events:none;background:var(--surface-card);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink);white-space:nowrap;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.3)"></div>
+        </div>
         <div class="chart-legend">
           <div class="item"><span class="swatch" style="background:#4ADE80"></span>Spending</div>
-          <div class="item"><span class="swatch" style="background:#FCD34D"></span>Current month</div>
+          <div class="item"><span class="swatch" style="background:#FCD34D"></span>Current week</div>
         </div>
       </div>
 
@@ -4551,6 +4639,27 @@
             <option>Custom range</option>
           </select>
         </div>
+      </div>
+
+      <!-- Debts (who owes who) -->
+      <div id="debts-panel" style="display:none">
+        <div class="debts-bar" id="debts-summary-cards"></div>
+        <div class="debt-add-bar">
+          <button onclick="openDebtModal('they_owe')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            They owe me
+          </button>
+          <button onclick="openDebtModal('i_owe')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            I owe someone
+          </button>
+        </div>
+        <div class="debt-tab" id="debt-tab">
+          <button class="active" onclick="switchDebtTab('they_owe')">They owe me</button>
+          <button onclick="switchDebtTab('i_owe')">I owe them</button>
+          <button onclick="switchDebtTab('settled')">Settled</button>
+        </div>
+        <div id="debts-list"></div>
       </div>
 
       <!-- Table -->
@@ -4909,6 +5018,7 @@
     <div class="sidebar-section-label">AI</div>
     <a href="#/app/insights" data-nav class="nav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>Insights</a>
     <a href="#/app/ask" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask Vitta</a>
+    <a href="#/app/planner" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Plan Expenses</a>
     <div class="sidebar-section-label">Account</div>
     <a href="#/app/settings" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
     <div class="sidebar-footer"><div class="sidebar-upgrade"><h5>Upgrade to Pro</h5><p>Complete history, all AI insights, complete access.</p><a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a></div></div>
@@ -5004,6 +5114,201 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     PLAN EXPENSES
+     ═══════════════════════════════════════════════════════════════ -->
+<div data-route="/app/planner" class="app">
+  <aside class="sidebar">
+    <a href="#/" data-nav class="sidebar-brand">
+      <span class="logo"><svg width="26" height="26" viewBox="0 0 108 108"><use href="#vitta-logo"/></svg></span>
+      Vitta<span class="beta">Beta</span>
+    </a>
+    <div class="sidebar-section-label">Overview</div>
+    <a href="#/app" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Overview</a>
+    <a href="#/app/transactions" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Transactions</a>
+    <a href="#/app/categories" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Categories</a>
+    <a href="#/app/merchants" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Merchants</a>
+    <a href="#/app/accounts" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Accounts</a>
+    <div class="sidebar-section-label">AI</div>
+    <a href="#/app/insights" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>Insights</a>
+    <a href="#/app/ask" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask Vitta</a>
+    <a href="#/app/planner" data-nav class="nav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Plan Expenses</a>
+    <div class="sidebar-section-label">Account</div>
+    <a href="#/app/settings" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
+    <div class="sidebar-footer"><div class="sidebar-upgrade"><h5>Upgrade to Pro</h5><p>Complete history, all AI insights, complete access.</p><a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a></div></div>
+  </aside>
+
+  <div class="main" style="overflow-y:auto">
+    <!-- ── Wizard view (setup / edit) ── -->
+    <div id="planner-wizard" style="display:none">
+      <div class="pw-container">
+        <!-- Progress bar -->
+        <div class="pw-progress">
+          <div class="pw-progress-fill" id="pw-progress-fill"></div>
+        </div>
+        <div class="pw-step-label" id="pw-step-label"></div>
+
+        <!-- Slides container -->
+        <div class="pw-slides" id="pw-slides">
+
+          <!-- Step 0: Welcome -->
+          <div class="pw-slide" data-step="0">
+            <div class="pw-slide-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--brand-bright)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg></div>
+            <h2 class="pw-title">Let's plan your money</h2>
+            <p class="pw-desc">Vitta will walk you through a few quick questions to build your monthly budget. Takes about 2 minutes.</p>
+            <div class="pw-actions">
+              <button class="btn btn-primary pw-btn" onclick="wizardNext()">Let's go</button>
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardAutoSuggest()">Auto-fill from my history</button>
+            </div>
+          </div>
+
+          <!-- Step 1: Monthly income -->
+          <div class="pw-slide" data-step="1">
+            <div class="pw-slide-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--brand-bright)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+            <h2 class="pw-title">What's your monthly income?</h2>
+            <p class="pw-desc">Your salary or primary income source after tax.</p>
+            <div class="pw-field-group" id="wiz-income-fields">
+              <div class="pw-field-row">
+                <input type="text" class="pw-input" placeholder="Source (e.g. Salary)" data-field="name" value="Salary">
+                <div class="pw-input-wrap"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" data-field="amount"></div>
+              </div>
+            </div>
+            <button class="pw-add-link" onclick="wizardAddField('income')">+ Add another income source</button>
+            <div class="pw-actions">
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardPrev()">Back</button>
+              <button class="btn btn-primary pw-btn" onclick="wizardNext()">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Rent -->
+          <div class="pw-slide" data-step="2">
+            <div class="pw-slide-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+            <h2 class="pw-title">Do you pay rent?</h2>
+            <p class="pw-desc">Monthly house rent or mortgage payment. Skip if not applicable.</p>
+            <div class="pw-field-group">
+              <div class="pw-field-row">
+                <div class="pw-input-wrap pw-input-full"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" id="wiz-rent" data-field="amount"></div>
+              </div>
+            </div>
+            <div class="pw-actions">
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardPrev()">Back</button>
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardNext()" style="margin-right:auto">Skip</button>
+              <button class="btn btn-primary pw-btn" onclick="wizardNext()">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 3: EMIs & Loans -->
+          <div class="pw-slide" data-step="3">
+            <div class="pw-slide-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+            <h2 class="pw-title">Any EMIs or loan payments?</h2>
+            <p class="pw-desc">Education loan, car EMI, personal loan, credit card EMI — add all your monthly repayments.</p>
+            <div class="pw-field-group" id="wiz-emi-fields">
+              <div class="pw-field-row">
+                <input type="text" class="pw-input" placeholder="Loan name (e.g. Education loan)" data-field="name">
+                <div class="pw-input-wrap"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" data-field="amount"></div>
+              </div>
+            </div>
+            <button class="pw-add-link" onclick="wizardAddField('emi')">+ Add another EMI</button>
+            <div class="pw-actions">
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardPrev()">Back</button>
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardNext()" style="margin-right:auto">Skip</button>
+              <button class="btn btn-primary pw-btn" onclick="wizardNext()">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 4: Insurance & subscriptions -->
+          <div class="pw-slide" data-step="4">
+            <div class="pw-slide-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <h2 class="pw-title">Insurance & subscriptions?</h2>
+            <p class="pw-desc">Health insurance, term plan, Netflix, Spotify — any recurring monthly payments.</p>
+            <div class="pw-field-group" id="wiz-subs-fields">
+              <div class="pw-field-row">
+                <input type="text" class="pw-input" placeholder="Name (e.g. Health insurance)" data-field="name">
+                <div class="pw-input-wrap"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" data-field="amount"></div>
+              </div>
+            </div>
+            <button class="pw-add-link" onclick="wizardAddField('subs')">+ Add another</button>
+            <div class="pw-actions">
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardPrev()">Back</button>
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardNext()" style="margin-right:auto">Skip</button>
+              <button class="btn btn-primary pw-btn" onclick="wizardNext()">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 5: Savings goal -->
+          <div class="pw-slide" data-step="5">
+            <div class="pw-slide-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2"/><path d="M2 9.1C1.5 8.7 1 8 1 7.5 1 6.7 1.7 6 2.5 6c.5 0 1 .3 1.3.7"/></svg></div>
+            <h2 class="pw-title">How much do you want to save?</h2>
+            <p class="pw-desc">Set a monthly savings target — emergency fund, investments, or any goal.</p>
+            <div class="pw-field-group" id="wiz-savings-fields">
+              <div class="pw-field-row">
+                <input type="text" class="pw-input" placeholder="Goal (e.g. Emergency fund)" data-field="name" value="Savings">
+                <div class="pw-input-wrap"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" data-field="target"></div>
+              </div>
+            </div>
+            <button class="pw-add-link" onclick="wizardAddField('savings')">+ Add another goal</button>
+            <div class="pw-actions">
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardPrev()">Back</button>
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardNext()" style="margin-right:auto">Skip</button>
+              <button class="btn btn-primary pw-btn" onclick="wizardNext()">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 6: Category budgets -->
+          <div class="pw-slide" data-step="6">
+            <div class="pw-slide-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--brand-bright)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
+            <h2 class="pw-title">Set spending limits by category</h2>
+            <p class="pw-desc">You have <strong id="wiz-free-amount" style="color:var(--brand-bright)">₹0</strong> free to spend. Allocate it across categories.</p>
+            <div class="pw-field-group" id="wiz-budget-fields">
+              <div class="pw-field-row"><input type="text" class="pw-input" data-field="category" value="Groceries"><div class="pw-input-wrap"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" data-field="limit"></div><button class="pw-del" onclick="this.closest('.pw-field-row').remove()">✕</button></div>
+              <div class="pw-field-row"><input type="text" class="pw-input" data-field="category" value="Food & dining"><div class="pw-input-wrap"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" data-field="limit"></div><button class="pw-del" onclick="this.closest('.pw-field-row').remove()">✕</button></div>
+              <div class="pw-field-row"><input type="text" class="pw-input" data-field="category" value="Shopping"><div class="pw-input-wrap"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" data-field="limit"></div><button class="pw-del" onclick="this.closest('.pw-field-row').remove()">✕</button></div>
+              <div class="pw-field-row"><input type="text" class="pw-input" data-field="category" value="Transport"><div class="pw-input-wrap"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" data-field="limit"></div><button class="pw-del" onclick="this.closest('.pw-field-row').remove()">✕</button></div>
+              <div class="pw-field-row"><input type="text" class="pw-input" data-field="category" value="Health"><div class="pw-input-wrap"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" data-field="limit"></div><button class="pw-del" onclick="this.closest('.pw-field-row').remove()">✕</button></div>
+            </div>
+            <button class="pw-add-link" onclick="wizardAddField('budget')">+ Add category</button>
+            <div class="pw-actions">
+              <button class="btn pw-btn pw-btn-ghost" onclick="wizardPrev()">Back</button>
+              <button class="btn btn-primary pw-btn" onclick="wizardFinish()">Save my plan</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Dashboard view (plan exists) ── -->
+    <div id="planner-dashboard" style="display:none;padding:32px 40px;max-width:960px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <h2 style="font-family:var(--f-display);font-size:28px;font-weight:500;letter-spacing:-0.02em">Plan <em style="color:var(--brand-bright);font-style:italic">expenses</em></h2>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div id="planner-month-label" style="font-size:14px;color:var(--ink-muted)"></div>
+        <button class="btn btn-sm" onclick="startPlannerWizard(true)" style="padding:6px 16px;font-size:13px;background:var(--surface-card);border:1px solid var(--border);color:var(--ink)">Edit plan</button>
+      </div>
+
+      <!-- Flow cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:24px" id="planner-flow-cards">
+        <div class="planner-flow-card"><div class="pfc-label">Income</div><div class="pfc-amount" style="color:var(--brand-bright)" id="dash-income">₹0</div></div>
+        <div class="planner-flow-card"><div class="pfc-label">Fixed</div><div class="pfc-amount" style="color:#F87171" id="dash-obligations">₹0</div></div>
+        <div class="planner-flow-card"><div class="pfc-label">Savings</div><div class="pfc-amount" style="color:#FCD34D" id="dash-savings">₹0</div></div>
+        <div class="planner-flow-card"><div class="pfc-label">Free to spend</div><div class="pfc-amount" id="dash-free">₹0</div></div>
+      </div>
+
+      <!-- Pace -->
+      <div id="planner-pace" style="background:var(--surface-card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:24px;font-size:13.5px;color:var(--ink-secondary)"></div>
+
+      <!-- Budget bars -->
+      <h3 style="font-size:15px;font-weight:600;margin-bottom:14px">Budget vs Actual</h3>
+      <div id="planner-budget-bars"></div>
+
+      <!-- Obligations -->
+      <h3 style="font-size:15px;font-weight:600;margin:24px 0 14px">Fixed Obligations</h3>
+      <div id="planner-obligations-list"></div>
+    </div>
+  </div>
+</div>
+
 <div data-route="/app/settings" class="app">
 
   <aside class="sidebar">
@@ -5020,6 +5325,7 @@
     <div class="sidebar-section-label">AI</div>
     <a href="#/app/insights" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>Insights</a>
     <a href="#/app/ask" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ask Vitta</a>
+    <a href="#/app/planner" data-nav class="nav-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Plan Expenses</a>
     <div class="sidebar-section-label">Account</div>
     <a href="#/app/settings" data-nav class="nav-item active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>Settings</a>
     <div class="sidebar-footer"><div class="sidebar-upgrade"><h5>Upgrade to Pro</h5><p>Complete history, all AI insights, complete access.</p><a href="#/#pricing" data-nav>Upgrade for ₹49/mo →</a></div></div>
@@ -5213,7 +5519,24 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <p class="modal-sub">Upload your Google Contacts CSV. Vitta uses these to match phone-based VPAs to real names you saved.</p>
+    <p class="modal-sub">Import your contacts to match phone-based VPAs to real names you saved.</p>
+
+    <!-- Google Contacts one-click -->
+    <div id="contacts-google-option" style="margin-bottom:16px">
+      <button onclick="startGoogleContactsImport()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;background:var(--surface-card);border:1px solid var(--border);border-radius:12px;color:var(--ink);font-size:14px;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s" onmouseover="this.style.borderColor='var(--brand-bright)'" onmouseout="this.style.borderColor='var(--border)'">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Connect Google Contacts
+      </button>
+    </div>
+
+    <!-- Divider -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:12px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.08em">or upload CSV</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <!-- CSV drop zone -->
     <div class="dropzone" id="contacts-drop" onclick="pickContactsCsv()">
       <div class="dropzone-icon">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -5267,6 +5590,7 @@
               style="width:100%;padding:11px 12px;border-radius:8px;background:var(--bg-inset,rgba(255,255,255,.04));color:inherit;border:1px solid var(--border,rgba(255,255,255,.12));font:inherit">
         <option value="bank_pdf">Bank account statement (richest — has payment remarks)</option>
         <option value="gpay_pdf">Google Pay export</option>
+        <option value="phonepe_pdf">PhonePe transaction statement</option>
       </select>
     </div>
 
@@ -5301,6 +5625,43 @@
       <button class="cancel" onclick="closeUpload()">Cancel</button>
       <button class="confirm" id="upload-confirm">Choose a file</button>
     </div>
+  </div>
+</div>
+
+<!-- Add debt modal -->
+<div id="debt-modal" class="modal-backdrop" onclick="if(event.target===this) closeDebtModal()">
+  <div class="modal" role="dialog" aria-labelledby="debt-modal-title" style="max-width:420px">
+    <div class="modal-head">
+      <h3 id="debt-modal-title">Add <em>debt</em></h3>
+      <button class="icon-btn" onclick="closeDebtModal()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="debt-form" onsubmit="submitDebt(event)">
+      <input type="hidden" id="debt-direction" value="they_owe">
+      <input type="hidden" id="debt-txn-id" value="">
+      <div class="field" style="margin-bottom:14px">
+        <label for="debt-contact">Who?</label>
+        <input type="text" id="debt-contact" placeholder="e.g. Rahul, Priya, Roommate" autocomplete="off" required
+               style="width:100%;padding:11px 12px;border-radius:8px;background:var(--bg-inset,rgba(255,255,255,.04));color:inherit;border:1px solid var(--border,rgba(255,255,255,.12));font:inherit">
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:14px">
+        <div class="field" style="flex:1">
+          <label for="debt-amount">Amount (₹)</label>
+          <input type="number" id="debt-amount" placeholder="0" min="0.01" step="0.01" required
+                 style="width:100%;padding:11px 12px;border-radius:8px;background:var(--bg-inset,rgba(255,255,255,.04));color:inherit;border:1px solid var(--border,rgba(255,255,255,.12));font:inherit">
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label for="debt-reason">Reason <span style="opacity:.6;font-weight:400">(optional)</span></label>
+        <input type="text" id="debt-reason" placeholder="e.g. Dinner split, Movie tickets" autocomplete="off"
+               style="width:100%;padding:11px 12px;border-radius:8px;background:var(--bg-inset,rgba(255,255,255,.04));color:inherit;border:1px solid var(--border,rgba(255,255,255,.12));font:inherit">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="cancel" onclick="closeDebtModal()">Cancel</button>
+        <button type="submit" class="confirm" id="debt-submit-btn">Add debt</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -5508,6 +5869,7 @@ function openDrawer(index) {
         <button class="primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Confirm</button>
         <button><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Re-tag</button>
         <button><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>Tag merchant</button>
+        <button onclick="openDebtFromDrawer('${t.dir}', ${t.amount}, '${(t.merchant || '').replace(/'/g, "\\'")}', ${t.id || 'null'})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${t.dir === 'debit' ? 'They owe me' : 'I owe them'}</button>
         ${t.source === 'manual_cash' && t.id ? `<button onclick="deleteOpenDrawerTxn(${t.id})" style="color:var(--danger,#ef4444);border-color:var(--danger,#ef4444)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete entry</button>` : ''}
       </div>
     </div>
@@ -5916,8 +6278,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (chatForm) chatForm.addEventListener('submit', (e) => { e.preventDefault(); sendChat(); });
 });
 
-// --- Ask Vitta chat (real text-to-SQL via /api/ask) ---
+// --- Ask Vitta chat (AI-native chatbot with history) ---
 let _chatBusy = false;
+let _chatHistory = [];
 
 async function sendChat() {
   const input = document.getElementById('chat-input');
@@ -5935,6 +6298,8 @@ async function sendChat() {
   const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   msgs.insertAdjacentHTML('beforeend', `<div class="msg msg-user">${esc(q)}</div>`);
 
+  _chatHistory.push({ role: 'user', content: q });
+
   const typingId = 'typing-' + Date.now();
   msgs.insertAdjacentHTML('beforeend', `
     <div class="msg msg-ai" id="${typingId}">
@@ -5945,7 +6310,7 @@ async function sendChat() {
 
   let res;
   try {
-    res = await VittaAPI.ask(q);
+    res = await VittaAPI.ask(q, _chatHistory.slice(0, -1));
   } catch (e) {
     res = null;
   }
@@ -5955,14 +6320,15 @@ async function sendChat() {
 
   if (!res) {
     el.querySelector('.content').innerHTML = `<p>I couldn't reach the backend. Is the server running on :8001?</p>`;
+    _chatHistory.push({ role: 'assistant', content: 'Backend unreachable.' });
   } else {
-    // Show the generated SQL only when there is one (blocked/failed asks
-    // return null sql) — it's the "grounded, never made up" proof.
     const sqlBlock = res.sql
       ? `<div class="sql-label">Generated SQL &middot; read-only</div><div class="sql-panel">${esc(res.sql)}</div>`
       : '';
     el.querySelector('.content').innerHTML = `${sqlBlock}<p>${esc(res.answer)}</p>`;
+    _chatHistory.push({ role: 'assistant', content: res.answer });
   }
+  if (_chatHistory.length > 20) _chatHistory = _chatHistory.slice(-20);
   msgs.scrollTop = msgs.scrollHeight;
   _chatBusy = false;
 }
@@ -6142,7 +6508,7 @@ async function refreshVisibleData() {
   refreshNavCounts();
   const hash = window.location.hash.slice(1);
   if (hash === '/app') { _dashboardInitialized = false; await loadDashboardLive(); initDashboard(); }
-  else if (hash === '/app/transactions') await loadTransactionsLive();
+  else if (hash === '/app/transactions') { await loadTransactionsLive(); loadDebtsPanel(); }
   else if (hash === '/app/accounts') await loadAccountsLive();
   else if (hash === '/app/merchants') await loadMerchantsLive();
   else if (hash === '/app/categories') { document.getElementById('cat-grid')?.removeAttribute('data-rendered'); await renderCategories(); }
@@ -6416,6 +6782,20 @@ const VittaAPI = {
     }
   },
 
+  async _delete(path) {
+    try {
+      const r = await fetch(VITTA_API_BASE + path, { method: 'DELETE', credentials: 'include' });
+      if (r.status === 401) { _apiOnline = true; _onUnauthorized(path); return null; }
+      if (!r.ok) { const d = await r.json().catch(() => null); const e = new Error(d?.detail || r.status); e.status = r.status; throw e; }
+      _apiOnline = true;
+      return await r.json();
+    } catch (e) {
+      if (e.status) throw e;
+      _apiOnline = false;
+      return null;
+    }
+  },
+
   // --- auth ---
   loginUrl() { return VITTA_API_BASE + '/api/auth/login'; },
   me()       { return this._get('/api/auth/me'); },
@@ -6460,6 +6840,7 @@ const VittaAPI = {
   // --- data ---
   transactions(qs='') { return this._get('/api/transactions' + (qs ? '?' + qs : '')); },
   summary(month=null) { return this._get('/api/summary' + (month ? `?month=${month}` : '')); },
+  spendingTrend(weeks=24) { return this._get('/api/spending-trend?weeks=' + weeks); },
   accounts()          { return this._get('/api/accounts'); },
   merchants()         { return this._get('/api/merchants'); },
   tagMerchant(raw, cat){ return this._post('/api/merchants/tag', {merchant_raw: raw, category: cat}); },
@@ -6494,7 +6875,24 @@ const VittaAPI = {
 
   // --- AI: insights + ask (Phase 13) ---
   insights(month=null){ return this._get('/api/insights' + (month ? `?month=${month}` : '')); },
-  ask(question)       { return this._post('/api/ask', { question }); },
+  ask(question, history) { return this._post('/api/ask', { question, history: history || [] }); },
+
+  // --- Expense planner ---
+  plannerGet()                   { return this._get('/api/planner'); },
+  plannerSuggest()               { return this._get('/api/planner/suggest'); },
+  plannerIncomeUpsert(data)      { return this._post('/api/planner/income', data); },
+  plannerIncomeDelete(id)        { return this._delete('/api/planner/income/' + id); },
+  plannerObligationUpsert(data)  { return this._post('/api/planner/obligation', data); },
+  plannerObligationDelete(id)    { return this._delete('/api/planner/obligation/' + id); },
+  plannerSavingsUpsert(data)     { return this._post('/api/planner/savings', data); },
+  plannerSavingsDelete(id)       { return this._delete('/api/planner/savings/' + id); },
+  plannerBudgetsSave(data)       { return this._post('/api/planner/budgets', data); },
+
+  // --- Debts (who owes who) ---
+  debts()                        { return this._get('/api/debts'); },
+  debtCreate(data)               { return this._post('/api/debts', data); },
+  debtSettle(id, amount)         { return this._post('/api/debts/' + id + '/settle', amount != null ? { amount } : {}); },
+  debtDelete(id)                 { return this._delete('/api/debts/' + id); },
 
   async health() { try { const r = await fetch(VITTA_API_BASE + '/', { credentials: 'include' }); return r.ok; } catch { return false; } },
   async status() { try { const r = await fetch(VITTA_API_BASE + '/', { credentials: 'include' }); return r.ok ? await r.json() : null; } catch { return null; } },
@@ -6744,82 +7142,444 @@ async function loadDashboardLive() {
 }
 function openLiveTxn(i) { window._filteredTxns = window.DASHBOARD_TXNS; openDrawer(i); }
 
-// The "Spending trend" chart was a fully static SVG with hand-drawn mock
-// coordinates and hardcoded Feb–Jul labels — nothing ever recomputed it,
-// so it kept showing a rising ₹80K curve regardless of real data (including
-// right after a reset). This replaces every coordinate/label with real
-// numbers from the last 6 calendar months.
-async function updateSpendingTrendChart() {
-  const months = [];
-  const now = new Date();
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push(ymLocal(d));
-  }
+// Weekly spending trend chart — fetches real weekly data from /api/spending-trend
+let _trendWeeks = 24;
 
-  const summaries = await Promise.all(months.map(m => VittaAPI.summary(m)));
-  const values = summaries.map(s => (s && s.spent) || 0);
+async function updateSpendingTrendChart(weeks) {
+  if (weeks) _trendWeeks = weeks;
+  const res = await VittaAPI.spendingTrend(_trendWeeks);
+  if (!res || !res.weeks) return;
+
+  const data = res.weeks;
+  if (!data.length) return;
+
+  const values = data.map(w => w.spent || 0);
   const max = niceCeil(Math.max(...values, 1));
+  const n = values.length;
 
-  const xStart = 60, xEnd = 760, yTop = 30, yBase = 230;
+  const svg = document.getElementById('trend-svg');
+  if (!svg) return;
+  const defs = svg.querySelector('defs');
+
+  const xPad = 55, xEnd = 790, yTop = 25, yBase = 240, labelY = 265;
+  const usableW = xEnd - xPad;
   const usableH = yBase - yTop;
-  const step = (xEnd - xStart) / (values.length - 1);
+  const step = n > 1 ? usableW / (n - 1) : 0;
+
   const points = values.map((v, i) => ({
-    x: xStart + i * step,
+    x: xPad + i * step,
     y: yBase - (v / max) * usableH,
+    spent: v,
+    week: data[i].week_start,
   }));
 
-  const lineD = 'M ' + points.map(p => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' L ');
-  const areaD = lineD + ` L ${xEnd} ${yBase} L ${xStart} ${yBase} Z`;
+  // Build SVG content
+  let svgContent = defs.outerHTML;
 
-  const linePath = document.getElementById('line-path');
-  const areaPath = document.getElementById('area-path');
-  if (linePath) linePath.setAttribute('d', lineD);
-  if (areaPath) areaPath.setAttribute('d', areaD);
-
-  const dots = document.querySelectorAll('#chart-dots circle');
-  points.forEach((p, i) => {
-    const c = dots[i];
-    if (!c) return;
-    c.setAttribute('cx', p.x.toFixed(1));
-    c.setAttribute('cy', p.y.toFixed(1));
+  // Grid lines (4)
+  const gridYs = [yTop, yTop + usableH * 0.25, yTop + usableH * 0.5, yTop + usableH * 0.75];
+  gridYs.forEach(gy => {
+    svgContent += `<line x1="${xPad}" y1="${gy}" x2="${xEnd}" y2="${gy}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
   });
 
-  // Y-axis gridline labels — 4 fixed gridlines at y=30/90/150/210, values
-  // derived from the same linear scale as the plotted points.
-  const chartArea = document.querySelector('[data-route="/app"] .chart-area');
-  if (chartArea) {
-    const yLabels = chartArea.querySelectorAll('svg > g:nth-of-type(2) text');
-    const gridYs = [30, 90, 150, 210];
-    yLabels.forEach((el, i) => {
-      if (gridYs[i] === undefined) return;
-      const v = ((yBase - gridYs[i]) / usableH) * max;
-      el.textContent = fmtCompactINR(v);
-    });
+  // Y-axis labels
+  svgContent += '<g style="font-family:var(--f-mono);font-size:10px;fill:var(--ink-faint)">';
+  gridYs.forEach(gy => {
+    const v = ((yBase - gy) / usableH) * max;
+    svgContent += `<text x="${xPad - 6}" y="${gy + 4}" text-anchor="end">${fmtCompactINR(v)}</text>`;
+  });
+  svgContent += `<text x="${xPad - 6}" y="${yBase + 4}" text-anchor="end">${fmtCompactINR(0)}</text>`;
+  svgContent += '</g>';
 
-    // X-axis month labels, current month highlighted like the original mockup.
-    const xLabels = chartArea.querySelectorAll('svg > g:last-of-type text');
-    months.forEach((m, i) => {
-      const el = xLabels[i];
-      if (!el) return;
-      const d = new Date(m + '-01T00:00:00');
-      el.textContent = d.toLocaleDateString('en-IN', { month: 'short' });
-      if (i === months.length - 1) {
-        el.setAttribute('fill', '#4ADE80');
-        el.setAttribute('font-weight', '600');
-      } else {
-        el.removeAttribute('fill');
-        el.removeAttribute('font-weight');
-      }
+  // Area fill
+  if (n > 1) {
+    const lineD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+    const areaD = lineD + ` L ${points[n-1].x.toFixed(1)} ${yBase} L ${points[0].x.toFixed(1)} ${yBase} Z`;
+    svgContent += `<path d="${areaD}" fill="url(#area-grad)" opacity="0.8"/>`;
+
+    // Line
+    svgContent += `<path d="${lineD}" stroke="#4ADE80" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" id="trend-line"/>`;
+  }
+
+  // Data points — show dots at reasonable density
+  const dotEvery = n > 30 ? 4 : n > 16 ? 2 : 1;
+  const today = new Date();
+  const currentWeekStart = new Date(today);
+  currentWeekStart.setDate(today.getDate() - today.getDay() + 1);
+  const currentWeekKey = currentWeekStart.toISOString().slice(0, 10);
+
+  points.forEach((p, i) => {
+    const isCurrent = p.week === currentWeekKey || i === n - 1;
+    const showDot = isCurrent || (i % dotEvery === 0);
+    if (showDot) {
+      const color = isCurrent ? '#FCD34D' : '#4ADE80';
+      const r = isCurrent ? 5 : 3.5;
+      svgContent += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="${color}" stroke="#050506" stroke-width="1.5" data-idx="${i}" class="trend-dot" style="cursor:pointer"/>`;
+    }
+  });
+
+  // X-axis labels — show month boundaries
+  svgContent += '<g style="font-family:var(--f-mono);font-size:10px;fill:var(--ink-faint)">';
+  let lastMonth = '';
+  points.forEach((p, i) => {
+    const d = new Date(p.week + 'T00:00:00');
+    const mLabel = d.toLocaleDateString('en-IN', { month: 'short' });
+    if (mLabel !== lastMonth) {
+      lastMonth = mLabel;
+      const isCurrent = i >= n - 4;
+      const fill = isCurrent ? '#4ADE80' : 'var(--ink-faint)';
+      const weight = isCurrent ? 'font-weight="600"' : '';
+      svgContent += `<text x="${p.x.toFixed(1)}" y="${labelY}" text-anchor="middle" fill="${fill}" ${weight}>${mLabel}</text>`;
+    }
+  });
+  svgContent += '</g>';
+
+  svg.innerHTML = svgContent;
+
+  // Animate the line in
+  const line = document.getElementById('trend-line');
+  if (line && line.getTotalLength) {
+    const len = line.getTotalLength();
+    line.style.strokeDasharray = String(len);
+    line.style.strokeDashoffset = String(len);
+    requestAnimationFrame(() => {
+      line.style.transition = 'stroke-dashoffset 1s ease-out';
+      line.style.strokeDashoffset = '0';
     });
   }
 
-  // Let the reveal animation's dash-length match the real path so the
-  // draw-on animation times correctly instead of using the old mock's length.
-  if (linePath && linePath.getTotalLength) {
-    const len = linePath.getTotalLength();
-    linePath.style.strokeDasharray = String(len);
-    linePath.style.strokeDashoffset = String(len);
+  // Tooltip on hover
+  const container = document.getElementById('trend-chart-container');
+  const tooltip = document.getElementById('trend-tooltip');
+  svg.querySelectorAll('.trend-dot').forEach(dot => {
+    dot.addEventListener('mouseenter', (e) => {
+      const idx = parseInt(dot.getAttribute('data-idx'));
+      const p = points[idx];
+      if (!p) return;
+      const d = new Date(p.week + 'T00:00:00');
+      const weekEnd = new Date(d); weekEnd.setDate(d.getDate() + 6);
+      const fmt = (dt) => dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      tooltip.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${fmt(d)} – ${fmt(weekEnd)}</div><div style="color:var(--brand-bright)">Spent: ${fmtINR(p.spent)}</div>`;
+      const rect = container.getBoundingClientRect();
+      const cx = parseFloat(dot.getAttribute('cx'));
+      const svgRect = svg.getBoundingClientRect();
+      const scale = svgRect.width / 800;
+      tooltip.style.display = 'block';
+      tooltip.style.left = (cx * scale - tooltip.offsetWidth / 2) + 'px';
+      tooltip.style.top = (parseFloat(dot.getAttribute('cy')) * (svgRect.height / 280) - tooltip.offsetHeight - 10) + 'px';
+    });
+    dot.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+  });
+
+  // Update subtitle
+  const sub = document.getElementById('trend-sub');
+  if (sub) {
+    const rangeLabel = _trendWeeks <= 12 ? '3 months' : _trendWeeks <= 24 ? '6 months' : '1 year';
+    sub.textContent = `Weekly · ${rangeLabel} · all accounts`;
+  }
+}
+
+// Range selector buttons
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#trend-range-btns button[data-weeks]');
+  if (!btn) return;
+  document.querySelectorAll('#trend-range-btns button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateSpendingTrendChart(parseInt(btn.dataset.weeks));
+});
+
+// ═══════════════════════════════════════════════════════════════
+// Expense Planner — Wizard + Dashboard
+// ═══════════════════════════════════════════════════════════════
+let _planData = null;
+let _wizStep = 0;
+const _wizTotalSteps = 7;
+const _wizStepNames = ['Welcome', 'Step 1 of 6 · Income', 'Step 2 of 6 · Rent', 'Step 3 of 6 · EMIs & Loans', 'Step 4 of 6 · Recurring bills', 'Step 5 of 6 · Savings', 'Step 6 of 6 · Category budgets'];
+
+async function loadPlannerPage() {
+  const wiz = document.getElementById('planner-wizard');
+  const dash = document.getElementById('planner-dashboard');
+  if (!wiz) return;
+  wiz.style.display = 'none';
+  dash.style.display = 'none';
+
+  try { _planData = await VittaAPI.plannerGet(); } catch(e) { _planData = null; }
+
+  const hasData = _planData && (_planData.income.length || _planData.obligations.length || _planData.savings.length || _planData.budgets.length);
+  if (!hasData) {
+    startPlannerWizard(false);
+    return;
+  }
+  renderPlannerDashboard();
+  dash.style.display = 'block';
+}
+
+function startPlannerWizard(isEdit) {
+  document.getElementById('planner-dashboard').style.display = 'none';
+  document.getElementById('planner-wizard').style.display = 'block';
+  _wizStep = isEdit ? 1 : 0;
+
+  if (isEdit && _planData) {
+    _prefillWizardFromPlan();
+  }
+  _wizShowStep(_wizStep);
+}
+
+function _prefillWizardFromPlan() {
+  const d = _planData;
+  // Income
+  const incF = document.getElementById('wiz-income-fields');
+  if (d.income.length) {
+    incF.innerHTML = '';
+    d.income.forEach(i => {
+      incF.insertAdjacentHTML('beforeend', _wizFieldHTML('income', i.name, i.amount));
+    });
+  }
+  // Rent
+  const rentItem = d.obligations.find(o => o.category && o.category.toLowerCase() === 'rent');
+  if (rentItem) document.getElementById('wiz-rent').value = rentItem.amount;
+  // EMIs
+  const emis = d.obligations.filter(o => o.category && o.category.toLowerCase() !== 'rent' && !['insurance','subscription','netflix','spotify','hotstar','youtube'].some(k => (o.category + ' ' + o.name).toLowerCase().includes(k)));
+  const emiF = document.getElementById('wiz-emi-fields');
+  if (emis.length) {
+    emiF.innerHTML = '';
+    emis.forEach(o => emiF.insertAdjacentHTML('beforeend', _wizFieldHTML('emi', o.name, o.amount)));
+  }
+  // Subs/insurance
+  const subs = d.obligations.filter(o => !emis.includes(o) && (!rentItem || o.id !== rentItem.id));
+  const subsF = document.getElementById('wiz-subs-fields');
+  if (subs.length) {
+    subsF.innerHTML = '';
+    subs.forEach(o => subsF.insertAdjacentHTML('beforeend', _wizFieldHTML('subs', o.name, o.amount)));
+  }
+  // Savings
+  const savF = document.getElementById('wiz-savings-fields');
+  if (d.savings.length) {
+    savF.innerHTML = '';
+    d.savings.forEach(s => savF.insertAdjacentHTML('beforeend', _wizFieldHTML('savings', s.name, s.target)));
+  }
+  // Budgets
+  const budF = document.getElementById('wiz-budget-fields');
+  if (d.budgets.length) {
+    budF.innerHTML = '';
+    d.budgets.forEach(b => budF.insertAdjacentHTML('beforeend', _wizFieldHTML('budget', b.category, b.limit_amount)));
+  }
+}
+
+function _wizFieldHTML(type, nameVal, amtVal) {
+  const amtField = type === 'savings' ? 'target' : type === 'budget' ? 'limit' : 'amount';
+  const nameField = type === 'budget' ? 'category' : 'name';
+  const namePh = {income:'Source name',emi:'Loan name',subs:'Name',savings:'Goal name',budget:'Category'}[type] || 'Name';
+  return `<div class="pw-field-row">
+    <input type="text" class="pw-input" placeholder="${namePh}" data-field="${nameField}" value="${nameVal || ''}">
+    <div class="pw-input-wrap"><span class="pw-input-prefix">₹</span><input type="number" class="pw-input pw-input-amount" placeholder="0" data-field="${amtField}" value="${amtVal || ''}"></div>
+    <button class="pw-del" onclick="this.closest('.pw-field-row').remove()">✕</button>
+  </div>`;
+}
+
+function wizardAddField(type) {
+  const containerId = {income:'wiz-income-fields',emi:'wiz-emi-fields',subs:'wiz-subs-fields',savings:'wiz-savings-fields',budget:'wiz-budget-fields'}[type];
+  document.getElementById(containerId).insertAdjacentHTML('beforeend', _wizFieldHTML(type, '', ''));
+  const newInput = document.getElementById(containerId).lastElementChild.querySelector('input');
+  if (newInput) newInput.focus();
+}
+
+function _wizShowStep(step, direction) {
+  const slides = document.querySelectorAll('#pw-slides .pw-slide');
+  const old = document.querySelector('#pw-slides .pw-slide.active');
+  if (old && direction) {
+    old.classList.remove('active');
+    old.classList.add(direction === 'forward' ? 'exit-left' : 'exit-right');
+    setTimeout(() => old.classList.remove('exit-left', 'exit-right'), 300);
+  } else if (old) {
+    old.classList.remove('active');
+  }
+
+  const target = slides[step];
+  if (!target) return;
+
+  setTimeout(() => {
+    target.classList.add('active');
+    target.style.animation = 'none';
+    target.offsetHeight;
+    target.style.animation = '';
+    const firstInput = target.querySelector('input');
+    if (firstInput && step > 0) setTimeout(() => firstInput.focus(), 100);
+  }, direction ? 100 : 0);
+
+  // Update progress
+  const pct = step === 0 ? 0 : Math.round((step / (_wizTotalSteps - 1)) * 100);
+  document.getElementById('pw-progress-fill').style.width = pct + '%';
+  document.getElementById('pw-step-label').textContent = _wizStepNames[step] || '';
+
+  // On step 6, calculate free amount
+  if (step === 6) _updateWizFreeAmount();
+}
+
+function _updateWizFreeAmount() {
+  let inc = 0, oblig = 0, sav = 0;
+  document.querySelectorAll('#wiz-income-fields .pw-field-row').forEach(r => {
+    inc += parseFloat(r.querySelector('[data-field="amount"]')?.value) || 0;
+  });
+  const rent = parseFloat(document.getElementById('wiz-rent')?.value) || 0;
+  oblig += rent;
+  document.querySelectorAll('#wiz-emi-fields .pw-field-row').forEach(r => {
+    oblig += parseFloat(r.querySelector('[data-field="amount"]')?.value) || 0;
+  });
+  document.querySelectorAll('#wiz-subs-fields .pw-field-row').forEach(r => {
+    oblig += parseFloat(r.querySelector('[data-field="amount"]')?.value) || 0;
+  });
+  document.querySelectorAll('#wiz-savings-fields .pw-field-row').forEach(r => {
+    sav += parseFloat(r.querySelector('[data-field="target"]')?.value) || 0;
+  });
+  const free = Math.max(0, inc - oblig - sav);
+  const el = document.getElementById('wiz-free-amount');
+  if (el) el.textContent = fmtINR(free);
+}
+
+function wizardNext() {
+  if (_wizStep >= _wizTotalSteps - 1) return;
+  _wizStep++;
+  _wizShowStep(_wizStep, 'forward');
+}
+
+function wizardPrev() {
+  if (_wizStep <= 0) return;
+  _wizStep--;
+  _wizShowStep(_wizStep, 'backward');
+}
+
+async function wizardAutoSuggest() {
+  showToast('Analyzing your spending history...');
+  try {
+    const res = await VittaAPI.plannerSuggest();
+    if (!res) { showToast('Could not fetch suggestions'); return; }
+
+    if (res.detected_income && res.detected_income.length) {
+      const f = document.getElementById('wiz-income-fields');
+      f.innerHTML = '';
+      res.detected_income.forEach(i => f.insertAdjacentHTML('beforeend', _wizFieldHTML('income', i.source || 'Income', i.avg_amount)));
+    }
+
+    if (res.suggested_budgets && res.suggested_budgets.length) {
+      const f = document.getElementById('wiz-budget-fields');
+      f.innerHTML = '';
+      res.suggested_budgets.forEach(b => f.insertAdjacentHTML('beforeend', _wizFieldHTML('budget', b.category, Math.round(b.avg_spend * 1.1))));
+    }
+
+    _wizStep = 1;
+    _wizShowStep(1, 'forward');
+    showToast('Suggestions loaded — review each step and save');
+  } catch(e) { showToast('Failed to load suggestions'); }
+}
+
+async function wizardFinish() {
+  showToast('Saving your plan...');
+
+  // Delete all existing entries first to avoid duplicates
+  if (_planData) {
+    for (const i of _planData.income) await VittaAPI.plannerIncomeDelete(i.id);
+    for (const o of _planData.obligations) await VittaAPI.plannerObligationDelete(o.id);
+    for (const s of _planData.savings) await VittaAPI.plannerSavingsDelete(s.id);
+  }
+
+  // Save income
+  for (const r of document.querySelectorAll('#wiz-income-fields .pw-field-row')) {
+    const name = r.querySelector('[data-field="name"]')?.value.trim();
+    const amount = parseFloat(r.querySelector('[data-field="amount"]')?.value) || 0;
+    if (name && amount > 0) await VittaAPI.plannerIncomeUpsert({ name, amount, frequency: 'monthly' });
+  }
+
+  // Save obligations — rent
+  const rent = parseFloat(document.getElementById('wiz-rent')?.value) || 0;
+  if (rent > 0) await VittaAPI.plannerObligationUpsert({ name: 'Rent', category: 'rent', amount: rent, due_day: 1 });
+
+  // EMIs
+  for (const r of document.querySelectorAll('#wiz-emi-fields .pw-field-row')) {
+    const name = r.querySelector('[data-field="name"]')?.value.trim();
+    const amount = parseFloat(r.querySelector('[data-field="amount"]')?.value) || 0;
+    if (name && amount > 0) await VittaAPI.plannerObligationUpsert({ name, category: 'loan', amount, due_day: 1 });
+  }
+
+  // Subs/insurance
+  for (const r of document.querySelectorAll('#wiz-subs-fields .pw-field-row')) {
+    const name = r.querySelector('[data-field="name"]')?.value.trim();
+    const amount = parseFloat(r.querySelector('[data-field="amount"]')?.value) || 0;
+    if (name && amount > 0) await VittaAPI.plannerObligationUpsert({ name, category: 'subscription', amount, due_day: 1 });
+  }
+
+  // Savings
+  for (const r of document.querySelectorAll('#wiz-savings-fields .pw-field-row')) {
+    const name = r.querySelector('[data-field="name"]')?.value.trim() || 'Savings';
+    const target = parseFloat(r.querySelector('[data-field="target"]')?.value) || 0;
+    if (target > 0) await VittaAPI.plannerSavingsUpsert({ name, target });
+  }
+
+  // Budgets (this endpoint already replaces all for the month)
+  const budgets = [];
+  for (const r of document.querySelectorAll('#wiz-budget-fields .pw-field-row')) {
+    const category = r.querySelector('[data-field="category"]')?.value.trim();
+    const limit = parseFloat(r.querySelector('[data-field="limit"]')?.value) || 0;
+    if (category && limit > 0) budgets.push({ category, limit });
+  }
+  if (budgets.length) await VittaAPI.plannerBudgetsSave({ budgets });
+
+  showToast('Plan saved!');
+  await loadPlannerPage();
+}
+
+function renderPlannerDashboard() {
+  if (!_planData) return;
+  const t = _planData.totals;
+
+  document.getElementById('planner-month-label').textContent =
+    new Date(_planData.month + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+
+  document.getElementById('dash-income').textContent = fmtINR(t.income);
+  document.getElementById('dash-obligations').textContent = fmtINR(t.obligations);
+  document.getElementById('dash-savings').textContent = fmtINR(t.savings_target);
+  document.getElementById('dash-free').textContent = fmtINR(t.free_to_spend);
+
+  const today = new Date();
+  const dayOfMonth = today.getDate();
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const pctThrough = Math.round((dayOfMonth / daysInMonth) * 100);
+  const pctSpent = t.free_to_spend > 0 ? Math.round((t.total_spent / t.free_to_spend) * 100) : 0;
+  const paceEl = document.getElementById('planner-pace');
+  const onTrack = pctSpent <= pctThrough + 5;
+  paceEl.innerHTML = `<span style="font-weight:600">${pctThrough}% of the month done</span> · ${pctSpent}% of free-to-spend used (${fmtINR(t.total_spent)} of ${fmtINR(t.free_to_spend)}) — <span style="color:${onTrack ? '#4ADE80' : '#F87171'};font-weight:600">${onTrack ? 'On track' : 'Over pace'}</span>`;
+
+  const barsEl = document.getElementById('planner-budget-bars');
+  const budgetColors = {'Groceries':'#22C55E','Shopping':'#FCD34D','Food & dining':'#F472B6','Food':'#F472B6','Health':'#FB7185','Transport':'#94A3B8','Friends':'#60A5FA','Income':'#4ADE80','Government':'#A78BFA','Services':'#6EE7B7','Uncategorized':'#71717A'};
+
+  if (_planData.budgets.length) {
+    barsEl.innerHTML = _planData.budgets.map(b => {
+      const spent = (_planData.actuals[b.category] || {}).spent || 0;
+      const pct = b.limit_amount > 0 ? Math.min(100, Math.round((spent / b.limit_amount) * 100)) : 0;
+      const color = budgetColors[b.category] || '#A78BFA';
+      const barColor = pct > 90 ? '#F87171' : color;
+      return `<div class="budget-bar-wrap">
+        <div class="budget-bar-head">
+          <span class="cat-name">${b.category}</span>
+          <span class="cat-nums">${fmtINR(spent)} / ${fmtINR(b.limit_amount)} (${pct}%)</span>
+        </div>
+        <div class="budget-bar-track"><div class="budget-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>`;
+    }).join('');
+  } else {
+    barsEl.innerHTML = '<p style="color:var(--ink-faint);font-size:13px">No category budgets set. Edit your plan to add spending limits.</p>';
+  }
+
+  const obligEl = document.getElementById('planner-obligations-list');
+  if (_planData.obligations.length) {
+    obligEl.innerHTML = _planData.obligations.map(o => {
+      return `<div class="oblig-row">
+        <div><div style="font-weight:500;font-size:14px">${o.name}</div><div style="font-size:12px;color:var(--ink-faint)">${o.category || ''}${o.due_day ? ' · Due ' + o.due_day + 'th' : ''}</div></div>
+        <div style="font-weight:600;color:#F87171">${fmtINR(o.amount)}</div>
+      </div>`;
+    }).join('');
+  } else {
+    obligEl.innerHTML = '<p style="color:var(--ink-faint);font-size:13px">No obligations set.</p>';
   }
 }
 
@@ -6905,6 +7665,7 @@ function openLiveTableTxn(i) {
 
 const SOURCE_LABELS = {
   bank_pdf: 'Bank statement', gpay_pdf: 'Google Pay export',
+  phonepe_pdf: 'PhonePe statement',
   manual_cash: 'Logged manually (cash)', unknown: 'Unknown',
 };
 
@@ -6917,6 +7678,169 @@ async function deleteOpenDrawerTxn(id) {
     await refreshVisibleData();
   } catch (e) {
     showToast(e.message || 'Could not delete entry.');
+  }
+}
+
+// =====================================================================
+// Debts — who owes who
+// =====================================================================
+let _debtsData = null;
+let _debtTab = 'they_owe';
+
+async function loadDebtsPanel() {
+  try {
+    _debtsData = await VittaAPI.debts();
+  } catch { _debtsData = { debts: [], summary: { they_owe_total: 0, i_owe_total: 0, net: 0, pending_count: 0 } }; }
+  const panel = document.getElementById('debts-panel');
+  if (!panel) return;
+  panel.style.display = '';
+  const cards = document.getElementById('debts-summary-cards');
+  const tabs = document.getElementById('debt-tab');
+  const list = document.getElementById('debts-list');
+  if (_debtsData.debts.length) {
+    if (cards) cards.style.display = '';
+    if (tabs) tabs.style.display = '';
+    if (list) list.style.display = '';
+    renderDebtsSummary();
+    renderDebtsList();
+  } else {
+    if (cards) cards.style.display = 'none';
+    if (tabs) tabs.style.display = 'none';
+    if (list) list.style.display = 'none';
+  }
+}
+
+function renderDebtsSummary() {
+  if (!_debtsData) return;
+  const s = _debtsData.summary;
+  const el = document.getElementById('debts-summary-cards');
+  if (!el) return;
+  const netCls = s.net >= 0 ? 'net-pos' : 'net-neg';
+  const netSign = s.net >= 0 ? '+' : '';
+  el.innerHTML = `
+    <div class="debt-card">
+      <div class="debt-label">They owe you</div>
+      <div class="debt-value receivable">${fmtINR(s.they_owe_total)}</div>
+    </div>
+    <div class="debt-card">
+      <div class="debt-label">You owe them</div>
+      <div class="debt-value payable">${fmtINR(s.i_owe_total)}</div>
+    </div>
+    <div class="debt-card">
+      <div class="debt-label">Net balance</div>
+      <div class="debt-value ${netCls}">${netSign}${fmtINR(Math.abs(s.net))}</div>
+    </div>
+  `;
+}
+
+function renderDebtsList() {
+  if (!_debtsData) return;
+  const el = document.getElementById('debts-list');
+  if (!el) return;
+
+  let filtered;
+  if (_debtTab === 'settled') {
+    filtered = _debtsData.debts.filter(d => d.status === 'settled');
+  } else {
+    filtered = _debtsData.debts.filter(d => d.direction === _debtTab && d.status !== 'settled');
+  }
+
+  if (!filtered.length) {
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--ink-muted);font-size:13px">No ${_debtTab === 'settled' ? 'settled' : 'pending'} debts</div>`;
+    return;
+  }
+
+  const avatarColors = ['#4ADE80','#60A5FA','#F472B6','#FCD34D','#A78BFA','#FB7185','#6EE7B7','#94A3B8'];
+  el.innerHTML = filtered.map(d => {
+    const remaining = d.amount - d.settled_amount;
+    const isSettled = d.status === 'settled';
+    const cls = d.direction === 'they_owe' ? 'receivable' : 'payable';
+    const sign = d.direction === 'they_owe' ? '+' : '-';
+    const ci = d.contact_name.charCodeAt(0) % avatarColors.length;
+    const initial = d.contact_name.charAt(0).toUpperCase();
+    return `<div class="debt-row ${isSettled ? 'debt-settled' : ''}">
+      <div class="debt-avatar" style="background:${avatarColors[ci]};color:#041706">${initial}</div>
+      <div class="debt-info">
+        <div class="debt-name">${d.contact_name}</div>
+        <div class="debt-reason">${d.reason || '—'}${d.status === 'partial' ? ' · Partial: ' + fmtINR(d.settled_amount) + ' paid' : ''}</div>
+      </div>
+      <div class="debt-amt ${cls}">${sign}${fmtINR(isSettled ? d.amount : remaining)}</div>
+      <div class="debt-actions">
+        ${!isSettled ? `<button class="settle-btn" onclick="settleDebt(${d.id})">Settle</button>` : ''}
+        <button onclick="deleteDebt(${d.id})">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function switchDebtTab(tab) {
+  _debtTab = tab;
+  document.querySelectorAll('#debt-tab button').forEach(b => b.classList.remove('active'));
+  const labels = { they_owe: 'They owe me', i_owe: 'I owe them', settled: 'Settled' };
+  document.querySelectorAll('#debt-tab button').forEach(b => {
+    if (b.textContent.trim() === labels[tab]) b.classList.add('active');
+  });
+  renderDebtsList();
+}
+
+function openDebtModal(direction, amount, contact, txnId) {
+  document.getElementById('debt-direction').value = direction;
+  document.getElementById('debt-txn-id').value = txnId || '';
+  document.getElementById('debt-contact').value = contact || '';
+  document.getElementById('debt-amount').value = amount || '';
+  document.getElementById('debt-reason').value = '';
+  const title = direction === 'they_owe' ? 'They owe me' : 'I owe someone';
+  document.getElementById('debt-modal-title').innerHTML = `<em>${title}</em>`;
+  document.getElementById('debt-submit-btn').textContent = direction === 'they_owe' ? 'Add — they owe me' : 'Add — I owe them';
+  document.getElementById('debt-modal').classList.add('open');
+}
+function closeDebtModal() { document.getElementById('debt-modal').classList.remove('open'); }
+
+function openDebtFromDrawer(dir, amount, merchant, txnId) {
+  closeDrawer();
+  const direction = dir === 'debit' ? 'they_owe' : 'i_owe';
+  openDebtModal(direction, amount, merchant, txnId);
+}
+
+async function submitDebt(e) {
+  e.preventDefault();
+  const direction = document.getElementById('debt-direction').value;
+  const contact_name = document.getElementById('debt-contact').value.trim();
+  const amount = parseFloat(document.getElementById('debt-amount').value);
+  const reason = document.getElementById('debt-reason').value.trim();
+  const txn_id = document.getElementById('debt-txn-id').value || null;
+  if (!contact_name || !amount) return;
+  try {
+    await VittaAPI.debtCreate({ contact_name, amount, direction, reason, txn_id: txn_id ? parseInt(txn_id) : null });
+    closeDebtModal();
+    showToast(direction === 'they_owe' ? `${contact_name} owes you ${fmtINR(amount)}` : `You owe ${contact_name} ${fmtINR(amount)}`);
+    await loadDebtsPanel();
+  } catch (err) {
+    showToast(err.message || 'Could not add debt.');
+  }
+}
+
+async function settleDebt(id) {
+  if (!confirm('Mark this debt as settled?')) return;
+  try {
+    await VittaAPI.debtSettle(id);
+    showToast('Debt settled!');
+    await loadDebtsPanel();
+  } catch (err) {
+    showToast(err.message || 'Could not settle debt.');
+  }
+}
+
+async function deleteDebt(id) {
+  if (!confirm('Remove this debt entry?')) return;
+  try {
+    await VittaAPI.debtDelete(id);
+    showToast('Debt removed.');
+    await loadDebtsPanel();
+  } catch (err) {
+    showToast(err.message || 'Could not delete debt.');
   }
 }
 
@@ -6984,10 +7908,13 @@ async function loadAccountsLive() {
 // REAL upload flow — replaces simulateParse()
 // =====================================================================
 function onUploadSourceChange() {
-  // Only bank PDFs are ever password-protected in practice.
   const src = document.getElementById('upload-source')?.value;
   const pwField = document.getElementById('upload-password-field');
-  if (pwField) pwField.style.display = src === 'bank_pdf' ? '' : 'none';
+  const pwHint = document.querySelector('#upload-password-field label span');
+  if (pwField) pwField.style.display = (src === 'bank_pdf' || src === 'phonepe_pdf') ? '' : 'none';
+  if (pwHint) pwHint.textContent = src === 'phonepe_pdf'
+    ? '— PhonePe PDFs are usually locked'
+    : '— optional, most banks use DDMMYYYY (your DOB)';
 }
 
 async function realParse(file) {
@@ -7084,7 +8011,7 @@ function getHashParams() {
 }
 
 // --- Router ---
-const routes = ['/', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/settings'];
+const routes = ['/', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/planner', '/app/settings'];
 function route() {
   let hash = (window.location.hash || '#/').slice(1).split('?')[0];
   if (!routes.includes(hash)) hash = '/';
@@ -7122,7 +8049,7 @@ function route() {
     // Load live data first so count-up animates to real numbers, not seed
     loadDashboardLive().then(loaded => initDashboard());
   }
-  if (hash === '/app/transactions') { renderTxns(); loadTransactionsLive(); }
+  if (hash === '/app/transactions') { renderTxns(); loadTransactionsLive(); loadDebtsPanel(); }
   if (hash === '/app/categories') renderCategories();
   if (hash === '/app/merchants') { renderMerchants(); loadMerchantsLive(); }
   if (hash === '/login') refreshPasswordFormMode();
@@ -7136,6 +8063,7 @@ function route() {
   }
   if (hash === '/app/accounts') loadAccountsLive();
   if (hash === '/app/insights') renderInsights();
+  if (hash === '/app/planner') loadPlannerPage();
   if (hash === '/app/settings') { handleContactsCallback(); initSecuritySettings(); }
 }
 window.addEventListener('hashchange', route);
@@ -7643,21 +8571,6 @@ function initDashboard() {
     }, delay);
   });
 
-  // Draw the chart line
-  setTimeout(() => {
-    const line = document.getElementById('line-path');
-    line.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(0.65, 0, 0.35, 1)';
-    line.style.strokeDashoffset = '0';
-    setTimeout(() => {
-      document.getElementById('area-path').style.transition = 'opacity 0.8s ease';
-      document.getElementById('area-path').style.opacity = '1';
-      document.querySelectorAll('#chart-dots circle').forEach((c, i) => {
-        setTimeout(() => {
-          c.style.transition = 'opacity 0.3s ease';
-          c.style.opacity = '1';
-        }, i * 120);
-      });
-    }, 900);
-  }, 500);
+  // Chart animation is now handled inside updateSpendingTrendChart()
 }
 </script>
