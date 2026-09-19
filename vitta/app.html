@@ -2150,44 +2150,73 @@
   }
   .insight-body a:hover { text-decoration: underline; }
 
-  /* Anomalies card */
-  .anomaly-card {
+  /* Anomalies — compact trigger button on the dashboard.
+     The full list lives in #anomaly-modal (opened via openAnomalyModal). */
+  .anomaly-trigger {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    text-align: left;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-left: 3px solid var(--danger, #ef4444);
     border-radius: 14px;
-    padding: 20px 22px;
+    padding: 16px 20px;
     margin-bottom: 24px;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.05s;
   }
-  .anomaly-card .anom-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .anomaly-card .anom-head h3 {
-    font-size: 15px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--ink);
-  }
-  .anomaly-card .anom-head h3 svg { color: var(--danger, #ef4444); }
-  .anomaly-card .anom-count {
+  .anomaly-trigger:hover { border-color: var(--border-strong); }
+  .anomaly-trigger:active { transform: translateY(1px); }
+  .at-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
     background: rgba(239, 68, 68, 0.12);
     color: var(--danger, #ef4444);
-    padding: 2px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
-  .anomaly-card .anom-list {
+  .at-body { flex: 1; min-width: 0; }
+  .at-title {
+    font-family: var(--f-display);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .at-sub {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  .at-count-wrap {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
   }
-  .anomaly-card .anom-row {
+  .at-count {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger, #ef4444);
+    padding: 2px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: var(--f-mono);
+  }
+  .at-cta {
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-weight: 500;
+  }
+
+  /* Rows inside the anomaly modal — reuses the same styling the card used */
+  .anom-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2196,9 +2225,10 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     gap: 12px;
+    margin-bottom: 8px;
   }
-  .anomaly-card .anom-info { min-width: 0; flex: 1; }
-  .anomaly-card .anom-title {
+  .anom-row .anom-info { min-width: 0; flex: 1; }
+  .anom-row .anom-title {
     font-size: 13px;
     font-weight: 600;
     color: var(--ink);
@@ -2206,12 +2236,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .anomaly-card .anom-reason {
+  .anom-row .anom-reason {
     font-size: 12px;
     color: var(--ink-faint);
     margin-top: 2px;
   }
-  .anomaly-card .anom-badge {
+  .anom-badge {
     font-family: var(--f-mono);
     font-size: 11px;
     padding: 3px 8px;
@@ -2221,12 +2251,15 @@
     font-weight: 600;
     flex-shrink: 0;
   }
-  .anomaly-card .anom-empty {
+  .anom-modal-section {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
     color: var(--ink-faint);
-    font-size: 13px;
-    text-align: center;
-    padding: 8px 0;
+    font-weight: 600;
+    margin: 4px 0 8px;
   }
+  .anom-modal-section:not(:first-child) { margin-top: 16px; }
 
   /* Transactions table preview */
   .txn-preview {
@@ -3944,6 +3977,27 @@
   </div>
 </div>
 
+<!-- Anomalies modal -->
+<div id="anomaly-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:16px" onclick="if(event.target===this)closeAnomalyModal()">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;max-width:640px;width:100%;max-height:85vh;display:flex;flex-direction:column;position:relative;overflow:hidden">
+    <div style="padding:22px 26px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:12px;min-width:0">
+        <div id="anom-modal-icon" style="width:36px;height:36px;border-radius:10px;background:rgba(239,68,68,0.12);color:var(--danger,#ef4444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div style="min-width:0">
+          <h3 id="anom-modal-title" style="margin:0;font-size:16px;font-family:var(--f-display)">Unusual spending this month</h3>
+          <div id="anom-modal-sub" style="font-size:12px;color:var(--ink-faint);margin-top:2px">Compared against your last 90 days per category</div>
+        </div>
+      </div>
+      <button onclick="closeAnomalyModal()" style="background:none;border:none;color:var(--ink-faint);font-size:1.6rem;cursor:pointer;line-height:1;padding:0 4px" aria-label="Close">&times;</button>
+    </div>
+    <div id="anom-modal-body" style="padding:16px 22px 22px;overflow-y:auto;flex:1">
+      <div style="color:var(--ink-faint);text-align:center;padding:20px">Loading…</div>
+    </div>
+  </div>
+</div>
+
 <!-- Final CTA -->
 <div class="cta-band">
   <h2>Start understanding your spending in <em>five minutes.</em></h2>
@@ -4642,17 +4696,20 @@
         </div>
       </div>
 
-      <!-- Anomalies card (unusual spending) -->
-      <div class="anomaly-card" id="anomaly-card" style="display:none">
-        <div class="anom-head">
-          <h3>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            Unusual spending this month
-            <span class="anom-count" id="anomaly-count">0</span>
-          </h3>
+      <!-- Anomalies trigger button — compact card that opens the full list in a modal -->
+      <button class="anomaly-trigger" id="anomaly-trigger" style="display:none" onclick="openAnomalyModal()" type="button">
+        <div class="at-icon" id="at-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
-        <div class="anom-list" id="anomaly-list"></div>
-      </div>
+        <div class="at-body">
+          <div class="at-title" id="at-title">Unusual spending this month</div>
+          <div class="at-sub" id="at-sub">Tap to see the flagged transactions and category spikes</div>
+        </div>
+        <div class="at-count-wrap">
+          <div class="at-count" id="anomaly-count">0</div>
+          <div class="at-cta">View →</div>
+        </div>
+      </button>
 
       <!-- Recent transactions -->
       <div class="section-header">
@@ -8279,64 +8336,119 @@ async function loadDebtsData() {
   } catch { _debtsData = { debts: [], summary: { they_owe_total: 0, i_owe_total: 0, net: 0, pending_count: 0 } }; }
 }
 
+// Cached anomaly payload for the modal — refreshed every time
+// loadAnomalies() runs, so the modal always opens with fresh data.
+let _anomalyData = null;
+
 async function loadAnomalies() {
-  const card = document.getElementById('anomaly-card');
-  if (!card) return;
+  const trigger = document.getElementById('anomaly-trigger');
+  if (!trigger) return;
+
   let data = null;
-  try { data = await VittaAPI.anomalies(CURRENT_MONTH); } catch { card.style.display = 'none'; return; }
-  if (!data) { card.style.display = 'none'; return; }
+  try { data = await VittaAPI.anomalies(CURRENT_MONTH); } catch { trigger.style.display = 'none'; return; }
+  if (!data) { trigger.style.display = 'none'; return; }
 
-  const list = document.getElementById('anomaly-list');
+  _anomalyData = data;
+
   const countEl = document.getElementById('anomaly-count');
-  const headTitle = card.querySelector('.anom-head h3');
+  const iconEl = document.getElementById('at-icon');
+  const titleEl = document.getElementById('at-title');
+  const subEl = document.getElementById('at-sub');
 
-  // Empty state — show a positive card so the feature is discoverable
-  // and users know the check ran, rather than silently hiding.
+  trigger.style.display = '';
+
   if (data.total_count === 0) {
-    card.style.display = '';
-    card.style.borderLeftColor = 'var(--brand)';
+    // Positive state — feature discoverable, tone neutral
+    trigger.style.borderLeftColor = 'var(--brand)';
+    if (iconEl) { iconEl.style.background = 'rgba(34,197,94,0.12)'; iconEl.style.color = 'var(--brand)'; }
     if (countEl) { countEl.textContent = 'Clear'; countEl.style.background = 'rgba(34,197,94,0.12)'; countEl.style.color = 'var(--brand)'; }
-    if (headTitle) headTitle.innerHTML = headTitle.innerHTML.replace(/Unusual spending this month/, 'Spending looks normal');
-    if (list) list.innerHTML = `<div class="anom-empty">Nothing unusual detected in this month's spending. Vitta compares each transaction against your last 90 days of spending in the same category.</div>`;
+    if (titleEl) titleEl.textContent = 'Spending looks normal';
+    if (subEl) subEl.textContent = 'Tap to see how anomaly detection works';
+  } else {
+    trigger.style.borderLeftColor = 'var(--danger, #ef4444)';
+    if (iconEl) { iconEl.style.background = 'rgba(239,68,68,0.12)'; iconEl.style.color = 'var(--danger, #ef4444)'; }
+    if (countEl) { countEl.textContent = data.total_count; countEl.style.background = 'rgba(239,68,68,0.12)'; countEl.style.color = 'var(--danger, #ef4444)'; }
+    if (titleEl) titleEl.textContent = 'Unusual spending this month';
+    const spikes = (data.category_spikes || []).length;
+    const outliers = (data.transaction_outliers || []).length;
+    const parts = [];
+    if (spikes) parts.push(`${spikes} category spike${spikes === 1 ? '' : 's'}`);
+    if (outliers) parts.push(`${outliers} transaction outlier${outliers === 1 ? '' : 's'}`);
+    if (subEl) subEl.textContent = parts.join(' · ') + ' — tap for details';
+  }
+}
+
+function openAnomalyModal() {
+  const modal = document.getElementById('anomaly-modal');
+  const body = document.getElementById('anom-modal-body');
+  const title = document.getElementById('anom-modal-title');
+  const sub = document.getElementById('anom-modal-sub');
+  const icon = document.getElementById('anom-modal-icon');
+  if (!modal || !body) return;
+
+  const data = _anomalyData;
+  if (!data) {
+    body.innerHTML = `<div style="color:var(--ink-faint);text-align:center;padding:20px">No data yet — try again after the dashboard loads.</div>`;
+    modal.style.display = 'flex';
     return;
   }
 
-  const items = [];
-  // Category spikes first — bigger picture signal
-  for (const s of (data.category_spikes || []).slice(0, 3)) {
-    items.push({
-      title: s.category,
-      reason: s.reason,
-      badge: `${s.multiple.toFixed(1)}×`,
-    });
-  }
-  for (const t of (data.transaction_outliers || []).slice(0, 5)) {
-    items.push({
-      title: `${t.merchant} · ${t.category}`,
-      reason: t.reason,
-      badge: `${t.multiple.toFixed(1)}×`,
-    });
+  if (data.total_count === 0) {
+    if (title) title.textContent = 'Spending looks normal';
+    if (sub) sub.textContent = 'No anomalies flagged for this month';
+    if (icon) { icon.style.background = 'rgba(34,197,94,0.12)'; icon.style.color = 'var(--brand)'; }
+    body.innerHTML = `
+      <div style="color:var(--ink-secondary);font-size:13.5px;line-height:1.6;padding:8px 0">
+        <p style="margin:0 0 12px">Vitta checks two things every time the dashboard loads:</p>
+        <ol style="margin:0 0 12px;padding-left:22px;color:var(--ink-faint)">
+          <li style="margin-bottom:6px"><strong style="color:var(--ink)">Category-month spikes</strong> — categories where you're spending 1.5×+ your trailing 3-month average.</li>
+          <li><strong style="color:var(--ink)">Transaction outliers</strong> — individual transactions that are 2+ standard deviations (or 3× the mean) above your normal spend in the same category, over the last 90 days.</li>
+        </ol>
+        <p style="margin:0;color:var(--ink-faint)">Nothing crossed those thresholds for this month.</p>
+      </div>`;
+    modal.style.display = 'flex';
+    return;
   }
 
-  card.style.display = '';
-  card.style.borderLeftColor = 'var(--danger, #ef4444)';
-  if (countEl) {
-    countEl.textContent = data.total_count;
-    countEl.style.background = 'rgba(239, 68, 68, 0.12)';
-    countEl.style.color = 'var(--danger, #ef4444)';
-  }
-  if (headTitle) headTitle.innerHTML = headTitle.innerHTML.replace(/Spending looks normal/, 'Unusual spending this month');
-  if (list) {
-    list.innerHTML = items.map(it => `
-      <div class="anom-row">
+  if (title) title.textContent = 'Unusual spending this month';
+  if (sub) sub.textContent = `${data.total_count} flag${data.total_count === 1 ? '' : 's'} · compared against your last 90 days`;
+  if (icon) { icon.style.background = 'rgba(239,68,68,0.12)'; icon.style.color = 'var(--danger, #ef4444)'; }
+
+  const spikes = data.category_spikes || [];
+  const outliers = data.transaction_outliers || [];
+  let html = '';
+
+  if (spikes.length) {
+    html += `<div class="anom-modal-section">Category spikes (${spikes.length})</div>`;
+    for (const s of spikes) {
+      html += `<div class="anom-row">
         <div class="anom-info">
-          <div class="anom-title">${esc(it.title)}</div>
-          <div class="anom-reason">${esc(it.reason)}</div>
+          <div class="anom-title">${esc(s.category)}</div>
+          <div class="anom-reason">${esc(s.reason)}</div>
         </div>
-        <div class="anom-badge">${esc(it.badge)}</div>
-      </div>
-    `).join('');
+        <div class="anom-badge">${s.multiple.toFixed(1)}×</div>
+      </div>`;
+    }
   }
+  if (outliers.length) {
+    html += `<div class="anom-modal-section">Transaction outliers (${outliers.length})</div>`;
+    for (const t of outliers) {
+      html += `<div class="anom-row">
+        <div class="anom-info">
+          <div class="anom-title">${esc(t.merchant)} · ${esc(t.category)}</div>
+          <div class="anom-reason">${esc(t.reason)}</div>
+        </div>
+        <div class="anom-badge">${t.multiple.toFixed(1)}×</div>
+      </div>`;
+    }
+  }
+  body.innerHTML = html;
+  modal.style.display = 'flex';
+}
+
+function closeAnomalyModal() {
+  const modal = document.getElementById('anomaly-modal');
+  if (modal) modal.style.display = 'none';
 }
 
 async function loadDebtsOverview() {
