@@ -4466,12 +4466,12 @@
           <div class="card-head">
             <div>
               <h3>Spending trend</h3>
-              <div class="sub" id="trend-sub">Weekly · all accounts</div>
+              <div class="sub" id="trend-sub">Monthly · all accounts</div>
             </div>
             <div class="segmented" id="trend-range-btns">
-              <button data-weeks="12">3M</button>
-              <button data-weeks="24" class="active">6M</button>
-              <button data-weeks="52">1Y</button>
+              <button data-months="3">3M</button>
+              <button data-months="6" class="active">6M</button>
+              <button data-months="12">1Y</button>
             </div>
           </div>
           <div id="trend-chart-container" style="position:relative">
@@ -4487,7 +4487,7 @@
           </div>
           <div class="chart-legend">
             <div class="item"><span class="swatch" style="background:#4ADE80"></span>Spending</div>
-            <div class="item"><span class="swatch" style="background:#FCD34D"></span>Current week</div>
+            <div class="item"><span class="swatch" style="background:#FCD34D"></span>Current month</div>
           </div>
         </div>
 
@@ -7460,7 +7460,10 @@ async function loadDashboardLive() {
         const name = m.merchant_clean || 'Unknown';
         const cat = m.category || 'Uncategorized';
         const col = CAT_COLORS[cat] || '#71717A';
-        return `<div class="merchant-row"><div class="merchant-avatar" style="background:${col};color:#041706;">${name.charAt(0).toUpperCase()}</div><div class="merchant-info"><div class="name">${name}</div><div class="cat">${cat} · ${m.n} txns</div></div><div class="merchant-amt">${fmtINR(m.total)}<span class="count">${m.n}×</span></div></div>`;
+        // Escape single quotes so the inline onclick argument survives merchant
+        // names like "McDonald's" without breaking the JSON string.
+        const safeName = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        return `<div class="merchant-row" onclick="openMerchantTxns('${safeName}')" style="cursor:pointer" title="See all transactions with ${esc(name)}"><div class="merchant-avatar" style="background:${col};color:#041706;">${name.charAt(0).toUpperCase()}</div><div class="merchant-info"><div class="name">${esc(name)}</div><div class="cat">${esc(cat)} · ${m.n} txns</div></div><div class="merchant-amt">${fmtINR(m.total)}<span class="count">${m.n}×</span></div></div>`;
       }).join('');
     } else {
       merchList.innerHTML = `<div style="padding:20px 0;color:var(--ink-muted);text-align:center">No merchants yet.</div>`;
@@ -7508,18 +7511,38 @@ async function loadDashboardLive() {
 }
 function openLiveTxn(i) { window._filteredTxns = window.DASHBOARD_TXNS; openDrawer(i); }
 
-// Weekly spending trend chart — fetches real weekly data from /api/spending-trend
-let _trendWeeks = 24;
+// Monthly spending trend chart — aggregates the /api/spending-trend
+// weekly buckets into per-month totals so a user sees full-month bars
+// instead of the noisier week-level series that was here before.
+let _trendMonths = 6;
 
-async function updateSpendingTrendChart(weeks) {
-  if (weeks) _trendWeeks = weeks;
-  const res = await VittaAPI.spendingTrend(_trendWeeks);
+async function updateSpendingTrendChart(months) {
+  if (months) _trendMonths = months;
+
+  // Fetch a bit more than months*5 weeks to guarantee we cover every
+  // partial month at either end.
+  const weeksNeeded = _trendMonths * 5 + 6;
+  const res = await VittaAPI.spendingTrend(weeksNeeded);
   if (!res || !res.weeks) return;
 
-  const data = res.weeks;
+  // Group weekly buckets by YYYY-MM and sum. week_start is a Monday date
+  // string; if a week straddles two months, attribute it entirely to the
+  // month of week_start — good enough at monthly resolution.
+  const byMonth = new Map();
+  for (const w of res.weeks) {
+    const key = (w.week_start || '').slice(0, 7);
+    if (!key) continue;
+    byMonth.set(key, (byMonth.get(key) || 0) + (w.spent || 0));
+  }
+
+  // Sort months ascending and cap to _trendMonths most recent so the
+  // range buttons actually control what you see, not just what we fetch.
+  const sortedKeys = Array.from(byMonth.keys()).sort();
+  const keys = sortedKeys.slice(-_trendMonths);
+  const data = keys.map(k => ({ month: k, spent: byMonth.get(k) }));
   if (!data.length) return;
 
-  const values = data.map(w => w.spent || 0);
+  const values = data.map(m => m.spent || 0);
   const max = niceCeil(Math.max(...values, 1));
   const n = values.length;
 
@@ -7536,7 +7559,7 @@ async function updateSpendingTrendChart(weeks) {
     x: xPad + i * step,
     y: yBase - (v / max) * usableH,
     spent: v,
-    week: data[i].week_start,
+    month: data[i].month,
   }));
 
   // Build SVG content
@@ -7567,36 +7590,25 @@ async function updateSpendingTrendChart(weeks) {
     svgContent += `<path d="${lineD}" stroke="#4ADE80" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" id="trend-line"/>`;
   }
 
-  // Data points — show dots at reasonable density
-  const dotEvery = n > 30 ? 4 : n > 16 ? 2 : 1;
-  const today = new Date();
-  const currentWeekStart = new Date(today);
-  currentWeekStart.setDate(today.getDate() - today.getDay() + 1);
-  const currentWeekKey = currentWeekStart.toISOString().slice(0, 10);
-
+  // Data points — one dot per month, always visible since counts are small
+  const now = new Date();
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   points.forEach((p, i) => {
-    const isCurrent = p.week === currentWeekKey || i === n - 1;
-    const showDot = isCurrent || (i % dotEvery === 0);
-    if (showDot) {
-      const color = isCurrent ? '#FCD34D' : '#4ADE80';
-      const r = isCurrent ? 5 : 3.5;
-      svgContent += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="${color}" stroke="#050506" stroke-width="1.5" data-idx="${i}" class="trend-dot" style="cursor:pointer"/>`;
-    }
+    const isCurrent = p.month === currentMonthKey || i === n - 1;
+    const color = isCurrent ? '#FCD34D' : '#4ADE80';
+    const r = isCurrent ? 5 : 4;
+    svgContent += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="${color}" stroke="#050506" stroke-width="1.5" data-idx="${i}" class="trend-dot" style="cursor:pointer"/>`;
   });
 
-  // X-axis labels — show month boundaries
+  // X-axis labels — one label per month bucket
   svgContent += '<g style="font-family:var(--f-mono);font-size:10px;fill:var(--ink-faint)">';
-  let lastMonth = '';
   points.forEach((p, i) => {
-    const d = new Date(p.week + 'T00:00:00');
+    const d = new Date(p.month + '-01T00:00:00');
+    const isCurrent = p.month === currentMonthKey;
     const mLabel = d.toLocaleDateString('en-IN', { month: 'short' });
-    if (mLabel !== lastMonth) {
-      lastMonth = mLabel;
-      const isCurrent = i >= n - 4;
-      const fill = isCurrent ? '#4ADE80' : 'var(--ink-faint)';
-      const weight = isCurrent ? 'font-weight="600"' : '';
-      svgContent += `<text x="${p.x.toFixed(1)}" y="${labelY}" text-anchor="middle" fill="${fill}" ${weight}>${mLabel}</text>`;
-    }
+    const fill = isCurrent ? '#4ADE80' : 'var(--ink-faint)';
+    const weight = isCurrent ? 'font-weight="600"' : '';
+    svgContent += `<text x="${p.x.toFixed(1)}" y="${labelY}" text-anchor="middle" fill="${fill}" ${weight}>${mLabel}</text>`;
   });
   svgContent += '</g>';
 
@@ -7622,10 +7634,9 @@ async function updateSpendingTrendChart(weeks) {
       const idx = parseInt(dot.getAttribute('data-idx'));
       const p = points[idx];
       if (!p) return;
-      const d = new Date(p.week + 'T00:00:00');
-      const weekEnd = new Date(d); weekEnd.setDate(d.getDate() + 6);
-      const fmt = (dt) => dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-      tooltip.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${fmt(d)} – ${fmt(weekEnd)}</div><div style="color:var(--brand-bright)">Spent: ${fmtINR(p.spent)}</div>`;
+      const d = new Date(p.month + '-01T00:00:00');
+      const monthLabel = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+      tooltip.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${monthLabel}</div><div style="color:var(--brand-bright)">Spent: ${fmtINR(p.spent)}</div>`;
       const rect = container.getBoundingClientRect();
       const cx = parseFloat(dot.getAttribute('cx'));
       const svgRect = svg.getBoundingClientRect();
@@ -7640,18 +7651,18 @@ async function updateSpendingTrendChart(weeks) {
   // Update subtitle
   const sub = document.getElementById('trend-sub');
   if (sub) {
-    const rangeLabel = _trendWeeks <= 12 ? '3 months' : _trendWeeks <= 24 ? '6 months' : '1 year';
-    sub.textContent = `Weekly · ${rangeLabel} · all accounts`;
+    const rangeLabel = _trendMonths === 3 ? '3 months' : _trendMonths === 6 ? '6 months' : '1 year';
+    sub.textContent = `Monthly · ${rangeLabel} · all accounts`;
   }
 }
 
 // Range selector buttons
 document.addEventListener('click', (e) => {
-  const btn = e.target.closest('#trend-range-btns button[data-weeks]');
+  const btn = e.target.closest('#trend-range-btns button[data-months]');
   if (!btn) return;
   document.querySelectorAll('#trend-range-btns button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  updateSpendingTrendChart(parseInt(btn.dataset.weeks));
+  updateSpendingTrendChart(parseInt(btn.dataset.months));
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -7959,6 +7970,22 @@ function onTxnFilterChange() {
   loadTransactionsLive(_txnChipFilter);
 }
 
+// Called when a Top Merchants row on the dashboard is clicked — navigates
+// to the Transactions page with the merchant name pre-filled in the
+// search input so the user sees every transaction with that merchant.
+function openMerchantTxns(merchantName) {
+  window.location.hash = '#/app/transactions';
+  // Wait for the transactions route to render its DOM before writing
+  // into the search input; 200ms is enough for the SPA switch.
+  setTimeout(() => {
+    const input = document.getElementById('txn-search');
+    if (input) {
+      input.value = merchantName;
+      onTxnSearchInput();
+    }
+  }, 200);
+}
+
 // Debounced search — fires 300ms after the user stops typing so we
 // don't hammer the API on every keystroke. Explicit Enter/Search-button
 // fires immediately via runTxnSearch().
@@ -8040,7 +8067,10 @@ function _dateRangeParams() {
 
 async function loadTransactionsLive(filter = _txnChipFilter) {
   _txnChipFilter = filter;
-  let qs = 'limit=200';
+  // API caps at 1000; if a user ever exceeds that we'll need real
+  // pagination, but for now this loads everything a typical multi-year
+  // history holds — vs the old 200 which silently truncated.
+  let qs = 'limit=1000';
   if (filter === 'debit') qs += '&direction=debit';
   else if (filter === 'credit') qs += '&direction=credit';
   else if (filter === 'uncategorized') qs += '&category=Uncategorized';
