@@ -4684,28 +4684,18 @@
           <button class="chip" data-filter="uncategorized">Uncategorized <span class="cnt">32</span></button>
         </div>
         <div class="filter-group filter-group-right">
-          <select class="filter-select">
-            <option>All categories</option>
-            <option>Groceries</option>
-            <option>Food &amp; dining</option>
-            <option>Shopping</option>
-            <option>Transport</option>
-            <option>Health</option>
-            <option>Friends</option>
+          <select class="filter-select" id="txn-filter-category" onchange="onTxnFilterChange()">
+            <option value="">All categories</option>
           </select>
-          <select class="filter-select">
-            <option>All accounts</option>
-            <option>Union Bank · 3347</option>
-            <option>Indian Bank · 7318</option>
-            <option>HDFC Credit · 4412</option>
+          <select class="filter-select" id="txn-filter-account" onchange="onTxnFilterChange()">
+            <option value="">All accounts</option>
           </select>
-          <select class="filter-select">
-            <option>Jul 2026</option>
-            <option>Last 7 days</option>
-            <option>Last 30 days</option>
-            <option>Last 90 days</option>
-            <option>MTD</option>
-            <option>Custom range</option>
+          <select class="filter-select" id="txn-filter-date" onchange="onTxnFilterChange()">
+            <option value="">All time</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="mtd">Month to date</option>
           </select>
         </div>
       </div>
@@ -7774,11 +7764,90 @@ function renderPlannerDashboard() {
   }
 }
 
-async function loadTransactionsLive(filter = 'all') {
+// Current chip filter (all/debit/credit/uncategorized) — kept in sync
+// with the chip row so dropdown re-fetches don't drop the active chip.
+let _txnChipFilter = 'all';
+
+// Called from each dropdown's onchange — reloads the table with the
+// current chip + all three dropdown values combined.
+function onTxnFilterChange() {
+  loadTransactionsLive(_txnChipFilter);
+}
+
+// Fill the category and account dropdowns with real values from the
+// user's data. Idempotent: skips work when options are already populated
+// (e.g. re-visiting the page in the same session).
+async function populateTxnFilterOptions() {
+  const catSel = document.getElementById('txn-filter-category');
+  const accSel = document.getElementById('txn-filter-account');
+
+  if (catSel && catSel.options.length <= 1) {
+    try {
+      const all = await VittaAPI.transactions('limit=1000');
+      const cats = new Set();
+      for (const t of (all?.transactions || [])) {
+        cats.add(t.category || 'Uncategorized');
+      }
+      const sorted = Array.from(cats).sort((a, b) => a.localeCompare(b));
+      for (const c of sorted) {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c;
+        catSel.appendChild(opt);
+      }
+    } catch {}
+  }
+
+  if (accSel && accSel.options.length <= 1) {
+    try {
+      const accounts = await VittaAPI.accounts();
+      const list = Array.isArray(accounts) ? accounts : [];
+      for (const a of list) {
+        const opt = document.createElement('option');
+        opt.value = a.id;
+        opt.textContent = `${a.bank_name || 'Account'} · ${a.account_last4 || '—'}`;
+        accSel.appendChild(opt);
+      }
+    } catch {}
+  }
+}
+
+function _dateRangeParams() {
+  const sel = document.getElementById('txn-filter-date');
+  const v = sel ? sel.value : '';
+  if (!v) return '';
+  const today = new Date();
+  // Local-date formatter — `toISOString()` would shift the date back a day
+  // in any timezone east of UTC (IST users see Sept 1 12:00 AM become
+  // Aug 31 18:30 UTC, then slice(0,10) returns the wrong day).
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  if (v === 'mtd') {
+    const first = new Date(today.getFullYear(), today.getMonth(), 1);
+    return `&date_from=${fmt(first)}&date_to=${fmt(today)}`;
+  }
+  const days = parseInt(v, 10);
+  if (isNaN(days)) return '';
+  const from = new Date(today);
+  from.setDate(from.getDate() - days);
+  return `&date_from=${fmt(from)}&date_to=${fmt(today)}`;
+}
+
+async function loadTransactionsLive(filter = _txnChipFilter) {
+  _txnChipFilter = filter;
   let qs = 'limit=200';
   if (filter === 'debit') qs += '&direction=debit';
   else if (filter === 'credit') qs += '&direction=credit';
   else if (filter === 'uncategorized') qs += '&category=Uncategorized';
+
+  const catSel = document.getElementById('txn-filter-category');
+  if (catSel && catSel.value && filter !== 'uncategorized') {
+    qs += '&category=' + encodeURIComponent(catSel.value);
+  }
+  const accSel = document.getElementById('txn-filter-account');
+  if (accSel && accSel.value) {
+    qs += '&account_id=' + encodeURIComponent(accSel.value);
+  }
+  qs += _dateRangeParams();
+
   const res = await VittaAPI.transactions(qs);
   if (!res) return false;
 
@@ -8389,7 +8458,7 @@ function route() {
     loadDashboardLive().then(loaded => initDashboard());
     loadDebtsOverview();
   }
-  if (hash === '/app/transactions') { renderTxns(); loadTransactionsLive(); }
+  if (hash === '/app/transactions') { renderTxns(); populateTxnFilterOptions(); loadTransactionsLive(); }
   if (hash === '/app/categories') renderCategories();
   if (hash === '/app/merchants') { renderMerchants(); loadMerchantsLive(); }
   if (hash === '/login') refreshPasswordFormMode();

@@ -33,6 +33,8 @@ def api_transactions(
     account_id: Optional[int] = None,
     direction: Optional[str] = None,
     q: Optional[str] = None,
+    date_from: Optional[str] = Query(None, description="YYYY-MM-DD inclusive"),
+    date_to: Optional[str] = Query(None, description="YYYY-MM-DD inclusive"),
     user: dict = Depends(require_auth),
 ):
     user_id = user["id"]
@@ -47,6 +49,12 @@ def api_transactions(
     if direction:
         where.append("t.direction = ?")
         params.append(direction)
+    if date_from:
+        where.append("t.txn_date >= ?")
+        params.append(date_from)
+    if date_to:
+        where.append("t.txn_date <= ?")
+        params.append(date_to)
     if q:
         where.append("(t.merchant_clean LIKE ? OR t.merchant_raw LIKE ? OR t.remark LIKE ?)")
         params.extend([f"%{q}%", f"%{q}%", f"%{q}%"])
