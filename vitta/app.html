@@ -8674,6 +8674,18 @@ async function confirmDeleteAccount() {
   }
 }
 
+// Global HTML-escape helper — used by admin page and other renders that
+// interpolate untrusted strings into innerHTML. Kept minimal (only the
+// four dangerous characters); older ask-page renders had their own
+// local esc() consts that this doesn't touch.
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 // ─── Admin page ────────────────────────────────────────────────────
 async function loadAdminPage() {
   const sub = document.getElementById('admin-sub');
