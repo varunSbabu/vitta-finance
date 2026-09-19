@@ -4499,8 +4499,8 @@
         <div class="chart-area" style="margin-bottom:0">
           <div class="card-head">
             <div>
-              <h3>Spending trend</h3>
-              <div class="sub" id="trend-sub">Monthly · all accounts</div>
+              <h3>Net spend trend</h3>
+              <div class="sub" id="trend-sub">Monthly · spent minus received · all accounts</div>
             </div>
             <div class="segmented" id="trend-range-btns">
               <button data-months="3">3M</button>
@@ -4520,7 +4520,7 @@
             <div id="trend-tooltip" style="display:none;position:absolute;pointer-events:none;background:var(--surface-card);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink);white-space:nowrap;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.3)"></div>
           </div>
           <div class="chart-legend">
-            <div class="item"><span class="swatch" style="background:#4ADE80"></span>Spending</div>
+            <div class="item"><span class="swatch" style="background:#4ADE80"></span>Net spend</div>
             <div class="item"><span class="swatch" style="background:#FCD34D"></span>Current month</div>
           </div>
         </div>
@@ -7816,13 +7816,10 @@ async function loadDashboardLive() {
 }
 function openLiveTxn(i) { window._filteredTxns = window.DASHBOARD_TXNS; openDrawer(i); }
 
-// Monthly spending trend chart — pulls per-month aggregates directly
-// from /api/summary/months so the values match the Overview "Spent"
-// tile exactly. The previous version bucketed weekly data into months
-// by week-start date, which double-attributed the first days of a
-// month to the prior month whenever a week straddled the boundary
-// (e.g. Sept 1-6 belonged to a week starting Aug 31 and got counted
-// as August). Using true per-month SUMs fixes that off-by-a-week bug.
+// Monthly net-spend trend chart — plots (spent - received) per month
+// so users see what actually left their pocket after inbound money.
+// Data source: /api/summary/months (proper GROUP BY YYYY-MM), which
+// makes the numbers align with the Overview "Net spend" tile.
 let _trendMonths = 6;
 
 async function updateSpendingTrendChart(months) {
@@ -7833,11 +7830,20 @@ async function updateSpendingTrendChart(months) {
 
   // Endpoint returns newest-first — reverse for chronological display,
   // then keep only the most recent _trendMonths entries in case the
-  // dataset spans further back.
+  // dataset spans further back. Compute net = spent - received per row
+  // and clamp at 0 so a big salary month doesn't render a negative bar
+  // (the y-axis is set up assuming positive values).
   const data = res.months
     .slice()
     .reverse()
-    .slice(-_trendMonths);
+    .slice(-_trendMonths)
+    .map(m => ({
+      month: m.month,
+      spent: Math.max(0, (m.spent || 0) - (m.received || 0)),
+      // Keep the raw pieces for the tooltip so users see the full math.
+      _gross: m.spent || 0,
+      _received: m.received || 0,
+    }));
   if (!data.length) return;
 
   const values = data.map(m => m.spent || 0);
@@ -7856,7 +7862,9 @@ async function updateSpendingTrendChart(months) {
   const points = values.map((v, i) => ({
     x: xPad + i * step,
     y: yBase - (v / max) * usableH,
-    spent: v,
+    net: v,
+    gross: data[i]._gross || 0,
+    received: data[i]._received || 0,
     month: data[i].month,
   }));
 
@@ -7934,7 +7942,10 @@ async function updateSpendingTrendChart(months) {
       if (!p) return;
       const d = new Date(p.month + '-01T00:00:00');
       const monthLabel = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-      tooltip.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${monthLabel}</div><div style="color:var(--brand-bright)">Spent: ${fmtINR(p.spent)}</div>`;
+      tooltip.innerHTML = `
+        <div style="font-weight:600;margin-bottom:4px">${monthLabel}</div>
+        <div style="color:var(--brand-bright);font-weight:600">Net: ${fmtINR(p.net)}</div>
+        <div style="color:var(--ink-faint);font-size:11px;margin-top:2px">Spent ${fmtINR(p.gross)} − Received ${fmtINR(p.received)}</div>`;
       const rect = container.getBoundingClientRect();
       const cx = parseFloat(dot.getAttribute('cx'));
       const svgRect = svg.getBoundingClientRect();
@@ -7950,7 +7961,7 @@ async function updateSpendingTrendChart(months) {
   const sub = document.getElementById('trend-sub');
   if (sub) {
     const rangeLabel = _trendMonths === 3 ? '3 months' : _trendMonths === 6 ? '6 months' : '1 year';
-    sub.textContent = `Monthly · ${rangeLabel} · all accounts`;
+    sub.textContent = `Monthly net spend · ${rangeLabel} · all accounts`;
   }
 }
 
