@@ -4462,17 +4462,12 @@
 
     <div class="content">
       <!-- Greeting -->
-      <div class="greeting" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
-        <div style="flex:1;min-width:0">
-          <h1 id="dash-greeting">Good morning, <em>Varun.</em></h1>
-          <p>
-            Here's what's happened across your accounts.
-            <span class="synced"><span class="dot"></span>Last synced 3 min ago</span>
-          </p>
-        </div>
-        <select id="overview-month-picker" onchange="onOverviewMonthChange(this.value)" class="filter-select" style="min-width:180px" title="Show a different month">
-          <option value="">This month</option>
-        </select>
+      <div class="greeting">
+        <h1 id="dash-greeting">Good morning, <em>Varun.</em></h1>
+        <p>
+          Here's what's happened across your accounts.
+          <span class="synced"><span class="dot"></span>Last synced 3 min ago</span>
+        </p>
       </div>
 
       <!-- Stat tiles -->
@@ -6098,6 +6093,53 @@
 </button>
 <div class="mobile-nav-backdrop" onclick="closeMobileNav()"></div>
 
+<!-- Month analytics route — compact view for a past month showing only
+     "Where it went" category breakdown + top merchants + txn list. -->
+<div data-route="/app/month" style="min-height:100vh;padding:40px;max-width:960px;margin:0 auto">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:28px;flex-wrap:wrap">
+    <div>
+      <h1 id="ma-title" style="font-family:var(--f-display);font-size:32px;margin:0 0 4px"><em>—</em></h1>
+      <div id="ma-sub" style="color:var(--ink-faint);font-size:13.5px">Loading…</div>
+    </div>
+    <a href="#/app" data-nav class="btn btn-secondary btn-sm" style="text-decoration:none">← Back to Overview</a>
+  </div>
+
+  <!-- Totals strip -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--brand);border-radius:12px;padding:16px 18px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-faint);font-weight:600;margin-bottom:4px">Spent</div>
+      <div id="ma-spent" style="font-size:24px;font-weight:600;font-family:var(--f-display)">₹0</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--brand-bright,#4ade80);border-radius:12px;padding:16px 18px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-faint);font-weight:600;margin-bottom:4px">Received</div>
+      <div id="ma-received" style="font-size:24px;font-weight:600;font-family:var(--f-display)">₹0</div>
+    </div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--gold,#fcd34d);border-radius:12px;padding:16px 18px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-faint);font-weight:600;margin-bottom:4px">Transactions</div>
+      <div id="ma-count" style="font-size:24px;font-weight:600;font-family:var(--f-display)">0</div>
+    </div>
+  </div>
+
+  <!-- Where it went card -->
+  <div class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:20px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px">
+      <h2 style="font-family:var(--f-display);font-size:18px;margin:0">Where it went</h2>
+      <div id="ma-cat-sub" style="font-size:12px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.5px"></div>
+    </div>
+    <div id="ma-categories">
+      <div style="padding:20px;text-align:center;color:var(--ink-faint);font-size:13px">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Top merchants card -->
+  <div class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:22px 24px">
+    <h2 style="font-family:var(--f-display);font-size:18px;margin:0 0 16px">Top merchants</h2>
+    <div id="ma-merchants">
+      <div style="padding:20px;text-align:center;color:var(--ink-faint);font-size:13px">Loading…</div>
+    </div>
+  </div>
+</div>
+
 <!-- Anomalies modal — MUST live at document body level (not inside any
      data-route div) so it's still visible when the router hides the
      landing/app pages. -->
@@ -6889,6 +6931,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const link = e.target.closest('.sidebar a[data-nav], .sidebar a[href^="#/"]');
     if (link) closeMobileNav();
   });
+  // Inject the "Months" collapsible section into every duplicate sidebar
+  // that lives in the DOM. Safe to call again (skips already-patched
+  // sidebars via a data-monthsInjected marker).
+  injectMonthsIntoSidebars();
 });
 
 async function realDeleteAllData() {
@@ -6919,7 +6965,7 @@ async function deleteMyAccount() {
 async function refreshVisibleData() {
   refreshNavCounts();
   const hash = window.location.hash.slice(1);
-  if (hash === '/app') { _dashboardInitialized = false; await loadDashboardLive(); initDashboard(); loadDebtsOverview(); populateOverviewMonthPicker(); }
+  if (hash === '/app') { _dashboardInitialized = false; await loadDashboardLive(); initDashboard(); loadDebtsOverview(); }
   else if (hash === '/app/transactions') { await loadTransactionsLive(); }
   else if (hash === '/app/accounts') await loadAccountsLive();
   else if (hash === '/app/merchants') await loadMerchantsLive();
@@ -7441,38 +7487,144 @@ function niceCeil(v) {
   return niceNorm * magnitude;
 }
 
-// Fill the month picker from GET /api/summary/months. Runs once per
-// route enter to Overview (idempotent — skips if already populated).
-async function populateOverviewMonthPicker() {
-  const sel = document.getElementById('overview-month-picker');
-  if (!sel) return;
-  // Already filled beyond the "This month" placeholder — skip.
-  if (sel.options.length > 1) return;
+// ─── Months sidebar dropdown ──────────────────────────────────────
+// Inject a collapsible "Months" section into every duplicate sidebar
+// in the DOM. Each item links to #/app/month?m=YYYY-MM. Runs once on
+// DOMContentLoaded; safe to run again (skips sidebars already patched).
+function injectMonthsIntoSidebars() {
+  const sidebars = document.querySelectorAll('.sidebar');
+  if (!sidebars.length) return;
 
-  let res;
-  try { res = await VittaAPI.summaryMonths(24); } catch { return; }
-  const months = res?.months || [];
-  if (!months.length) return;
-
-  // Add "This month" as the first option that always represents the
-  // calendar month, then every distinct month with data. If the
-  // calendar month already has data it appears twice with different
-  // labels — that's on purpose, so the shortcut stays visible.
-  for (const m of months) {
-    const label = new Date(m.month + '-01T00:00:00').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-    const opt = document.createElement('option');
-    opt.value = m.month;
-    opt.textContent = `${label} · ${fmtCompactINR(m.spent)} spent`;
-    sel.appendChild(opt);
+  // Build the month list once — January of the current year through
+  // the current month. If the year rolls over, this recomputes.
+  const now = new Date();
+  const year = now.getFullYear();
+  const upto = now.getMonth(); // 0-based, so upto=8 in September
+  const months = [];
+  for (let m = 0; m <= upto; m++) {
+    const d = new Date(year, m, 1);
+    months.push({
+      key: `${year}-${String(m + 1).padStart(2, '0')}`,
+      label: d.toLocaleDateString('en-IN', { month: 'long' }),
+    });
   }
-  // Reflect whatever _overviewMonth is currently set to.
-  sel.value = _overviewMonth === CURRENT_MONTH ? '' : _overviewMonth;
+
+  const itemsHTML = months
+    .slice()
+    .reverse() // most recent month first — that's what a user usually wants
+    .map(m => {
+      const isCurrent = m.key === CURRENT_MONTH;
+      const suffix = isCurrent ? ' <span style="font-size:10px;color:var(--brand);margin-left:6px">current</span>' : '';
+      return `<a href="#/app/month?m=${m.key}" data-nav class="months-item" data-month="${m.key}" style="display:block;padding:5px 12px 5px 30px;font-size:12.5px;color:var(--ink-secondary);text-decoration:none;border-radius:6px;transition:background 0.1s">${m.label}${suffix}</a>`;
+    })
+    .join('');
+
+  const html = `
+    <div class="sidebar-months" style="margin-top:14px">
+      <button class="months-toggle" onclick="toggleMonthsDropdown(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:transparent;border:none;color:var(--ink-secondary);font-family:inherit;font-size:13px;cursor:pointer;border-radius:6px;transition:background 0.1s">
+        <span style="display:flex;align-items:center;gap:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Months
+        </span>
+        <svg class="months-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.15s"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="months-list" style="display:none;padding:4px 0 8px">${itemsHTML}</div>
+    </div>`;
+
+  for (const sb of sidebars) {
+    if (sb.dataset.monthsInjected === '1') continue;
+    // Insert before the sidebar-footer if there is one, else append at the end.
+    const footer = sb.querySelector('.sidebar-footer');
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    if (footer) sb.insertBefore(wrapper.firstElementChild, footer);
+    else sb.appendChild(wrapper.firstElementChild);
+    sb.dataset.monthsInjected = '1';
+  }
 }
 
-// Wired to the picker's onchange — empty string means "back to today's month".
-function onOverviewMonthChange(month) {
-  _overviewMonth = month || CURRENT_MONTH;
-  loadDashboardLive();
+function toggleMonthsDropdown(btn) {
+  const list = btn.nextElementSibling;
+  const caret = btn.querySelector('.months-caret');
+  const open = list.style.display !== 'none';
+  list.style.display = open ? 'none' : 'block';
+  if (caret) caret.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+// Runs when the /app/month route is rendered. Fetches the summary for
+// the requested YYYY-MM and populates the totals, categories, and top
+// merchants sections — no trend chart, no anomaly card.
+async function loadMonthAnalytics(monthKey) {
+  const titleEl = document.getElementById('ma-title');
+  const subEl = document.getElementById('ma-sub');
+  const spentEl = document.getElementById('ma-spent');
+  const receivedEl = document.getElementById('ma-received');
+  const countEl = document.getElementById('ma-count');
+  const catsEl = document.getElementById('ma-categories');
+  const catSubEl = document.getElementById('ma-cat-sub');
+  const merchEl = document.getElementById('ma-merchants');
+
+  const monthDate = new Date(monthKey + '-01T00:00:00');
+  const label = monthDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  if (titleEl) titleEl.innerHTML = `<em>${esc(label)}</em>`;
+  if (subEl) subEl.textContent = monthKey === CURRENT_MONTH ? 'Current month — this is a partial view' : 'Category breakdown for this month';
+
+  let summary;
+  try { summary = await VittaAPI.summary(monthKey); }
+  catch { catsEl.innerHTML = `<div style="padding:16px;color:var(--danger,#ef4444);font-size:13px">Failed to load. Are you signed in?</div>`; return; }
+  if (!summary) return;
+
+  if (spentEl) spentEl.textContent = fmtINR(summary.spent || 0);
+  if (receivedEl) receivedEl.textContent = fmtINR(summary.received || 0);
+  if (countEl) countEl.textContent = summary.n_transactions || 0;
+  if (catSubEl) catSubEl.textContent = `${label} · ${fmtCompactINR(summary.spent || 0)} total`;
+
+  const cats = summary.categories || [];
+  if (!cats.length) {
+    catsEl.innerHTML = `<div style="padding:20px;text-align:center;color:var(--ink-faint);font-size:13px">No spending recorded this month.</div>`;
+  } else {
+    const total = cats.reduce((s, c) => s + (c.total || 0), 0) || 1;
+    catsEl.innerHTML = cats.map(c => {
+      const cat = c.category || 'Uncategorized';
+      const col = (typeof CAT_COLORS !== 'undefined' && CAT_COLORS[cat]) || '#71717A';
+      const pct = Math.round(((c.total || 0) / total) * 100);
+      const barWidth = Math.max(2, ((c.total || 0) / (cats[0].total || 1)) * 100);
+      return `<div style="display:grid;grid-template-columns:120px 1fr auto auto;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)"><span style="width:8px;height:8px;border-radius:50%;background:${col}"></span>${esc(cat)}</div>
+        <div style="height:6px;background:var(--bg-inset);border-radius:999px;overflow:hidden"><div style="height:100%;width:${barWidth}%;background:${col};border-radius:999px"></div></div>
+        <div style="font-family:var(--f-mono);font-size:12px;color:var(--ink-faint);min-width:36px;text-align:right">${pct}%</div>
+        <div style="font-family:var(--f-mono);font-size:13px;font-weight:600;min-width:80px;text-align:right">${fmtINR(c.total || 0)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const merch = summary.top_merchants || [];
+  if (!merch.length) {
+    merchEl.innerHTML = `<div style="padding:20px;text-align:center;color:var(--ink-faint);font-size:13px">No merchants this month.</div>`;
+  } else {
+    merchEl.innerHTML = merch.slice(0, 8).map(m => {
+      const name = m.merchant_clean || 'Unknown';
+      const cat = m.category || 'Uncategorized';
+      const col = (typeof CAT_COLORS !== 'undefined' && CAT_COLORS[cat]) || '#71717A';
+      const safe = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      return `<div onclick="openMerchantTxns('${safe}')" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" title="See all transactions with ${esc(name)}">
+        <div style="width:32px;height:32px;border-radius:8px;background:${col};color:#041706;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0">${name.charAt(0).toUpperCase()}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">${esc(name)}</div><div style="font-size:11px;color:var(--ink-faint);margin-top:2px">${esc(cat)} · ${m.n} txns</div></div>
+        <div style="font-family:var(--f-mono);font-size:13px;font-weight:600">${fmtINR(m.total || 0)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Highlight the current month in every sidebar's months list.
+  document.querySelectorAll('.months-item').forEach(a => {
+    if (a.dataset.month === monthKey) {
+      a.style.background = 'var(--brand-wash)';
+      a.style.color = 'var(--brand-bright)';
+    } else {
+      a.style.background = '';
+      a.style.color = '';
+    }
+  });
 }
 
 async function loadDashboardLive() {
@@ -9067,7 +9219,7 @@ function getHashParams() {
 }
 
 // --- Router ---
-const routes = ['/', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/planner', '/app/debts', '/app/settings', '/app/admin'];
+const routes = ['/', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/planner', '/app/debts', '/app/settings', '/app/admin', '/app/month'];
 function route() {
   let hash = (window.location.hash || '#/').slice(1).split('?')[0];
   if (!hash.startsWith('/') && document.getElementById(hash)) return;
@@ -9124,6 +9276,12 @@ function route() {
   if (hash === '/app/debts') loadDebtsPage();
   if (hash === '/app/settings') { handleContactsCallback(); initSecuritySettings(); }
   if (hash === '/app/admin') loadAdminPage();
+  if (hash === '/app/month') {
+    // Read ?m=YYYY-MM from the raw hash (the split() dropped it above)
+    const q = (window.location.hash || '').split('?')[1] || '';
+    const params = new URLSearchParams(q);
+    loadMonthAnalytics(params.get('m') || CURRENT_MONTH);
+  }
 }
 window.addEventListener('hashchange', route);
 document.addEventListener('DOMContentLoaded', async () => {
