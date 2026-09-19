@@ -7816,35 +7816,28 @@ async function loadDashboardLive() {
 }
 function openLiveTxn(i) { window._filteredTxns = window.DASHBOARD_TXNS; openDrawer(i); }
 
-// Monthly spending trend chart — aggregates the /api/spending-trend
-// weekly buckets into per-month totals so a user sees full-month bars
-// instead of the noisier week-level series that was here before.
+// Monthly spending trend chart — pulls per-month aggregates directly
+// from /api/summary/months so the values match the Overview "Spent"
+// tile exactly. The previous version bucketed weekly data into months
+// by week-start date, which double-attributed the first days of a
+// month to the prior month whenever a week straddled the boundary
+// (e.g. Sept 1-6 belonged to a week starting Aug 31 and got counted
+// as August). Using true per-month SUMs fixes that off-by-a-week bug.
 let _trendMonths = 6;
 
 async function updateSpendingTrendChart(months) {
   if (months) _trendMonths = months;
 
-  // Fetch a bit more than months*5 weeks to guarantee we cover every
-  // partial month at either end.
-  const weeksNeeded = _trendMonths * 5 + 6;
-  const res = await VittaAPI.spendingTrend(weeksNeeded);
-  if (!res || !res.weeks) return;
+  const res = await VittaAPI.summaryMonths(_trendMonths);
+  if (!res || !res.months) return;
 
-  // Group weekly buckets by YYYY-MM and sum. week_start is a Monday date
-  // string; if a week straddles two months, attribute it entirely to the
-  // month of week_start — good enough at monthly resolution.
-  const byMonth = new Map();
-  for (const w of res.weeks) {
-    const key = (w.week_start || '').slice(0, 7);
-    if (!key) continue;
-    byMonth.set(key, (byMonth.get(key) || 0) + (w.spent || 0));
-  }
-
-  // Sort months ascending and cap to _trendMonths most recent so the
-  // range buttons actually control what you see, not just what we fetch.
-  const sortedKeys = Array.from(byMonth.keys()).sort();
-  const keys = sortedKeys.slice(-_trendMonths);
-  const data = keys.map(k => ({ month: k, spent: byMonth.get(k) }));
+  // Endpoint returns newest-first — reverse for chronological display,
+  // then keep only the most recent _trendMonths entries in case the
+  // dataset spans further back.
+  const data = res.months
+    .slice()
+    .reverse()
+    .slice(-_trendMonths);
   if (!data.length) return;
 
   const values = data.map(m => m.spent || 0);
