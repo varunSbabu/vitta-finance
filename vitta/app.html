@@ -6115,8 +6115,9 @@
       <div id="ma-received" style="font-size:24px;font-weight:600;font-family:var(--f-display)">₹0</div>
     </div>
     <div style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--gold,#fcd34d);border-radius:12px;padding:16px 18px">
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-faint);font-weight:600;margin-bottom:4px">Transactions</div>
-      <div id="ma-count" style="font-size:24px;font-weight:600;font-family:var(--f-display)">0</div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-faint);font-weight:600;margin-bottom:4px">Net spent</div>
+      <div id="ma-net" style="font-size:24px;font-weight:600;font-family:var(--f-display)">₹0</div>
+      <div id="ma-net-note" style="font-size:11px;color:var(--ink-faint);margin-top:4px">Spent − received</div>
     </div>
   </div>
 
@@ -7559,7 +7560,8 @@ async function loadMonthAnalytics(monthKey) {
   const subEl = document.getElementById('ma-sub');
   const spentEl = document.getElementById('ma-spent');
   const receivedEl = document.getElementById('ma-received');
-  const countEl = document.getElementById('ma-count');
+  const netEl = document.getElementById('ma-net');
+  const netNoteEl = document.getElementById('ma-net-note');
   const catsEl = document.getElementById('ma-categories');
   const catSubEl = document.getElementById('ma-cat-sub');
   const merchEl = document.getElementById('ma-merchants');
@@ -7567,17 +7569,45 @@ async function loadMonthAnalytics(monthKey) {
   const monthDate = new Date(monthKey + '-01T00:00:00');
   const label = monthDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
   if (titleEl) titleEl.innerHTML = `<em>${esc(label)}</em>`;
-  if (subEl) subEl.textContent = monthKey === CURRENT_MONTH ? 'Current month — this is a partial view' : 'Category breakdown for this month';
 
   let summary;
   try { summary = await VittaAPI.summary(monthKey); }
   catch { catsEl.innerHTML = `<div style="padding:16px;color:var(--danger,#ef4444);font-size:13px">Failed to load. Are you signed in?</div>`; return; }
   if (!summary) return;
 
-  if (spentEl) spentEl.textContent = fmtINR(summary.spent || 0);
-  if (receivedEl) receivedEl.textContent = fmtINR(summary.received || 0);
-  if (countEl) countEl.textContent = summary.n_transactions || 0;
-  if (catSubEl) catSubEl.textContent = `${label} · ${fmtCompactINR(summary.spent || 0)} total`;
+  const spent = summary.spent || 0;
+  const received = summary.received || 0;
+  const nTxns = summary.n_transactions || 0;
+  const net = spent - received;
+
+  // Move the txn count into the subtitle so it stays visible now that the
+  // "Transactions" tile has been replaced with "Net spent".
+  if (subEl) {
+    const prefix = monthKey === CURRENT_MONTH ? 'Current month · partial view · ' : '';
+    subEl.textContent = `${prefix}${nTxns} transaction${nTxns === 1 ? '' : 's'} · category breakdown below`;
+  }
+
+  if (spentEl) spentEl.textContent = fmtINR(spent);
+  if (receivedEl) receivedEl.textContent = fmtINR(received);
+  // Net-spent tile: positive net = money out (danger). Negative net (income
+  // exceeded spend) = you saved — show as a positive-tone message instead
+  // of a negative rupee value that looks like an error.
+  if (netEl) {
+    if (net > 0) {
+      netEl.textContent = fmtINR(net);
+      netEl.style.color = 'var(--danger, #ef4444)';
+      if (netNoteEl) netNoteEl.textContent = `Spent ${fmtCompactINR(spent)} − received ${fmtCompactINR(received)}`;
+    } else if (net < 0) {
+      netEl.textContent = fmtINR(0);
+      netEl.style.color = 'var(--brand)';
+      if (netNoteEl) netNoteEl.textContent = `Net positive by ${fmtINR(-net)}`;
+    } else {
+      netEl.textContent = fmtINR(0);
+      netEl.style.color = '';
+      if (netNoteEl) netNoteEl.textContent = 'Broke even this month';
+    }
+  }
+  if (catSubEl) catSubEl.textContent = `${label} · ${fmtCompactINR(spent)} total`;
 
   const cats = summary.categories || [];
   if (!cats.length) {
