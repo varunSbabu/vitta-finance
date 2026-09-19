@@ -32,6 +32,7 @@ from db import init_db
 from logging_setup import RequestIDMiddleware, configure_logging
 from routes import (
     accounts,
+    anomalies,
     ask,
     contacts,
     debts,
@@ -103,6 +104,7 @@ app.include_router(insights.router)
 app.include_router(ask.router)
 app.include_router(planner.router)
 app.include_router(debts.router)
+app.include_router(anomalies.router)
 app.include_router(system.router)
 
 

@@ -2106,6 +2106,84 @@
   }
   .insight-body a:hover { text-decoration: underline; }
 
+  /* Anomalies card */
+  .anomaly-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--danger, #ef4444);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 24px;
+  }
+  .anomaly-card .anom-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .anomaly-card .anom-head h3 {
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+  }
+  .anomaly-card .anom-head h3 svg { color: var(--danger, #ef4444); }
+  .anomaly-card .anom-count {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger, #ef4444);
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .anomaly-card .anom-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .anomaly-card .anom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--bg-surface, rgba(255,255,255,0.02));
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    gap: 12px;
+  }
+  .anomaly-card .anom-info { min-width: 0; flex: 1; }
+  .anomaly-card .anom-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .anomaly-card .anom-reason {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  .anomaly-card .anom-badge {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger, #ef4444);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .anomaly-card .anom-empty {
+    color: var(--ink-faint);
+    font-size: 13px;
+    text-align: center;
+    padding: 8px 0;
+  }
+
   /* Transactions table preview */
   .txn-preview {
     animation: fadeUp 0.6s 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -4438,6 +4516,18 @@
           <br>
           <a href="#/app/debts" data-nav style="text-decoration:none;margin-top:8px;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--brand);background:transparent;color:var(--brand-bright);cursor:pointer;transition:all 0.15s;display:inline-block">+ Track a debt</a>
         </div>
+      </div>
+
+      <!-- Anomalies card (unusual spending) -->
+      <div class="anomaly-card" id="anomaly-card" style="display:none">
+        <div class="anom-head">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Unusual spending this month
+            <span class="anom-count" id="anomaly-count">0</span>
+          </h3>
+        </div>
+        <div class="anom-list" id="anomaly-list"></div>
       </div>
 
       <!-- Recent transactions -->
@@ -6931,6 +7021,9 @@ const VittaAPI = {
   plannerSavingsDelete(id)       { return this._delete('/api/planner/savings/' + id); },
   plannerBudgetsSave(data)       { return this._post('/api/planner/budgets', data); },
 
+  // --- Anomalies (unusual spending) ---
+  anomalies(month=null)          { return this._get('/api/anomalies' + (month ? `?month=${month}` : '')); },
+
   // --- Debts (who owes who) ---
   debts()                        { return this._get('/api/debts'); },
   debtCreate(data)               { return this._post('/api/debts', data); },
@@ -7133,6 +7226,9 @@ async function loadDashboardLive() {
     if (ds.i_owe_total > 0) parts.push(`Pay <span style="color:var(--danger,#ef4444)">−${fmtINR(ds.i_owe_total)}</span>`);
     debtNote.innerHTML = parts.length ? parts.join(' · ') : 'No pending debts';
   }
+
+  // Anomalies — unusual spending detection based on user's own history
+  loadAnomalies();
 
   // Real month-over-month deltas — these were hardcoded "▼8.0% vs June" /
   // "▲12.4% vs June" regardless of actual data, permanently pinned to a
@@ -7786,6 +7882,47 @@ async function loadDebtsData() {
   try {
     _debtsData = await VittaAPI.debts();
   } catch { _debtsData = { debts: [], summary: { they_owe_total: 0, i_owe_total: 0, net: 0, pending_count: 0 } }; }
+}
+
+async function loadAnomalies() {
+  const card = document.getElementById('anomaly-card');
+  if (!card) return;
+  let data = null;
+  try { data = await VittaAPI.anomalies(CURRENT_MONTH); } catch { card.style.display = 'none'; return; }
+  if (!data || data.total_count === 0) { card.style.display = 'none'; return; }
+
+  const items = [];
+  // Category spikes first — bigger picture signal
+  for (const s of (data.category_spikes || []).slice(0, 3)) {
+    items.push({
+      title: s.category,
+      reason: s.reason,
+      badge: `${s.multiple.toFixed(1)}×`,
+    });
+  }
+  for (const t of (data.transaction_outliers || []).slice(0, 5)) {
+    items.push({
+      title: `${t.merchant} · ${t.category}`,
+      reason: t.reason,
+      badge: `${t.multiple.toFixed(1)}×`,
+    });
+  }
+
+  const list = document.getElementById('anomaly-list');
+  const countEl = document.getElementById('anomaly-count');
+  if (countEl) countEl.textContent = data.total_count;
+  if (list) {
+    list.innerHTML = items.map(it => `
+      <div class="anom-row">
+        <div class="anom-info">
+          <div class="anom-title">${esc(it.title)}</div>
+          <div class="anom-reason">${esc(it.reason)}</div>
+        </div>
+        <div class="anom-badge">${esc(it.badge)}</div>
+      </div>
+    `).join('');
+  }
+  card.style.display = '';
 }
 
 async function loadDebtsOverview() {
