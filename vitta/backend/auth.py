@@ -188,6 +188,48 @@ def logout(request: Request):
     return {"ok": True}
 
 
+# Every user-scoped table listed in db.py. Kept here (rather than derived)
+# so a schema addition doesn't silently leak orphan rows on account
+# deletion — a new table has to be added to this list explicitly.
+_USER_TABLES = (
+    "transactions",
+    "accounts",
+    "merchant_dictionary",
+    "contacts",
+    "income_sources",
+    "obligations",
+    "budget_plans",
+    "savings_goals",
+    "debts",
+    "password_reset_tokens",
+)
+
+
+@router.delete("/me")
+def delete_me(request: Request):
+    """Delete the signed-in user's account and every row they own.
+    Irreversible. The session is cleared as the last step so the caller
+    is signed out even if their client caches the auth state."""
+    from db import get_conn
+
+    user = request.session.get("user")
+    if not user:
+        raise HTTPException(401, "Not signed in.")
+
+    user_id = user["id"]
+    conn = get_conn()
+    try:
+        for table in _USER_TABLES:
+            conn.execute(f"DELETE FROM {table} WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+    request.session.pop("user", None)
+    return {"ok": True}
+
+
 def require_auth(request: Request) -> dict:
     """FastAPI dependency — raise 401 unless a valid session is present."""
     user = request.session.get("user")

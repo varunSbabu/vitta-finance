@@ -1454,11 +1454,55 @@
   }
   @media (max-width: 640px) {
     .app { grid-template-columns: 1fr !important; }
-    .sidebar { display: none !important; }
     .content { padding: 20px 16px !important; }
-    .topbar { padding: 12px 16px !important; }
+    .topbar { padding: 12px 16px 12px 60px !important; }
     .search { display: none; }
+    /* Sidebar slides in as an overlay. Kept in the DOM so links still
+       work, but off-canvas by default; the hamburger toggles it. */
+    .sidebar {
+      position: fixed !important;
+      top: 0; left: 0; bottom: 0;
+      width: 260px !important;
+      max-width: 80vw;
+      z-index: 10000;
+      transform: translateX(-100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow-y: auto;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+    }
+    body.mobile-nav-open .sidebar { transform: translateX(0); }
+    .mobile-nav-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 9999;
+      backdrop-filter: blur(2px);
+    }
+    body.mobile-nav-open .mobile-nav-backdrop { display: block; }
+    .mobile-nav-toggle {
+      display: flex !important;
+    }
   }
+  /* Hamburger — hidden by default, revealed only on mobile via the rule above. */
+  .mobile-nav-toggle {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 10001;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 0;
+  }
+  .mobile-nav-toggle:hover { border-color: var(--brand); color: var(--brand); }
   .sidebar-brand {
     display: flex;
     align-items: center;
@@ -3820,6 +3864,30 @@
   </div>
 </div>
 
+<!-- Account Manage Modal -->
+<div id="account-manage-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:16px" onclick="if(event.target===this)closeAccountManage()">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;max-width:440px;width:100%;padding:28px 28px 24px;position:relative">
+    <button onclick="closeAccountManage()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:var(--ink-faint);font-size:1.5rem;cursor:pointer;line-height:1">&times;</button>
+    <h3 id="am-title" style="margin:0 0 4px;font-family:var(--f-display)">Account</h3>
+    <p id="am-sub" style="color:var(--ink-faint);font-size:0.9rem;margin:0 0 20px"></p>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px">
+      <div style="padding:12px;background:var(--bg-surface,rgba(255,255,255,0.02));border:1px solid var(--border);border-radius:10px">
+        <div style="font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Transactions</div>
+        <div id="am-txn-count" style="font-size:20px;font-weight:600">0</div>
+      </div>
+      <div style="padding:12px;background:var(--bg-surface,rgba(255,255,255,0.02));border:1px solid var(--border);border-radius:10px">
+        <div style="font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Last txn</div>
+        <div id="am-last-txn" style="font-size:20px;font-weight:600">—</div>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:18px">
+      <div style="font-size:12px;color:var(--danger,#ef4444);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Danger zone</div>
+      <div style="font-size:13px;color:var(--ink-faint);margin-bottom:12px">Deletes this account and all its transactions. Cannot be undone.</div>
+      <button id="am-delete-btn" onclick="confirmDeleteAccount()" style="background:transparent;border:1px solid var(--danger,#ef4444);color:var(--danger,#ef4444);padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Delete this account</button>
+    </div>
+  </div>
+</div>
+
 <!-- Final CTA -->
 <div class="cta-band">
   <h2>Start understanding your spending in <em>five minutes.</em></h2>
@@ -5521,7 +5589,7 @@
             <p class="s-desc" style="margin-bottom:20px">These actions are permanent. Deleted data cannot be recovered.</p>
             <div class="s-row danger"><div><div class="s-title">Reset merchant dictionary</div><div class="s-desc">Clear all your tagged merchant rules.</div></div><button class="btn btn-danger btn-sm" onclick="if(confirm('This will clear all your tagged merchants. Continue?')) showToast('Dictionary reset')">Reset</button></div>
             <div class="s-row danger"><div><div class="s-title">Delete all data</div><div class="s-desc">Wipe every transaction, account, and rule. Vitta will be empty.</div></div><button class="btn btn-danger btn-sm" onclick="realDeleteAllData()">Delete data</button></div>
-            <div class="s-row danger"><div><div class="s-title">Delete account</div><div class="s-desc">Permanently close your Vitta account and all associated data.</div></div><button class="btn btn-danger btn-sm" onclick="if(prompt('Type DELETE ACCOUNT to confirm')==='DELETE ACCOUNT') showToast('Account deleted')">Delete account</button></div>
+            <div class="s-row danger"><div><div class="s-title">Delete account</div><div class="s-desc">Permanently close your Vitta account and all associated data.</div></div><button class="btn btn-danger btn-sm" onclick="deleteMyAccount()">Delete account</button></div>
           </div>
         </div>
       </div>
@@ -5875,6 +5943,12 @@
     </div>
   </div>
 </div>
+
+<!-- Mobile nav hamburger + backdrop (shown only on narrow viewports via CSS) -->
+<button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu" onclick="toggleMobileNav()">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+<div class="mobile-nav-backdrop" onclick="closeMobileNav()"></div>
 
 <!-- Toast -->
 <div id="toast" class="toast">
@@ -6614,12 +6688,57 @@ async function logout() {
   setTimeout(() => { window.location.hash = '#/'; }, 400);
 }
 
+function toggleMobileNav() {
+  document.body.classList.toggle('mobile-nav-open');
+}
+function closeMobileNav() {
+  document.body.classList.remove('mobile-nav-open');
+}
+
+// Only show the hamburger on app routes — landing/auth pages have their
+// own top nav and would look broken with a floating button in the corner.
+function updateMobileNavToggleVisibility() {
+  const btn = document.getElementById('mobile-nav-toggle');
+  if (!btn) return;
+  const hash = window.location.hash.slice(1);
+  const isApp = hash.startsWith('/app');
+  btn.style.display = isApp ? '' : 'none';
+  // Force-close when navigating away from app
+  if (!isApp) closeMobileNav();
+}
+window.addEventListener('hashchange', () => {
+  updateMobileNavToggleVisibility();
+  closeMobileNav();
+});
+document.addEventListener('DOMContentLoaded', () => {
+  updateMobileNavToggleVisibility();
+  // Close the mobile drawer whenever a sidebar link is tapped so users
+  // aren't left staring at the sidebar after picking a page.
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.sidebar a[data-nav], .sidebar a[href^="#/"]');
+    if (link) closeMobileNav();
+  });
+});
+
 async function realDeleteAllData() {
   if (prompt("Type DELETE to confirm") !== 'DELETE') return;
   const res = await VittaAPI.reset();
   if (!res) { showToast('Delete failed — backend offline?'); return; }
   showToast('All transactions, accounts, and rules deleted.');
   await refreshVisibleData();
+}
+
+async function deleteMyAccount() {
+  const email = VITTA_USER?.email || 'your account';
+  if (prompt(`This will permanently delete ${email} and every transaction, account, budget, and debt you own. Type DELETE ACCOUNT to confirm.`) !== 'DELETE ACCOUNT') return;
+  let res;
+  try { res = await VittaAPI.deleteMe(); }
+  catch (e) { showToast('Delete failed — try again or contact support'); return; }
+  if (!res || !res.ok) { showToast('Delete failed — try again'); return; }
+  VITTA_USER = null;
+  _authRequired = true;
+  showToast('Account deleted. Goodbye.');
+  setTimeout(() => { window.location.hash = '#/'; }, 600);
 }
 
 // Refreshes whatever's actually on screen, plus the sidebar badges that
@@ -6965,6 +7084,8 @@ const VittaAPI = {
   summary(month=null) { return this._get('/api/summary' + (month ? `?month=${month}` : '')); },
   spendingTrend(weeks=24) { return this._get('/api/spending-trend?weeks=' + weeks); },
   accounts()          { return this._get('/api/accounts'); },
+  accountDelete(id)   { return this._delete('/api/accounts/' + id); },
+  deleteMe()          { return this._delete('/api/auth/me'); },
   merchants()         { return this._get('/api/merchants'); },
   tagMerchant(raw, cat){ return this._post('/api/merchants/tag', {merchant_raw: raw, category: cat}); },
   reset()             { return this._post('/api/reset'); },
@@ -7958,7 +8079,22 @@ async function loadAnomalies() {
   if (!card) return;
   let data = null;
   try { data = await VittaAPI.anomalies(CURRENT_MONTH); } catch { card.style.display = 'none'; return; }
-  if (!data || data.total_count === 0) { card.style.display = 'none'; return; }
+  if (!data) { card.style.display = 'none'; return; }
+
+  const list = document.getElementById('anomaly-list');
+  const countEl = document.getElementById('anomaly-count');
+  const headTitle = card.querySelector('.anom-head h3');
+
+  // Empty state — show a positive card so the feature is discoverable
+  // and users know the check ran, rather than silently hiding.
+  if (data.total_count === 0) {
+    card.style.display = '';
+    card.style.borderLeftColor = 'var(--brand)';
+    if (countEl) { countEl.textContent = 'Clear'; countEl.style.background = 'rgba(34,197,94,0.12)'; countEl.style.color = 'var(--brand)'; }
+    if (headTitle) headTitle.innerHTML = headTitle.innerHTML.replace(/Unusual spending this month/, 'Spending looks normal');
+    if (list) list.innerHTML = `<div class="anom-empty">Nothing unusual detected in this month's spending. Vitta compares each transaction against your last 90 days of spending in the same category.</div>`;
+    return;
+  }
 
   const items = [];
   // Category spikes first — bigger picture signal
@@ -7977,9 +8113,14 @@ async function loadAnomalies() {
     });
   }
 
-  const list = document.getElementById('anomaly-list');
-  const countEl = document.getElementById('anomaly-count');
-  if (countEl) countEl.textContent = data.total_count;
+  card.style.display = '';
+  card.style.borderLeftColor = 'var(--danger, #ef4444)';
+  if (countEl) {
+    countEl.textContent = data.total_count;
+    countEl.style.background = 'rgba(239, 68, 68, 0.12)';
+    countEl.style.color = 'var(--danger, #ef4444)';
+  }
+  if (headTitle) headTitle.innerHTML = headTitle.innerHTML.replace(/Spending looks normal/, 'Unusual spending this month');
   if (list) {
     list.innerHTML = items.map(it => `
       <div class="anom-row">
@@ -7991,7 +8132,6 @@ async function loadAnomalies() {
       </div>
     `).join('');
   }
-  card.style.display = '';
 }
 
 async function loadDebtsOverview() {
@@ -8283,6 +8423,52 @@ async function tagMerchantLive(raw, category) {
   else showToast('Tag failed — backend offline?');
 }
 
+let _amCurrentAccount = null;
+
+function openAccountManage(account) {
+  _amCurrentAccount = account;
+  document.getElementById('am-title').textContent = account.bank_name || 'Account';
+  const sub = document.getElementById('am-sub');
+  const last4 = account.account_last4 ? `•••• ${account.account_last4}` : '(no card number)';
+  sub.textContent = `${last4} · ${account.account_type || 'Savings'}`;
+  document.getElementById('am-txn-count').textContent = account.txn_count ?? 0;
+  const last = account.last_txn ? new Date(account.last_txn).toLocaleDateString('en-IN', {day:'2-digit', month:'short'}) : '—';
+  document.getElementById('am-last-txn').textContent = last;
+  const btn = document.getElementById('am-delete-btn');
+  btn.textContent = 'Delete this account';
+  btn.disabled = false;
+  document.getElementById('account-manage-modal').style.display = 'flex';
+}
+
+function closeAccountManage() {
+  document.getElementById('account-manage-modal').style.display = 'none';
+  _amCurrentAccount = null;
+}
+
+async function confirmDeleteAccount() {
+  if (!_amCurrentAccount) return;
+  const acc = _amCurrentAccount;
+  const label = `${acc.bank_name || 'this account'}${acc.account_last4 ? ' •••• ' + acc.account_last4 : ''}`;
+  if (!confirm(`Delete ${label} and its ${acc.txn_count ?? 0} transaction(s)? This cannot be undone.`)) return;
+  const btn = document.getElementById('am-delete-btn');
+  btn.textContent = 'Deleting…';
+  btn.disabled = true;
+  try {
+    const res = await VittaAPI.accountDelete(acc.id);
+    if (res && res.ok) {
+      showToast(`Deleted ${label}${res.deleted_transactions ? ` and ${res.deleted_transactions} transactions` : ''}`);
+      closeAccountManage();
+      await loadAccountsLive();
+    } else {
+      btn.textContent = 'Delete failed — retry';
+      btn.disabled = false;
+    }
+  } catch (e) {
+    btn.textContent = 'Delete failed — retry';
+    btn.disabled = false;
+  }
+}
+
 async function loadAccountsLive() {
   const list = await VittaAPI.accounts();
   if (!list) return false;
@@ -8303,7 +8489,7 @@ async function loadAccountsLive() {
         <div><div class="s-lbl">Last txn</div><div class="s-val">${a.last_txn ? new Date(a.last_txn).toLocaleDateString('en-IN', {day:'2-digit', month:'short'}) : '—'}</div></div>
         <div><div class="s-lbl">Status</div><div class="s-val">Live</div></div>
       </div>
-      <div class="account-actions"><button class="btn btn-secondary btn-sm" onclick="openUpload()">Upload new</button><button class="btn btn-ghost btn-sm">Manage</button></div>
+      <div class="account-actions"><button class="btn btn-secondary btn-sm" onclick="openUpload()">Upload new</button><button class="btn btn-ghost btn-sm" onclick='openAccountManage(${JSON.stringify(a)})'>Manage</button></div>
     </div>`;
   }).join('');
   grid.innerHTML = cards + `<button class="add-account-card" onclick="openUpload()"><div class="add-account-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div class="add-account-title">Connect another account</div><div class="add-account-sub">Upload a bank statement or UPI export.</div></button>`;
