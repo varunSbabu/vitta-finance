@@ -1455,11 +1455,8 @@
   @media (max-width: 640px) {
     .app { grid-template-columns: 1fr !important; }
     .content { padding: 20px 16px !important; }
-    /* Wrap the topbar so search drops to its own row below the actions
-       instead of getting hidden, since on mobile the transactions page
-       relies on this input to find anything. */
-    .topbar { padding: 12px 16px 12px 60px !important; flex-wrap: wrap !important; row-gap: 10px; }
-    .topbar .search { order: 3; flex: 1 1 100%; margin-left: 0; }
+    .topbar { padding: 12px 16px 12px 60px !important; }
+    .search { display: none; }
     /* Sidebar slides in as an overlay. Kept in the DOM so links still
        work, but off-canvas by default; the hamburger toggles it. */
     .sidebar {
@@ -2391,6 +2388,53 @@
   }
   .filter-select:hover { border-color: var(--border-strong); color: var(--ink); }
   .filter-select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-wash); }
+
+  /* Search row inside the filter bar */
+  .txn-search-row {
+    display: flex; align-items: stretch; gap: 8px;
+    flex: 1 1 100%;
+  }
+  .txn-search-input-wrap {
+    display: flex; align-items: center; gap: 8px;
+    flex: 1; min-width: 0;
+    padding: 0 12px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .txn-search-input-wrap:focus-within {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-wash);
+  }
+  .txn-search-input-wrap svg { color: var(--ink-faint); flex-shrink: 0; }
+  #txn-search {
+    flex: 1; min-width: 0;
+    padding: 8px 0;
+    background: transparent; border: none; outline: none;
+    color: var(--ink); font-family: var(--f-body); font-size: 13px;
+  }
+  #txn-search::placeholder { color: var(--ink-faint); }
+  #txn-search-clear {
+    display: none;
+    background: none; border: none;
+    color: var(--ink-faint);
+    font-size: 18px; line-height: 1;
+    cursor: pointer; padding: 0 4px;
+    flex-shrink: 0;
+  }
+  #txn-search-clear:hover { color: var(--ink); }
+  .btn-search {
+    padding: 8px 18px;
+    background: var(--brand); color: var(--bg, #0a0a0b);
+    border: none; border-radius: 8px;
+    font-family: var(--f-body); font-size: 12.5px; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+    flex-shrink: 0;
+  }
+  .btn-search:hover { background: var(--brand-bright, var(--brand)); }
+  .btn-search:active { transform: translateY(1px); }
 
   .txn-table-wrap {
     background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
@@ -4725,11 +4769,10 @@
 
   <div class="main">
     <div class="topbar">
-      <div class="search" style="position:relative">
+      <div class="search">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Search transactions, merchants, remarks..." id="txn-search" oninput="onTxnSearchInput()" onkeydown="if(event.key==='Escape'){this.value='';onTxnSearchInput();}else if(event.key==='Enter'){event.preventDefault();runTxnSearch();}">
-        <button id="txn-search-clear" type="button" onclick="clearTxnSearch()" aria-label="Clear search" style="display:none;background:none;border:none;color:var(--ink-faint);cursor:pointer;padding:0 6px;font-size:16px;line-height:1">&times;</button>
-        <button id="txn-search-btn" type="button" onclick="runTxnSearch()" style="background:var(--brand);color:var(--bg);border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;margin-left:4px">Search</button>
+        <input type="text" placeholder="Search transactions, merchants, remarks..." readonly onclick="document.getElementById('txn-search')?.focus()" style="cursor:pointer">
+        <span class="kbd">⌘K</span>
       </div>
       <div class="topbar-actions">
         <button class="upload-btn" onclick="openCashModal()" style="background:transparent;color:var(--ink);border:1px solid var(--border)" title="Log a cash expense">
@@ -4748,6 +4791,14 @@
 
       <!-- Filter bar -->
       <div class="filter-bar">
+        <div class="txn-search-row">
+          <div class="txn-search-input-wrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="txn-search" placeholder="Search merchants, remarks, VPAs…" oninput="onTxnSearchInput()" onkeydown="if(event.key==='Escape'){this.value='';onTxnSearchInput();}else if(event.key==='Enter'){event.preventDefault();runTxnSearch();}">
+            <button id="txn-search-clear" type="button" onclick="clearTxnSearch()" aria-label="Clear search">&times;</button>
+          </div>
+          <button id="txn-search-btn" type="button" class="btn-search" onclick="runTxnSearch()">Search</button>
+        </div>
         <div class="filter-group">
           <button class="chip active" data-filter="all">All <span class="cnt">147</span></button>
           <button class="chip" data-filter="debit">Debits <span class="cnt">98</span></button>
@@ -7906,7 +7957,7 @@ let _txnSearchTimer = null;
 function onTxnSearchInput() {
   const clearBtn = document.getElementById('txn-search-clear');
   const input = document.getElementById('txn-search');
-  if (clearBtn) clearBtn.style.display = input?.value ? '' : 'none';
+  if (clearBtn) clearBtn.style.display = input?.value ? 'inline-flex' : 'none';
   clearTimeout(_txnSearchTimer);
   _txnSearchTimer = setTimeout(runTxnSearch, 300);
 }
