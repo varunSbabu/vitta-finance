@@ -1455,8 +1455,11 @@
   @media (max-width: 640px) {
     .app { grid-template-columns: 1fr !important; }
     .content { padding: 20px 16px !important; }
-    .topbar { padding: 12px 16px 12px 60px !important; }
-    .search { display: none; }
+    /* Wrap the topbar so search drops to its own row below the actions
+       instead of getting hidden, since on mobile the transactions page
+       relies on this input to find anything. */
+    .topbar { padding: 12px 16px 12px 60px !important; flex-wrap: wrap !important; row-gap: 10px; }
+    .topbar .search { order: 3; flex: 1 1 100%; margin-left: 0; }
     /* Sidebar slides in as an overlay. Kept in the DOM so links still
        work, but off-canvas by default; the hamburger toggles it. */
     .sidebar {
@@ -4722,10 +4725,11 @@
 
   <div class="main">
     <div class="topbar">
-      <div class="search">
+      <div class="search" style="position:relative">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Search transactions, merchants, remarks..." id="txn-search">
-        <span class="kbd">⌘K</span>
+        <input type="text" placeholder="Search transactions, merchants, remarks..." id="txn-search" oninput="onTxnSearchInput()" onkeydown="if(event.key==='Escape'){this.value='';onTxnSearchInput();}else if(event.key==='Enter'){event.preventDefault();runTxnSearch();}">
+        <button id="txn-search-clear" type="button" onclick="clearTxnSearch()" aria-label="Clear search" style="display:none;background:none;border:none;color:var(--ink-faint);cursor:pointer;padding:0 6px;font-size:16px;line-height:1">&times;</button>
+        <button id="txn-search-btn" type="button" onclick="runTxnSearch()" style="background:var(--brand);color:var(--bg);border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;margin-left:4px">Search</button>
       </div>
       <div class="topbar-actions">
         <button class="upload-btn" onclick="openCashModal()" style="background:transparent;color:var(--ink);border:1px solid var(--border)" title="Log a cash expense">
@@ -7895,6 +7899,28 @@ function onTxnFilterChange() {
   loadTransactionsLive(_txnChipFilter);
 }
 
+// Debounced search — fires 300ms after the user stops typing so we
+// don't hammer the API on every keystroke. Explicit Enter/Search-button
+// fires immediately via runTxnSearch().
+let _txnSearchTimer = null;
+function onTxnSearchInput() {
+  const clearBtn = document.getElementById('txn-search-clear');
+  const input = document.getElementById('txn-search');
+  if (clearBtn) clearBtn.style.display = input?.value ? '' : 'none';
+  clearTimeout(_txnSearchTimer);
+  _txnSearchTimer = setTimeout(runTxnSearch, 300);
+}
+function runTxnSearch() {
+  clearTimeout(_txnSearchTimer);
+  loadTransactionsLive(_txnChipFilter);
+}
+function clearTxnSearch() {
+  const input = document.getElementById('txn-search');
+  if (input) input.value = '';
+  onTxnSearchInput();
+  input?.focus();
+}
+
 // Fill the category and account dropdowns with real values from the
 // user's data. Idempotent: skips work when options are already populated
 // (e.g. re-visiting the page in the same session).
@@ -7969,12 +7995,30 @@ async function loadTransactionsLive(filter = _txnChipFilter) {
   }
   qs += _dateRangeParams();
 
+  const searchInput = document.getElementById('txn-search');
+  const searchTerm = (searchInput?.value || '').trim();
+  if (searchTerm) qs += '&q=' + encodeURIComponent(searchTerm);
+
   const res = await VittaAPI.transactions(qs);
   if (!res) return false;
 
   const catColors = {Groceries:'#22C55E',Shopping:'#FCD34D',Food:'#F472B6','Food & dining':'#F472B6',Health:'#FB7185',Transport:'#94A3B8',Friends:'#60A5FA',Income:'#4ADE80',Government:'#A78BFA',Services:'#6EE7B7',Uncategorized:'#71717A'};
   const tbody = document.getElementById('txn-tbody');
   if (!tbody) return true;
+
+  if (!res.transactions.length) {
+    const searchInput = document.getElementById('txn-search');
+    const term = (searchInput?.value || '').trim();
+    tbody.innerHTML = `<div style="padding:32px 20px;text-align:center;color:var(--ink-faint);font-size:14px">${
+      term
+        ? `No transactions match &ldquo;${esc(term)}&rdquo;. <a href="javascript:void(0)" onclick="clearTxnSearch()" style="color:var(--brand);text-decoration:none;margin-left:6px">Clear search</a>`
+        : 'No transactions match the current filters.'
+    }</div>`;
+    window._liveTxns = [];
+    await refreshTxnCounts();
+    return true;
+  }
+
   tbody.innerHTML = res.transactions.map((t, i) => {
     const cat = t.category || 'Uncategorized';
     const col = catColors[cat] || '#71717A';
