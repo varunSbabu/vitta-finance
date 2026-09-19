@@ -4462,12 +4462,17 @@
 
     <div class="content">
       <!-- Greeting -->
-      <div class="greeting">
-        <h1 id="dash-greeting">Good morning, <em>Varun.</em></h1>
-        <p>
-          Here's what's happened across your accounts.
-          <span class="synced"><span class="dot"></span>Last synced 3 min ago</span>
-        </p>
+      <div class="greeting" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <h1 id="dash-greeting">Good morning, <em>Varun.</em></h1>
+          <p>
+            Here's what's happened across your accounts.
+            <span class="synced"><span class="dot"></span>Last synced 3 min ago</span>
+          </p>
+        </div>
+        <select id="overview-month-picker" onchange="onOverviewMonthChange(this.value)" class="filter-select" style="min-width:180px" title="Show a different month">
+          <option value="">This month</option>
+        </select>
       </div>
 
       <!-- Stat tiles -->
@@ -6914,7 +6919,7 @@ async function deleteMyAccount() {
 async function refreshVisibleData() {
   refreshNavCounts();
   const hash = window.location.hash.slice(1);
-  if (hash === '/app') { _dashboardInitialized = false; await loadDashboardLive(); initDashboard(); loadDebtsOverview(); }
+  if (hash === '/app') { _dashboardInitialized = false; await loadDashboardLive(); initDashboard(); loadDebtsOverview(); populateOverviewMonthPicker(); }
   else if (hash === '/app/transactions') { await loadTransactionsLive(); }
   else if (hash === '/app/accounts') await loadAccountsLive();
   else if (hash === '/app/merchants') await loadMerchantsLive();
@@ -7290,6 +7295,7 @@ const VittaAPI = {
 
   // --- AI: insights + ask (Phase 13) ---
   insights(month=null){ return this._get('/api/insights' + (month ? `?month=${month}` : '')); },
+  summaryMonths(limit=24){ return this._get('/api/summary/months?limit=' + limit); },
   ask(question, history) { return this._post('/api/ask', { question, history: history || [] }); },
 
   // --- Expense planner ---
@@ -7410,6 +7416,12 @@ function ymLocal(d) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
 }
 const CURRENT_MONTH = ymLocal(new Date()); // e.g. '2026-08' — NOT hardcoded to the old demo period
+// Which month the Overview dashboard is showing right now. Defaults to
+// the calendar month; the month-picker dropdown sets it to any other
+// YYYY-MM. loadDashboardLive() reads this instead of CURRENT_MONTH so
+// picking Aug from the dropdown re-renders every tile against August's
+// data without a page reload.
+let _overviewMonth = CURRENT_MONTH;
 
 function fmtCompactINR(v) {
   const n = Number(v) || 0;
@@ -7429,6 +7441,40 @@ function niceCeil(v) {
   return niceNorm * magnitude;
 }
 
+// Fill the month picker from GET /api/summary/months. Runs once per
+// route enter to Overview (idempotent — skips if already populated).
+async function populateOverviewMonthPicker() {
+  const sel = document.getElementById('overview-month-picker');
+  if (!sel) return;
+  // Already filled beyond the "This month" placeholder — skip.
+  if (sel.options.length > 1) return;
+
+  let res;
+  try { res = await VittaAPI.summaryMonths(24); } catch { return; }
+  const months = res?.months || [];
+  if (!months.length) return;
+
+  // Add "This month" as the first option that always represents the
+  // calendar month, then every distinct month with data. If the
+  // calendar month already has data it appears twice with different
+  // labels — that's on purpose, so the shortcut stays visible.
+  for (const m of months) {
+    const label = new Date(m.month + '-01T00:00:00').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+    const opt = document.createElement('option');
+    opt.value = m.month;
+    opt.textContent = `${label} · ${fmtCompactINR(m.spent)} spent`;
+    sel.appendChild(opt);
+  }
+  // Reflect whatever _overviewMonth is currently set to.
+  sel.value = _overviewMonth === CURRENT_MONTH ? '' : _overviewMonth;
+}
+
+// Wired to the picker's onchange — empty string means "back to today's month".
+function onOverviewMonthChange(month) {
+  _overviewMonth = month || CURRENT_MONTH;
+  loadDashboardLive();
+}
+
 async function loadDashboardLive() {
   // Time-based greeting
   const greetEl = document.getElementById('dash-greeting');
@@ -7440,10 +7486,10 @@ async function loadDashboardLive() {
     greetEl.innerHTML = `${timeGreet}, <em>${name}.</em>`;
   }
 
-  const summary = await VittaAPI.summary(CURRENT_MONTH);
+  const summary = await VittaAPI.summary(_overviewMonth);
   if (!summary) return false;
 
-  const monthLabel = new Date(CURRENT_MONTH + '-01T00:00:00').toLocaleDateString('en-IN', { month: 'long' });
+  const monthLabel = new Date(_overviewMonth + '-01T00:00:00').toLocaleDateString('en-IN', { month: 'long' });
   const spentLabelEl = document.getElementById('spent-tile-label');
   if (spentLabelEl) spentLabelEl.textContent = `Spent · ${monthLabel}`;
   const topMerchSubEl = document.getElementById('top-merchants-sub');
@@ -7461,7 +7507,7 @@ async function loadDashboardLive() {
     for (const d of debtsRes.debts) {
       if (d.direction === 'they_owe' && d.settled_amount > 0) {
         const settledMonth = d.settled_at ? d.settled_at.slice(0, 7) : d.created_at?.slice(0, 7);
-        if (settledMonth === CURRENT_MONTH) recoveredThisMonth += d.settled_amount;
+        if (settledMonth === _overviewMonth) recoveredThisMonth += d.settled_amount;
       }
     }
   }
@@ -7515,7 +7561,7 @@ async function loadDashboardLive() {
   // Real month-over-month deltas — these were hardcoded "▼8.0% vs June" /
   // "▲12.4% vs June" regardless of actual data, permanently pinned to a
   // month that isn't even the current one.
-  const prevDate = new Date(CURRENT_MONTH + '-01T00:00:00');
+  const prevDate = new Date(_overviewMonth + '-01T00:00:00');
   prevDate.setMonth(prevDate.getMonth() - 1);
   const prevMonth = ymLocal(prevDate);
   const prevMonthLabel = prevDate.toLocaleDateString('en-IN', { month: 'long' });
@@ -8348,7 +8394,7 @@ async function loadAnomalies() {
   if (!trigger) return;
 
   let data = null;
-  try { data = await VittaAPI.anomalies(CURRENT_MONTH); } catch { trigger.style.display = 'none'; return; }
+  try { data = await VittaAPI.anomalies(_overviewMonth); } catch { trigger.style.display = 'none'; return; }
   if (!data) { trigger.style.display = 'none'; return; }
 
   _anomalyData = data;

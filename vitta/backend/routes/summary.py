@@ -73,6 +73,47 @@ def api_summary(
     }
 
 
+@router.get("/api/summary/months")
+def api_summary_months(
+    limit: int = Query(24, ge=1, le=60),
+    user: dict = Depends(require_auth),
+):
+    """Light per-month aggregates for the month-picker + archive views.
+
+    One SQL call, sub-millisecond on typical (~10k row) datasets thanks to
+    idx_txn_user_date. Excludes self-transfers so the totals match the
+    Overview tiles.
+    """
+    conn = get_conn()
+    rows = conn.execute(
+        """
+        SELECT substr(txn_date, 1, 7) AS month,
+               ROUND(SUM(CASE WHEN direction='debit'  THEN amount ELSE 0 END), 0) AS spent,
+               ROUND(SUM(CASE WHEN direction='credit' THEN amount ELSE 0 END), 0) AS received,
+               COUNT(*) AS n
+        FROM transactions
+        WHERE user_id = ? AND is_self_transfer = 0
+        GROUP BY month
+        ORDER BY month DESC
+        LIMIT ?
+        """,
+        (user["id"], limit),
+    ).fetchall()
+    conn.close()
+    return {
+        "count": len(rows),
+        "months": [
+            {
+                "month": r["month"],
+                "spent": r["spent"] or 0,
+                "received": r["received"] or 0,
+                "n": r["n"] or 0,
+            }
+            for r in rows
+        ],
+    }
+
+
 @router.get("/api/spending-trend")
 def api_spending_trend(
     weeks: int = Query(24, ge=4, le=52),
