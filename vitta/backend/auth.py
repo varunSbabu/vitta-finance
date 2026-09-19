@@ -152,21 +152,60 @@ async def callback(request: Request):
     picture = userinfo.get("picture", "")
 
     conn = get_conn()
-    conn.execute(
-        """
-        INSERT INTO users (google_sub, email, name, picture, email_verified)
-        VALUES (?, ?, ?, ?, 1)
-        ON CONFLICT(google_sub) DO UPDATE SET
-          email = excluded.email, name = excluded.name,
-          picture = excluded.picture, email_verified = 1
-        """,
-        (sub, email, name, picture),
-    )
-    conn.commit()
-    row = conn.execute(
-        "SELECT id, email, name, picture, email_verified FROM users WHERE google_sub = ?", (sub,)
-    ).fetchone()
-    conn.close()
+    try:
+        # Three cases to reconcile, all triggered by the same OAuth callback:
+        #   (a) google_sub already in DB — a returning Google user. Update
+        #       their profile fields and move on.
+        #   (b) google_sub is new but the email is already taken by a row
+        #       that either signed up via password or belongs to a
+        #       different Google account. The old code did an unconditional
+        #       INSERT here and hit a UNIQUE(email) violation → 500.
+        #       Instead: link the new google_sub onto the existing user
+        #       so signing in with either password OR Google lands on the
+        #       same account. This is the standard "OAuth account linking"
+        #       behavior and matches user expectation.
+        #   (c) truly new user — INSERT and continue.
+        existing = conn.execute(
+            "SELECT id FROM users WHERE google_sub = ? OR email = ? LIMIT 1",
+            (sub, email),
+        ).fetchone()
+
+        if existing:
+            conn.execute(
+                """
+                UPDATE users SET
+                  google_sub = ?, email = ?, name = ?, picture = ?, email_verified = 1
+                WHERE id = ?
+                """,
+                (sub, email, name, picture, existing["id"]),
+            )
+        else:
+            conn.execute(
+                """
+                INSERT INTO users (google_sub, email, name, picture, email_verified)
+                VALUES (?, ?, ?, ?, 1)
+                """,
+                (sub, email, name, picture),
+            )
+        conn.commit()
+
+        row = conn.execute(
+            "SELECT id, email, name, picture, email_verified FROM users WHERE google_sub = ?",
+            (sub,),
+        ).fetchone()
+    except Exception as e:
+        conn.close()
+        # Log the real reason to the backend console so a 500 doesn't hide
+        # it behind an opaque "Internal Server Error" page.
+        import logging
+
+        logging.exception("Google OAuth callback failed while writing user")
+        raise HTTPException(500, f"Sign-in failed: {e}")
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
 
     return RedirectResponse(url=FRONTEND_URL, headers={"X-User": str(_set_session(request, row))})
 
