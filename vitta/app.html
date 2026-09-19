@@ -8079,7 +8079,6 @@ async function loadTransactionsLive(filter = _txnChipFilter) {
     return true;
   }
 
-  const searchTerm = (document.getElementById('txn-search')?.value || '').trim();
   // Highlight any occurrence of the search term in text the row displays,
   // so users can see WHY a row matched even when the hit is in the raw
   // merchant string or the remark and not the cleaned display name.
