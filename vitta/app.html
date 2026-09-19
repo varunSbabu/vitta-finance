@@ -6008,6 +6008,48 @@
   </div>
 </div>
 
+<!-- Admin route (visible only when the signed-in user matches ADMIN_EMAIL) -->
+<div data-route="/app/admin" style="min-height:100vh;padding:32px 40px;max-width:1200px;margin:0 auto">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+    <div>
+      <h1 style="font-size:28px;margin:0 0 4px;font-family:var(--f-display)"><em>Admin</em></h1>
+      <div id="admin-sub" style="color:var(--ink-faint);font-size:13px">Loading…</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <a href="#/app" data-nav class="btn btn-secondary btn-sm" style="text-decoration:none">← Back to app</a>
+      <button class="btn btn-primary btn-sm" onclick="document.getElementById('admin-create-form').style.display='block'">+ Add user</button>
+    </div>
+  </div>
+
+  <!-- Add-user form (hidden by default) -->
+  <div id="admin-create-form" style="display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
+    <h3 style="margin:0 0 12px;font-size:15px">Create new user</h3>
+    <form onsubmit="event.preventDefault();adminCreateUser();" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end">
+      <div><label style="font-size:11px;color:var(--ink-faint);display:block;margin-bottom:4px">Email</label><input type="email" id="admin-new-email" placeholder="user@example.com" required style="width:100%;padding:8px 10px;background:var(--bg-inset);border:1px solid var(--border);border-radius:8px;color:var(--ink);font-size:13px;outline:none"></div>
+      <div><label style="font-size:11px;color:var(--ink-faint);display:block;margin-bottom:4px">Name (optional)</label><input type="text" id="admin-new-name" placeholder="Full name" style="width:100%;padding:8px 10px;background:var(--bg-inset);border:1px solid var(--border);border-radius:8px;color:var(--ink);font-size:13px;outline:none"></div>
+      <div><label style="font-size:11px;color:var(--ink-faint);display:block;margin-bottom:4px">Password (min 8)</label><input type="password" id="admin-new-password" placeholder="********" required minlength="8" style="width:100%;padding:8px 10px;background:var(--bg-inset);border:1px solid var(--border);border-radius:8px;color:var(--ink);font-size:13px;outline:none"></div>
+      <div style="display:flex;gap:6px"><button type="submit" class="btn btn-primary btn-sm">Create</button><button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('admin-create-form').style.display='none'">Cancel</button></div>
+    </form>
+    <div id="admin-create-err" style="display:none;margin-top:10px;color:var(--danger,#ef4444);font-size:12px"></div>
+  </div>
+
+  <!-- Users table -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:2fr 1.4fr 1fr 100px 100px 100px 60px;gap:12px;padding:12px 16px;background:var(--bg-inset);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-faint);font-weight:600;border-bottom:1px solid var(--border)">
+      <div>Email</div>
+      <div>Name</div>
+      <div>Sign-in</div>
+      <div style="text-align:right">Txns</div>
+      <div style="text-align:right">Accts</div>
+      <div>Verified</div>
+      <div></div>
+    </div>
+    <div id="admin-users-tbody">
+      <div style="padding:32px;text-align:center;color:var(--ink-faint);font-size:13px">Loading users…</div>
+    </div>
+  </div>
+</div>
+
 <!-- Mobile nav hamburger + backdrop (shown only on narrow viewports via CSS) -->
 <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu" onclick="toggleMobileNav()">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -7150,6 +7192,11 @@ const VittaAPI = {
   accounts()          { return this._get('/api/accounts'); },
   accountDelete(id)   { return this._delete('/api/accounts/' + id); },
   deleteMe()          { return this._delete('/api/auth/me'); },
+
+  // --- Admin (gated server-side by ADMIN_EMAIL) ---
+  adminListUsers()               { return this._get('/api/admin/users'); },
+  adminCreateUser(email, password, name) { return this._post('/api/admin/users', { email, password, name }); },
+  adminDeleteUser(id)            { return this._delete('/api/admin/users/' + id); },
   merchants()         { return this._get('/api/merchants'); },
   tagMerchant(raw, cat){ return this._post('/api/merchants/tag', {merchant_raw: raw, category: cat}); },
   reset()             { return this._post('/api/reset'); },
@@ -8627,6 +8674,90 @@ async function confirmDeleteAccount() {
   }
 }
 
+// ─── Admin page ────────────────────────────────────────────────────
+async function loadAdminPage() {
+  const sub = document.getElementById('admin-sub');
+  const tbody = document.getElementById('admin-users-tbody');
+  const errEl = document.getElementById('admin-create-err');
+  if (errEl) errEl.style.display = 'none';
+
+  let res;
+  try { res = await VittaAPI.adminListUsers(); }
+  catch (e) {
+    tbody.innerHTML = `<div style="padding:32px;text-align:center;color:var(--danger,#ef4444);font-size:13px">Failed to load users. Are you signed in as the admin? (${esc(e.message || e)})</div>`;
+    if (sub) sub.textContent = '';
+    return;
+  }
+  if (!res) {
+    tbody.innerHTML = `<div style="padding:32px;text-align:center;color:var(--danger,#ef4444);font-size:13px">Access denied — this page is only for the admin account (ADMIN_EMAIL).</div>`;
+    if (sub) sub.textContent = '';
+    return;
+  }
+
+  if (sub) sub.textContent = `${res.count} user${res.count === 1 ? '' : 's'} · signed in as ${res.admin_email}`;
+
+  if (!res.users?.length) {
+    tbody.innerHTML = `<div style="padding:32px;text-align:center;color:var(--ink-faint);font-size:13px">No users yet.</div>`;
+    return;
+  }
+
+  tbody.innerHTML = res.users.map(u => {
+    const signIn = [];
+    if (u.has_password) signIn.push('password');
+    if (u.has_google) signIn.push('Google');
+    const signInLabel = signIn.join(' + ') || '—';
+    const verified = u.email_verified
+      ? '<span style="color:var(--brand);font-size:11px;font-weight:600">✓ yes</span>'
+      : '<span style="color:var(--ink-faint);font-size:11px">no</span>';
+    const created = u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}) : '—';
+    const lastTxn = u.last_txn_date ? new Date(u.last_txn_date).toLocaleDateString('en-IN', {day:'2-digit', month:'short'}) : '—';
+    return `<div style="display:grid;grid-template-columns:2fr 1.4fr 1fr 100px 100px 100px 60px;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);align-items:center;font-size:13px">
+      <div style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><div style="font-weight:500">${esc(u.email)}</div><div style="font-size:11px;color:var(--ink-faint);margin-top:2px">Joined ${created} · Last txn ${lastTxn}</div></div>
+      <div style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u.name || '—')}</div>
+      <div style="color:var(--ink-secondary);font-size:12px">${esc(signInLabel)}</div>
+      <div style="text-align:right;font-family:var(--f-mono);font-size:12px">${u.txn_count}</div>
+      <div style="text-align:right;font-family:var(--f-mono);font-size:12px">${u.account_count}</div>
+      <div>${verified}</div>
+      <div style="text-align:right">
+        <button onclick='adminDeleteUser(${u.id}, ${JSON.stringify(u.email)})' style="background:transparent;border:1px solid rgba(239,68,68,0.4);color:var(--danger,#ef4444);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer" title="Delete this user and all their data">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function adminCreateUser() {
+  const emailEl = document.getElementById('admin-new-email');
+  const pwEl = document.getElementById('admin-new-password');
+  const nameEl = document.getElementById('admin-new-name');
+  const errEl = document.getElementById('admin-create-err');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await VittaAPI.adminCreateUser(emailEl.value.trim(), pwEl.value, nameEl.value.trim());
+    if (!res || !res.ok) throw new Error('Create returned no ok');
+    showToast(`Created user ${res.email}`);
+    emailEl.value = ''; pwEl.value = ''; nameEl.value = '';
+    document.getElementById('admin-create-form').style.display = 'none';
+    await loadAdminPage();
+  } catch (e) {
+    errEl.textContent = 'Failed: ' + (e.message || e);
+    errEl.style.display = 'block';
+  }
+}
+
+async function adminDeleteUser(id, email) {
+  if (prompt(`Type DELETE to permanently delete ${email} and every row they own (transactions, accounts, contacts, debts, etc). Irreversible.`) !== 'DELETE') return;
+  try {
+    const res = await VittaAPI.adminDeleteUser(id);
+    if (!res || !res.ok) throw new Error('Delete returned no ok');
+    const total = Object.values(res.cascaded || {}).reduce((a,b) => a+b, 0);
+    showToast(`Deleted ${email} (${total} rows cascaded)`);
+    await loadAdminPage();
+  } catch (e) {
+    showToast('Delete failed: ' + (e.message || e));
+  }
+}
+
 async function loadAccountsLive() {
   const list = await VittaAPI.accounts();
   if (!list) return false;
@@ -8763,7 +8894,7 @@ function getHashParams() {
 }
 
 // --- Router ---
-const routes = ['/', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/planner', '/app/debts', '/app/settings'];
+const routes = ['/', '/login', '/signup', '/verify-email', '/forgot-password', '/reset-password', '/app', '/app/transactions', '/app/categories', '/app/merchants', '/app/accounts', '/app/insights', '/app/ask', '/app/planner', '/app/debts', '/app/settings', '/app/admin'];
 function route() {
   let hash = (window.location.hash || '#/').slice(1).split('?')[0];
   if (!hash.startsWith('/') && document.getElementById(hash)) return;
@@ -8819,6 +8950,7 @@ function route() {
   if (hash === '/app/planner') loadPlannerPage();
   if (hash === '/app/debts') loadDebtsPage();
   if (hash === '/app/settings') { handleContactsCallback(); initSecuritySettings(); }
+  if (hash === '/app/admin') loadAdminPage();
 }
 window.addEventListener('hashchange', route);
 document.addEventListener('DOMContentLoaded', async () => {
