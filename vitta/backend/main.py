@@ -64,11 +64,18 @@ if not SESSION_SECRET_KEY:
 # the outermost layer that sees a request first and the response last.
 # Adding RequestIDMiddleware last means the request-id is bound before
 # session/cors do anything, so any log line those emit already carries it.
+# In production the frontend (Cloudflare Pages) and backend (Render) live
+# on different domains, so the session cookie must be SameSite=None +
+# Secure=True or the browser drops it on cross-site fetches. In local
+# dev both run on localhost:{5757,8001} which counts as same-site, so
+# SameSite=Lax + Secure=False is what we need there. VITTA_ENV=prod is
+# the single switch that flips the behavior.
+_is_prod = os.environ.get("VITTA_ENV", "dev").lower() == "prod"
 app.add_middleware(
     SessionMiddleware,
     secret_key=SESSION_SECRET_KEY,
-    same_site="lax",
-    https_only=False,  # set True once served over HTTPS
+    same_site="none" if _is_prod else "lax",
+    https_only=_is_prod,
 )
 
 # app.html is served by serve.py on :5757. Note the frontend MUST be opened

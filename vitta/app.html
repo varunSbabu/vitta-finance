@@ -2,6 +2,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vitta — Every rupee, understood</title>
 <link rel="icon" type="image/svg+xml" href="/vitta-mark.svg">
+<!-- Deployment config — sets window.VITTA_API_BASE. Cloudflare Pages
+     ships config.js at the site root; if missing (local dev), the app
+     falls back to http://localhost:8001. -->
+<script src="/config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
@@ -7188,7 +7192,12 @@ function toggleTheme() {
 // SameSite=Lax; SameSite compares scheme+host and ignores port, so
 // localhost:5757 -> localhost:8001 is same-site and the cookie is sent.
 // Mixing localhost and 127.0.0.1 would make every authed fetch 401.
-const VITTA_API_BASE = 'http://localhost:8001';
+//
+// In production the API host is different. window.VITTA_API_BASE is
+// set by /config.js (a tiny file Cloudflare Pages serves with the
+// deployed API URL); if it's missing we fall back to localhost:8001
+// for the dev flow described above.
+const VITTA_API_BASE = (typeof window !== 'undefined' && window.VITTA_API_BASE) || 'http://localhost:8001';
 let _apiOnline = true;
 
 // Set when the backend answers 401 — the app then bounces to #/login
