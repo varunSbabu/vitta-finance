@@ -19,7 +19,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import RedirectResponse
 from starlette.requests import Request
 
-from auth import require_auth
+from auth import public_url_for, require_auth
 from contacts import fetch_google_contacts, import_contacts, parse_google_contacts_csv
 from db import dict_from_row, get_conn
 
@@ -78,7 +78,7 @@ async def api_contacts_google_auth(request: Request, user: dict = Depends(requir
     """Start OAuth flow to fetch contacts directly from Google."""
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
         raise HTTPException(500, "Google OAuth not configured.")
-    redirect_uri = str(request.url_for("contacts_google_callback"))
+    redirect_uri = public_url_for(request, "contacts_google_callback")
     return await _contacts_oauth.google.authorize_redirect(request, redirect_uri)
 
 

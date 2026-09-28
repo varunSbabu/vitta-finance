@@ -153,7 +153,14 @@ def test_all_data_endpoints_are_gated():
         dependant = getattr(route, "dependant", None)
         if dependant is None:
             continue
-        dep_calls = {d.call for d in dependant.dependencies}
+        # Walk nested dependencies so wrappers like require_admin (which
+        # itself depends on require_auth) count as gated.
+        dep_calls = set()
+        stack = list(dependant.dependencies)
+        while stack:
+            d = stack.pop()
+            dep_calls.add(d.call)
+            stack.extend(d.dependencies)
         if require_auth not in dep_calls:
             ungated.append(path)
 

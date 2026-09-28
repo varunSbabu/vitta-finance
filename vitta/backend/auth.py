@@ -33,6 +33,18 @@ from email_service import send_password_reset_email, send_verification_email
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5757/app.html#/app")
+# Public origin the browser uses for /api (e.g. https://vitta-finance.vercel.app
+# when Vercel proxies /api/* to Render). OAuth callbacks must come back to
+# this origin so they carry the session cookie that holds the OAuth state;
+# the Host header Render sees behind the proxy is its own, not this one.
+PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "").rstrip("/")
+
+
+def public_url_for(request: Request, name: str) -> str:
+    if PUBLIC_BASE_URL:
+        return PUBLIC_BASE_URL + str(request.app.url_path_for(name))
+    return str(request.url_for(name))
+
 
 oauth = OAuth()
 oauth.register(
@@ -128,7 +140,7 @@ async def login(request: Request):
             "Google OAuth isn't configured yet — set GOOGLE_CLIENT_ID and "
             "GOOGLE_CLIENT_SECRET in backend/.env.",
         )
-    redirect_uri = request.url_for("auth_callback")
+    redirect_uri = public_url_for(request, "auth_callback")
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 

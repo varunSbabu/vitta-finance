@@ -1,15 +1,11 @@
-# Render.com deployment for the Vitta FastAPI backend.
-# Free tier: 750 hours/month, sleeps after 15 min inactivity,
-# ~30-second cold start on the first request after a nap.
+# Render.com web service for the Vitta FastAPI backend (free plan).
+# Free instances sleep after ~15 min idle; the first request after that
+# takes up to about a minute while the instance starts.
 #
-# To deploy:
-#   1. Sign up at https://render.com with your GitHub account.
-#   2. New → Blueprint → point at this repo's root.
-#   3. Render reads this file and provisions the service.
-#   4. Set the secret env vars (see below) in the Render dashboard.
-#
-# The blueprint sync creates ONLY the web service. The database is
-# a separate concern — see deploy/README.md for the Turso setup.
+# The browser never calls this service directly: vitta/vercel.json
+# proxies /api/* from the Vercel site to it, so cookies stay first-party.
+# The settings below mirror what to enter when creating the service by
+# hand in the Render dashboard (see deploy/README.md).
 
 services:
   - type: web
@@ -17,29 +13,22 @@ services:
     runtime: python
     plan: free
     rootDir: vitta/backend
-    buildCommand: pip install -e .
+    buildCommand: pip install -r requirements-runtime.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
-      # These MUST be set manually in the Render dashboard:
-      #   SESSION_SECRET_KEY   — 64-hex-char secret; generate via
-      #                          python3 -c "import secrets; print(secrets.token_hex(32))"
-      #   GOOGLE_CLIENT_ID     — Google OAuth client id
-      #   GOOGLE_CLIENT_SECRET — Google OAuth client secret (mark as secret)
-      #   GROQ_API_KEY         — for Ask Vitta / LLM categorization (mark as secret)
-      #   ADMIN_EMAIL          — the single admin account's email
-      #
-      # These are safe to declare here since they're just references:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: VITTA_ENV
+        value: prod
+      - key: PUBLIC_BASE_URL
+        value: https://vitta-finance.vercel.app
       - key: FRONTEND_URL
-        # The Cloudflare Pages URL of the frontend. Update after deploy.
-        value: https://vitta.pages.dev/app.html#/app
+        value: https://vitta-finance.vercel.app/#/app
       - key: ALLOWED_ORIGINS
-        # Comma-separated. Add the Cloudflare Pages URL here.
-        value: https://vitta.pages.dev
+        value: https://vitta-finance.vercel.app
       - key: EMAIL_BACKEND
         value: log
-      - key: EMAIL_FROM
-        value: Vitta <noreply@vitta.app>
-      # If you migrate to Turso (see deploy/README.md), also set:
-      #   TURSO_DATABASE_URL   — libsql://<db>-<org>.turso.io
-      #   TURSO_AUTH_TOKEN     — issued by turso db tokens create <db>
+      # Set these as secrets in the Render dashboard, never in this file:
+      #   SESSION_SECRET_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+      #   GROQ_API_KEY, ADMIN_EMAIL

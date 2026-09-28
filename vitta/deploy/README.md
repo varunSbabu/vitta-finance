@@ -56,7 +56,7 @@ Use this instead of Cloudflare Pages if you prefer Vercel.
    - Output Directory: leave empty
 4. Click **Deploy**. You get a URL like `https://vitta-finance.vercel.app`.
 
-`vitta/.vercelignore` limits the upload to `app.html`, `config.js` and `vitta-mark.svg`, so backend code and docs are never public. `vitta/vercel.json` serves `app.html` at `/` and turns off caching for `config.js`, so changing the API URL takes effect on the next load.
+`vitta/.vercelignore` keeps backend code, docs and legacy pages out of the upload, so they are never public. `vitta/vercel.json` serves `app.html` at `/` and proxies `/api/*` to the Render backend, so the browser only ever talks to the Vercel domain and the session cookie stays first-party.
 
 Production branch: Vercel deploys the repo's default branch (`main`) to production. Until this work is merged to `main`, either merge first, or set Settings → Git → Production Branch to `phase2/open-signup`.
 
@@ -66,56 +66,57 @@ Wherever the rest of this guide says `https://vitta.pages.dev`, use your Vercel 
 
 ## 3 · Backend on Render (20 min)
 
-1. Go to https://render.com → **New +** → **Blueprint**.
-2. Connect the same GitHub repo. Render finds `vitta/render.yaml` and lists the `vitta-api` service.
-3. Click **Apply**. Build takes ~4 minutes.
-4. You get a URL like `https://vitta-api.onrender.com`.
-5. In the Render dashboard for `vitta-api` → **Environment** → add these secrets:
+1. Go to https://dashboard.render.com, sign in with GitHub, then **New + → Web Service**.
+2. Pick `varunSbabu/vitta-finance`, then fill in:
+   - Name: `vitta-api` (this gives `https://vitta-api.onrender.com`; if Render adds a suffix, update the `/api` rewrite in `vitta/vercel.json` to match)
+   - Branch: `phase2/open-signup` (or `main` once merged)
+   - Root Directory: `vitta/backend`
+   - Runtime: Python 3
+   - Build Command: `pip install -r requirements-runtime.txt`
+   - Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - Instance Type: Free
+3. Under **Environment Variables**, add:
    ```
-   SESSION_SECRET_KEY   = python3 -c "import secrets; print(secrets.token_hex(32))" → paste the output
+   PYTHON_VERSION       = 3.11.9
+   VITTA_ENV            = prod
+   PUBLIC_BASE_URL      = https://vitta-finance.vercel.app
+   FRONTEND_URL         = https://vitta-finance.vercel.app/#/app
+   ALLOWED_ORIGINS      = https://vitta-finance.vercel.app
+   EMAIL_BACKEND        = log
+   SESSION_SECRET_KEY   = output of: python3 -c "import secrets; print(secrets.token_hex(32))"
    GOOGLE_CLIENT_ID     = from Google Cloud Console
    GOOGLE_CLIENT_SECRET = from Google Cloud Console
    GROQ_API_KEY         = from https://console.groq.com/keys
-   ADMIN_EMAIL          = your admin email (e.g. varunbabu098@gmail.com)
-   VITTA_ENV            = prod
+   ADMIN_EMAIL          = varunbabu098@gmail.com
    ```
-6. Update the two URL env vars already in `render.yaml` to match your actual Pages URL:
-   ```
-   FRONTEND_URL     = https://vitta.pages.dev/app.html#/app
-   ALLOWED_ORIGINS  = https://vitta.pages.dev
-   ```
-7. Click **Manual Deploy → Deploy latest commit** so the new env vars take effect.
-8. Test: `curl https://vitta-api.onrender.com/api/health` → `{"status":"ok"}`.
+   Generate new secrets for production; do not reuse the local `.env` values.
+4. Click **Deploy Web Service**. The first build takes a few minutes.
+5. Test: open `https://vitta-api.onrender.com/api/health`. It should return `{"status":"ok"}`.
 
 ---
 
-## 4 · Point the frontend at the backend
+## 4 · Frontend → backend wiring
 
-Edit `vitta/config.js`:
-
-```js
-window.VITTA_API_BASE = window.VITTA_API_BASE || "https://vitta-api.onrender.com";
-```
-
-Commit + push. Cloudflare Pages auto-redeploys in ~30 seconds.
+Nothing to edit. `vitta/config.js` uses the site's own origin in production, and `vitta/vercel.json` forwards `/api/*` to Render. Check it with `https://vitta-finance.vercel.app/api/health`, which should also return `{"status":"ok"}`.
 
 ---
 
-## 5 · Update Google OAuth redirect URI
+## 5 · Update Google OAuth
 
 In [Google Cloud Console → APIs & Services → Credentials → your OAuth client](https://console.cloud.google.com/apis/credentials):
 
-**Authorized redirect URIs → add:**
+**Authorized redirect URIs → add both:**
 ```
-https://vitta-api.onrender.com/api/auth/callback
+https://vitta-finance.vercel.app/api/auth/callback
+https://vitta-finance.vercel.app/api/contacts/google/callback
 ```
 
 **Authorized JavaScript origins → add:**
 ```
-https://vitta.pages.dev
+https://vitta-finance.vercel.app
 ```
 
-Save. Wait ~1 minute for Google to propagate.
+Save. Changes can take a few minutes to apply.
 
 ---
 
