@@ -1,7 +1,12 @@
-# Vercel publishes only the frontend. Everything else in vitta/ (backend
-# source, docs, legacy pages, deploy configs) stays off the public site.
-/*
-!/app.html
-!/config.js
-!/vitta-mark.svg
-!/vercel.json
+# Vercel publishes only the frontend. Keep backend source, docs, legacy
+# pages and deploy configs off the public site. Patterns have no leading
+# slash so they match whether Vercel resolves them from the repo root or
+# from vitta/.
+backend
+docs
+legacy
+web
+deploy
+serve.py
+render.yaml
+.claude
