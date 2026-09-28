@@ -1,0 +1,7 @@
+# Vercel publishes only the frontend. Everything else in vitta/ (backend
+# source, docs, legacy pages, deploy configs) stays off the public site.
+/*
+!/app.html
+!/config.js
+!/vitta-mark.svg
+!/vercel.json

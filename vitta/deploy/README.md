@@ -43,6 +43,25 @@ The `phase2/open-signup` branch on `varunSbabu/vitta-finance` is what gets deplo
 
 Visit `https://vitta.pages.dev/app.html` — the landing page loads. The app will fail to log in yet because the API base is empty; we fix that after the backend is up.
 
+### 2 (alternative) · Frontend on Vercel
+
+Use this instead of Cloudflare Pages if you prefer Vercel.
+
+1. Go to https://vercel.com/new and sign in with GitHub.
+2. Import `varunSbabu/vitta-finance`.
+3. Configure:
+   - Framework Preset: **Other**
+   - Root Directory: `vitta` (click **Edit** to change it)
+   - Build Command: leave empty (turn the override on and clear it if Vercel fills one in)
+   - Output Directory: leave empty
+4. Click **Deploy**. You get a URL like `https://vitta-finance.vercel.app`.
+
+`vitta/.vercelignore` limits the upload to `app.html`, `config.js` and `vitta-mark.svg`, so backend code and docs are never public. `vitta/vercel.json` serves `app.html` at `/` and turns off caching for `config.js`, so changing the API URL takes effect on the next load.
+
+Production branch: Vercel deploys the repo's default branch (`main`) to production. Until this work is merged to `main`, either merge first, or set Settings → Git → Production Branch to `phase2/open-signup`.
+
+Wherever the rest of this guide says `https://vitta.pages.dev`, use your Vercel URL instead: in Render's `FRONTEND_URL` and `ALLOWED_ORIGINS`, and in Google's Authorized JavaScript origins.
+
 ---
 
 ## 3 · Backend on Render (20 min)
