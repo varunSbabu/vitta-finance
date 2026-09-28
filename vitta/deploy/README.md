@@ -71,13 +71,12 @@ Wherever the rest of this guide says `https://vitta.pages.dev`, use your Vercel 
    - Name: `vitta-api` (this gives `https://vitta-api.onrender.com`; if Render adds a suffix, update the `/api` rewrite in `vitta/vercel.json` to match)
    - Branch: `phase2/open-signup` (or `main` once merged)
    - Root Directory: `vitta/backend`
-   - Runtime: Python 3
-   - Build Command: `pip install -r requirements-runtime.txt`
-   - Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - Language / Runtime: Docker (Render picks this up from `vitta/backend/Dockerfile`)
+   - Dockerfile Path: `./Dockerfile`, Docker Build Context: `.` (both relative to the root directory)
+   - Docker Command: leave empty. The Dockerfile already listens on Render's `$PORT`.
    - Instance Type: Free
 3. Under **Environment Variables**, add:
    ```
-   PYTHON_VERSION       = 3.11.9
    VITTA_ENV            = prod
    PUBLIC_BASE_URL      = https://vitta-finance.vercel.app
    FRONTEND_URL         = https://vitta-finance.vercel.app/#/app

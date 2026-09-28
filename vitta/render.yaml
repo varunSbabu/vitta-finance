@@ -10,15 +10,13 @@
 services:
   - type: web
     name: vitta-api
-    runtime: python
+    runtime: docker
     plan: free
     rootDir: vitta/backend
-    buildCommand: pip install -r requirements-runtime.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /api/health
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
       - key: VITTA_ENV
         value: prod
       - key: PUBLIC_BASE_URL

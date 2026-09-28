@@ -54,4 +54,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 \
   CMD curl -fsS http://127.0.0.1:8001/api/health || exit 1
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+# Hosts like Render pass the port to listen on in $PORT; locally and in
+# compose it is unset, so the server stays on 8001. sh -c is needed for
+# the variable expansion; exec keeps uvicorn as PID 1 for clean shutdown.
+CMD ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8001}"]
